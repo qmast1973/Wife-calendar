@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="app-version" content="2026.10.12-w2">
+  <meta name="app-version" content="2026.10.12-w4">
   <meta name="theme-color" content="#16764f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,6 +19,361 @@
 // 화면 모드를 먼저 적용해 깜빡임 방지
 try{var _t=(JSON.parse(localStorage.getItem("wife_cal_settings_v1")||"{}").theme)||"auto";
 if(_t==="dark"||(_t==="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark");}catch(e){}
+</script>
+<script id="i18n-js">
+// ===== 다국어 (한국어 / ไทย / English) =====
+// 설정의 언어가 '자동'이면 폰 언어를 따른다 (한국어·태국어가 아니면 영어)
+var LANG = (function(){
+  var pref = 'auto';
+  try{ pref = (JSON.parse(localStorage.getItem('wife_cal_settings_v1') || '{}').lang) || 'auto'; }catch(e){}
+  if(pref === 'ko' || pref === 'th' || pref === 'en') return pref;
+  var list = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'en'];
+  for(var i = 0; i < list.length; i++){
+    var l = String(list[i] || '').toLowerCase();
+    if(l.indexOf('ko') === 0) return 'ko';
+    if(l.indexOf('th') === 0) return 'th';
+    if(l.indexOf('en') === 0) return 'en';
+  }
+  return 'en';
+})();
+var LOCALE = {ko:'ko-KR', th:'th-TH', en:'en-US'}[LANG];
+document.documentElement.lang = LANG;
+
+// 한국어 원문 → [English, ไทย]
+var I18N = {
+  // 앱 공통
+  '업무달력':['Work Calendar','ปฏิทินงาน'],
+  '회사':['Company','บริษัท'],
+  '유닛':['units','ยูนิต'],
+  '휴무':['Day off','วันหยุด'],
+  '🏖️ 휴무':['🏖️ Day off','🏖️ วันหยุด'],
+  '닫기':['Close','ปิด'],
+  '취소':['Cancel','ยกเลิก'],
+  '확인':['OK','ตกลง'],
+  '저장':['Save','บันทึก'],
+  '삭제':['Delete','ลบ'],
+  '추가':['Add','เพิ่ม'],
+  '설정':['Settings','ตั้งค่า'],
+  '오늘':['Today','วันนี้'],
+  '이전 달':['Previous month','เดือนก่อน'],
+  '다음 달':['Next month','เดือนถัดไป'],
+  '일':['Sun','อา'],'월':['Mon','จ'],'화':['Tue','อ'],'수':['Wed','พ'],'목':['Thu','พฤ'],'금':['Fri','ศ'],'토':['Sat','ส'],
+  '날짜':['Date','วันที่'],
+  '급여':['Pay','ค่าจ้าง'],
+  '경비':['Expenses','ค่าใช้จ่าย'],
+  '합계':['Total','รวม'],
+  '업체':['Company','บริษัท'],
+  '업체명':['Company name','ชื่อบริษัท'],
+  '입금 완료':['Paid','ได้รับเงินแล้ว'],
+  '입금완료':['Paid','รับเงินแล้ว'],
+  '미지급':['Unpaid','ยังไม่ได้รับ'],
+  '미지급(미수금)':['Unpaid','ยังไม่ได้รับเงิน'],
+  // 헤더 · 홈
+  '📅 기간 입력':['📅 Date range','📅 ช่วงวันที่'],
+  '기간 선택 일괄 입력':['Add a date range','เพิ่มหลายวัน'],
+  '이번 달 누적 유닛':['Units this month','ยูนิตเดือนนี้'],
+  '이번 달 미수금(미입금)':['Unpaid this month','ยอดค้างรับเดือนนี้'],
+  '업체별 유닛 및 정산':['By company','สรุปตามบริษัท'],
+  '{m} 누적 유닛':['Units in {m}','ยูนิตรวม {m}'],
+  '{m} 업체별 유닛 및 정산':['{m} by company','สรุปตามบริษัท {m}'],
+  '세전 {x}':['{x} before tax','{x} ก่อนหักภาษี'],
+  '+ {n}건':['+{n} more','+ อีก {n}'],
+  '🏖️ 이번 달 휴무':['🏖️ Days off this month','🏖️ วันหยุดเดือนนี้'],
+  '총 {n}일':['{n} day(s)','รวม {n} วัน'],
+  '실수령:':['Take-home:','รับจริง:'],
+  '클릭 시 이번 달 전체 입금 완료 처리':['Mark all of this month as paid','ทำเครื่องหมายว่าได้รับเงินทั้งเดือนแล้ว'],
+  '미수금 {x} [완료처리]':['Unpaid {x} [Mark paid]','ค้างรับ {x} [รับแล้ว]'],
+  '전액완납':['Fully paid','รับครบแล้ว'],
+  '이번 달 기록 없음':['No records this month','ไม่มีบันทึกเดือนนี้'],
+  '📱 홈 화면에 업무달력 설치':['📱 Install Work Calendar on Home Screen','📱 ติดตั้งปฏิทินงานบนหน้าจอโฮม'],
+  // 날짜 빠른 입력
+  '날짜 입력':['Add record','บันทึกงาน'],
+  '빠른 입력':['Quick add','บันทึกด่วน'],
+  '업체 관리':['Companies','จัดการบริษัท'],
+  '등록된 작업이 없습니다.':['No records yet.','ยังไม่มีบันทึก'],
+  '휴식일':['Rest day','วันพัก'],
+  '휴무(0유닛) · {s}':['Day off (0 units) · {s}','วันหยุด (0 ยูนิต) · {s}'],
+  '"{d}"에는 "{s}" 기록이 이미 있습니다.':['"{s}" is already recorded on {d}.','มีบันทึกของ "{s}" ในวันที่ {d} แล้ว'],
+  '"{s}" 업체는 이미 등록되어 있습니다.':['"{s}" is already recorded for this day.','วันนี้มีบันทึกของ "{s}" แล้ว'],
+  '"{s}" 업체는 {d}에 이미 등록되어 있습니다.':['"{s}" is already recorded on {d}.','มีบันทึกของ "{s}" ในวันที่ {d} แล้ว'],
+  '업체명을 입력해 주세요.':['Please enter a company name.','กรุณาใส่ชื่อบริษัท'],
+  // 기록 수정
+  '기록 수정':['Edit record','แก้ไขบันทึก'],
+  '일한 날 기록':['New record','บันทึกวันทำงาน'],
+  '현장(업체)명':['Company','บริษัท'],
+  '예: 회사 또는 휴무':['e.g. Company or Day off','เช่น บริษัท หรือ วันหยุด'],
+  '급여 (자동 계산)':['Pay (automatic)','ค่าจ้าง (คำนวณอัตโนมัติ)'],
+  '기타 경비 (식대/유류비 등)':['Other expenses (meals, fuel…)','ค่าใช้จ่ายอื่น (ค่าอาหาร ค่าน้ำมัน ฯลฯ)'],
+  '입금 여부':['Payment','การรับเงิน'],
+  '메모 (선택)':['Memo (optional)','บันทึกเพิ่มเติม (ไม่บังคับ)'],
+  '작업 내용, 특이사항, 경비 내역 등을 적어두세요.':['Work details, notes, expenses…','รายละเอียดงาน หมายเหตุ ค่าใช้จ่าย ฯลฯ'],
+  '이 기록을 삭제할까요?':['Delete this record?','ลบบันทึกนี้หรือไม่?'],
+  // 기간 일괄
+  '📅 기간 선택 일괄 입력':['📅 Date range','📅 บันทึกหลายวัน'],
+  '➕ 일괄 입력':['➕ Add','➕ เพิ่ม'],
+  '🗑️ 일괄 삭제':['🗑️ Delete','🗑️ ลบ'],
+  '시작일':['Start date','วันเริ่ม'],
+  '종료일':['End date','วันสิ้นสุด'],
+  '새 업체명':['New company name','ชื่อบริษัทใหม่'],
+  '업체명 입력':['Company name','ชื่อบริษัท'],
+  '하루 급여 (자동)':['Daily pay (auto)','ค่าจ้างต่อวัน (อัตโนมัติ)'],
+  '제외할 요일 (선택)':['Skip weekdays (optional)','ข้ามวันในสัปดาห์ (ไม่บังคับ)'],
+  '삭제에서 제외할 요일 (선택)':['Keep these weekdays (optional)','ไม่ลบวันเหล่านี้ (ไม่บังคับ)'],
+  '기간을 선택해 주세요.':['Please choose a date range.','กรุณาเลือกช่วงวันที่'],
+  '입력하기':['Add','บันทึก'],
+  '삭제하기':['Delete','ลบ'],
+  '전체 업체 (휴무 포함)':['All companies (incl. days off)','ทุกบริษัท (รวมวันหยุด)'],
+  '🏖️ 휴무(0유닛)만':['🏖️ Days off only','🏖️ เฉพาะวันหยุด'],
+  '🏖️ 휴무 (0유닛) · 최근 업체':['🏖️ Day off (0 units) · last company','🏖️ วันหยุด (0 ยูนิต) · บริษัทล่าสุด'],
+  '＋ 새 업체 직접 입력':['＋ New company','＋ เพิ่มบริษัทใหม่'],
+  '시작일과 종료일을 선택해 주세요.':['Please choose start and end dates.','กรุณาเลือกวันเริ่มและวันสิ้นสุด'],
+  '기간이 너무 깁니다. (최대 10년)':['The range is too long (max 10 years).','ช่วงวันที่ยาวเกินไป (สูงสุด 10 ปี)'],
+  '선택한 기간에 해당하는 날짜가 없습니다. (종료일이 시작일보다 빠르거나 모두 제외됨)':['No dates in this range (end is before start, or all days skipped).','ไม่มีวันที่ในช่วงนี้ (วันสิ้นสุดก่อนวันเริ่ม หรือข้ามทุกวัน)'],
+  '삭제될 기록 {n}건 · 삭제 후에는 되돌릴 수 없습니다. 먼저 백업을 권장합니다.':['{n} records will be deleted. This cannot be undone — back up first.','จะลบ {n} รายการ · ลบแล้วกู้คืนไม่ได้ ควรสำรองข้อมูลก่อน'],
+  '선택한 조건에 해당하는 기록이 없습니다.':['No matching records.','ไม่มีบันทึกที่ตรงเงื่อนไข'],
+  '입력은 한 번에 최대 366일까지 가능합니다.':['You can add up to 366 days at once.','บันทึกได้สูงสุดครั้งละ 366 วัน'],
+  '"{s}" {u} ({p})':['"{s}" {u} ({p})','"{s}" {u} ({p})'],
+  '{n}일 입력':['Adding {n} day(s)','บันทึก {n} วัน'],
+  ' · 이미 등록된 {n}일은 건너뜀':[' · {n} days already recorded are skipped',' · ข้าม {n} วันที่บันทึกไว้แล้ว'],
+  '🗑️ {s} ~ {e}\n기록 {n}건을 삭제합니다.\n삭제 후에는 되돌릴 수 없습니다. 계속할까요?':['🗑️ {s} ~ {e}\nDelete {n} records?\nThis cannot be undone.','🗑️ {s} ~ {e}\nลบ {n} รายการ\nลบแล้วกู้คืนไม่ได้ ดำเนินการต่อหรือไม่?'],
+  '입력할까요?':['Add these records?','บันทึกหรือไม่?'],
+  // 정산
+  '월별 업체 정산 & 입금 관리':['Monthly settlement','สรุปยอดรายเดือน'],
+  '월 선택':['Month','เดือน'],
+  '세금 공제 방식':['Tax deduction','การหักภาษี'],
+  '사업소득세 (3.3% 공제)':['3.3% withholding tax','หักภาษี 3.3%'],
+  '공제 없음 (세전 100%)':['No deduction (100%)','ไม่หักภาษี (100%)'],
+  '업체 선택':['Company','บริษัท'],
+  '전체 업체 (통합)':['All companies','ทุกบริษัท'],
+  '전체 업체':['All companies','ทุกบริษัท'],
+  '전체 업체 ›':['All companies ›','ทุกบริษัท ›'],
+  '[전체 업체]':['[All companies]','[ทุกบริษัท]'],
+  '[{s}] 업체':['[{s}]','[{s}]'],
+  '누적 유닛':['Total units','ยูนิตรวม'],
+  '유닛 급여 (세전)':['Pay (before tax)','ค่าจ้าง (ก่อนหักภาษี)'],
+  '기타 경비 합산':['Other expenses','ค่าใช้จ่ายอื่นรวม'],
+  '공제 세액 (3.3%)':['Tax (3.3%)','ภาษีที่หัก (3.3%)'],
+  '공제 세액 ({p}%)':['Tax ({p}%)','ภาษีที่หัก ({p}%)'],
+  '공제 세액 (면제)':['Tax (none)','ภาษี (ไม่หัก)'],
+  '최종 수령액 합계':['Total take-home','ยอดรับสุทธิ'],
+  '✅ 선택 업체 이번 달 [전체 입금 완료] 처리':['✅ Mark this month as paid','✅ ทำเครื่องหมายว่าได้รับเงินเดือนนี้แล้ว'],
+  '↩️ 선택 업체 이번 달 [미지급(미수금)]으로 되돌리기':['↩️ Mark this month as unpaid','↩️ เปลี่ยนเดือนนี้เป็นยังไม่ได้รับเงิน'],
+  '✅ {l} 이번 달 [전체 입금 완료] 처리':['✅ {l} Mark this month as paid','✅ {l} ทำเครื่องหมายว่าได้รับเงินเดือนนี้แล้ว'],
+  '↩️ {l} 이번 달 [미지급(미수금)]으로 되돌리기':['↩️ {l} Mark this month as unpaid','↩️ {l} เปลี่ยนเดือนนี้เป็นยังไม่ได้รับเงิน'],
+  '{m} {l}의 모든 기록을 "입금 완료" 상태로 일괄 변경할까요?':['Mark all {m} records for {l} as paid?','เปลี่ยนบันทึกทั้งหมดของ {l} เดือน {m} เป็น "ได้รับเงินแล้ว" หรือไม่?'],
+  '{m} {l}의 모든 기록을 "미지급(미수금)" 상태로 되돌릴까요?':['Mark all {m} records for {l} as unpaid?','เปลี่ยนบันทึกทั้งหมดของ {l} เดือน {m} เป็น "ยังไม่ได้รับเงิน" หรือไม่?'],
+  '{m} [{s}] 업체의 모든 기록을 "입금 완료" 처리할까요?':['Mark all {m} records for [{s}] as paid?','เปลี่ยนบันทึกทั้งหมดของ [{s}] เดือน {m} เป็น "ได้รับเงินแล้ว" หรือไม่?'],
+  '{m} {l} {n}건의 기록을 "{st}" 상태로 변경했습니다.':['{m} {l}: {n} records marked "{st}".','{m} {l}: เปลี่ยน {n} รายการเป็น "{st}" แล้ว'],
+  '해당 월에 변경할 기록이 없습니다.':['No records to change in this month.','ไม่มีบันทึกที่ต้องเปลี่ยนในเดือนนี้'],
+  // 내보내기
+  '기록 내보내기':['Export records','ส่งออกบันทึก'],
+  '형식':['Format','รูปแบบ'],
+  '텍스트 목록 (카카오톡/문자용)':['Text list (for messages)','ข้อความ (สำหรับส่งแชท)'],
+  '엑셀 CSV 파일':['Excel CSV file','ไฟล์ Excel CSV'],
+  '같이 보낼 내용':['Extra message','ข้อความเพิ่มเติม'],
+  '예: 입금계좌 국민은행 123-456-789012 홍길동\n또는 입금 관련 안내사항을 입력하세요.':['e.g. bank account for payment\nor any note about payment.','เช่น เลขบัญชีสำหรับโอนเงิน\nหรือหมายเหตุเกี่ยวกับการจ่ายเงิน'],
+  '포함 항목':['Include','รายการที่ใส่'],
+  '공유':['Share','แชร์'],
+  '내보내기 / 복사':['Export / Copy','ส่งออก / คัดลอก'],
+  '내보낼 업체 선택':['Choose company','เลือกบริษัท'],
+  '공유하기':['Share','แชร์'],
+  '아래 내용을 복사해서 카카오톡, 문자메시지 등에 붙여 넣을 수 있습니다.':['Copy the text below and paste it into any messenger.','คัดลอกข้อความด้านล่างไปวางในแอปแชทได้'],
+  '클립보드 복사':['Copy','คัดลอก'],
+  '선택한 기간에 기록이 없습니다.':['No records in this period.','ไม่มีบันทึกในช่วงนี้'],
+  '현장명':['Company','บริษัท'],
+  '급여(원)':['Pay (KRW)','ค่าจ้าง (วอน)'],
+  '메모':['Memo','บันทึก'],
+  '유닛 합계':['Total units','ยูนิตรวม'],
+  '급여 합계':['Total pay','ค่าจ้างรวม'],
+  '▶ 유닛 합계: {x}':['▶ Total units: {x}','▶ ยูนิตรวม: {x}'],
+  '▶ 급여 합계: {x}':['▶ Total pay: {x}','▶ ค่าจ้างรวม: {x}'],
+  '업무기록':['work_records','บันทึกงาน'],
+  '업무달력 기록':['Work Calendar records','บันทึกปฏิทินงาน'],
+  '업무달력 백업':['Work Calendar backup','สำรองข้อมูลปฏิทินงาน'],
+  '백업':['backup','สำรอง'],
+  '클립보드에 복사되었습니다.':['Copied to clipboard.','คัดลอกแล้ว'],
+  '복사에 실패했습니다. 내용을 길게 눌러 직접 복사해 주세요.':['Copy failed. Long-press the text to copy it.','คัดลอกไม่สำเร็จ กรุณากดค้างที่ข้อความเพื่อคัดลอก'],
+  // 업체 관리
+  '전화번호':['Phone','เบอร์โทร'],
+  '업체 주소':['Address','ที่อยู่'],
+  '업체 관련 메모 (담당자, 입금정보 등)':['Memo (contact, payment info…)','บันทึก (ผู้ติดต่อ ข้อมูลการจ่ายเงิน ฯลฯ)'],
+  '정보 저장':['Save','บันทึก'],
+  '등록된 업체가 없습니다.':['No companies yet.','ยังไม่มีบริษัท'],
+  '같은 이름의 업체가 이미 있습니다.':['A company with this name already exists.','มีบริษัทชื่อนี้อยู่แล้ว'],
+  '업체 정보가 저장되었습니다.':['Company saved.','บันทึกข้อมูลบริษัทแล้ว'],
+  // 설정
+  '⚙️ 설정':['⚙️ Settings','⚙️ ตั้งค่า'],
+  '❓ 사용 도움말':['❓ Help','❓ วิธีใช้'],
+  '🌐 언어':['🌐 Language','🌐 ภาษา'],
+  '자동 (폰 설정)':['Auto (phone)','อัตโนมัติ (ตามโทรศัพท์)'],
+  '화면 모드':['Appearance','โหมดหน้าจอ'],
+  '🌗 자동':['🌗 Auto','🌗 อัตโนมัติ'],
+  '☀️ 라이트':['☀️ Light','☀️ สว่าง'],
+  '🌙 다크':['🌙 Dark','🌙 มืด'],
+  '화면 글자 크기':['Text size','ขนาดตัวอักษร'],
+  '기본':['Reset','ค่าเริ่มต้น'],
+  '💰 유닛 급여 기준':['💰 Pay rule','💰 เกณฑ์ค่าจ้าง'],
+  '하루 기준 유닛':['Standard units per day','ยูนิตมาตรฐานต่อวัน'],
+  '기준 유닛 급여 (원)':['Pay for standard units (KRW)','ค่าจ้างยูนิตมาตรฐาน (วอน)'],
+  '초과 1유닛당 (원)':['Per extra unit (KRW)','ต่อยูนิตที่เกิน (วอน)'],
+  '기준 미만 1유닛당 (원)':['Per unit if under (KRW)','ต่อยูนิตถ้าไม่ถึงเกณฑ์ (วอน)'],
+  '기본값':['Default','ค่าเริ่มต้น'],
+  '기준 저장':['Save rule','บันทึกเกณฑ์'],
+  '예시':['Examples','ตัวอย่าง'],
+  '올바른 값을 입력해 주세요.':['Please enter valid values.','กรุณาใส่ค่าที่ถูกต้อง'],
+  '급여 기준이 저장되었습니다. 모든 기록의 금액이 새 기준으로 다시 계산됩니다.':['Pay rule saved. All records are recalculated with the new rule.','บันทึกเกณฑ์ค่าจ้างแล้ว ทุกบันทึกจะคำนวณใหม่ตามเกณฑ์นี้'],
+  '데이터 백업 & 정산':['Backup & settlement','สำรองข้อมูล & สรุปยอด'],
+  '🔍 월별 업체 정산 및 입금 관리':['🔍 Monthly settlement & payments','🔍 สรุปยอดและการรับเงินรายเดือน'],
+  '내보내기':['Export','ส่งออก'],
+  '파일 연동/자동저장':['Link file / auto-save','เชื่อมไฟล์ / บันทึกอัตโนมัติ'],
+  'JSON 백업 다운로드':['JSON backup','สำรองข้อมูล JSON'],
+  '데이터 불러오기':['Restore data','นำเข้าข้อมูล'],
+  '저장 상태':['Save status','สถานะการบันทึก'],
+  '저장됨':['Saved','บันทึกแล้ว'],
+  '저장 대기':['Saving…','รอบันทึก'],
+  '브라우저 저장':['Saved on device','บันทึกในเครื่อง'],
+  '누적 유닛 · 미수금 · 업체별 정산 숨기기':['Hide units · unpaid · company summary','ซ่อนยูนิตรวม · ยอดค้างรับ · สรุปตามบริษัท'],
+  '정산 완료 날짜 검은색 테두리':['Black border on fully paid days','กรอบดำวันที่ได้รับเงินครบแล้ว'],
+  '앱 버전':['App version','เวอร์ชันแอป'],
+  '화면 폭':['width','ความกว้าง'],
+  'JSON 파일':['JSON file','ไฟล์ JSON'],
+  '파일이 연결되었습니다. 이후 데이터가 자동 저장됩니다.':['File linked. Data will be saved to it automatically.','เชื่อมไฟล์แล้ว ข้อมูลจะบันทึกอัตโนมัติ'],
+  '데이터를 성공적으로 불러왔습니다.':['Data restored.','นำเข้าข้อมูลสำเร็จ'],
+  '올바른 업무달력 백업 파일이 아닙니다.':['This is not a valid Work Calendar backup file.','ไม่ใช่ไฟล์สำรองข้อมูลปฏิทินงานที่ถูกต้อง'],
+  // 전체화면 · 설치 안내
+  '화면을 넓게 사용하려면 전체 화면으로 시작하세요.':['Start in full screen for more space.','เริ่มแบบเต็มหน้าจอเพื่อพื้นที่ที่มากขึ้น'],
+  '전체 화면으로 시작':['Start full screen','เริ่มแบบเต็มหน้าจอ'],
+  '그냥 시작':['Start','เริ่มเลย'],
+  '📱 아이폰 홈 화면에 설치':['📱 Install on iPhone Home Screen','📱 ติดตั้งบนหน้าจอโฮม iPhone']
+};
+
+function t(k, v){
+  var s = k;
+  if(LANG !== 'ko'){ var e = I18N[k]; if(e) s = e[LANG === 'en' ? 0 : 1]; }
+  if(v) s = s.replace(/\{(\w+)\}/g, function(m, n){ return (n in v) ? v[n] : m; });
+  return s;
+}
+// 유닛 표시: 13.0유닛 / 13.0 units / 13.0 ยูนิต
+function U(n){ n = (Number(n) || 0).toFixed(1); return LANG === 'ko' ? n + '유닛' : n + ' ' + t('유닛'); }
+
+// 홈 화면 아이콘 이름도 언어에 맞춘다 (아이폰은 '홈 화면에 추가' 시점의 값을 사용)
+document.title = t('업무달력');
+(function(){ var m = document.querySelector('meta[name="apple-mobile-web-app-title"]'); if(m) m.content = t('업무달력'); })();
+
+// 화면에 고정된 글자(HTML)를 번역한다. 도움말처럼 서식이 섞인 영역은 언어별 HTML로 통째로 바꾼다.
+function applyStaticI18n(){
+  if(LANG === 'ko') return;
+  Object.keys(I18N_HTML).forEach(function(id){
+    var el = document.getElementById(id), h = I18N_HTML[id][LANG];
+    if(el && h) el.innerHTML = h;
+  });
+  var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+  var nodes = [], n;
+  while((n = walker.nextNode())) nodes.push(n);
+  nodes.forEach(function(node){
+    var p = node.parentNode;
+    if(!p || p.nodeName === 'SCRIPT' || p.nodeName === 'STYLE') return;
+    var raw = node.nodeValue, key = raw.trim();
+    if(key && I18N[key]) node.nodeValue = raw.replace(key, t(key));
+  });
+  document.querySelectorAll('[placeholder],[aria-label],[title]').forEach(function(el){
+    ['placeholder','aria-label','title'].forEach(function(a){
+      var v = el.getAttribute(a);
+      if(v && I18N[v]) el.setAttribute(a, t(v));
+    });
+  });
+}
+
+var I18N_HTML = {
+  helpBody: {
+    en: '<details open><summary>💰 How pay is calculated</summary><ul>'
+      + '<li><b>13.0 units = ₩105,000</b> per day</li>'
+      + '<li>Above 13 units, <b>₩7,000 per extra unit</b> is added. (e.g. 15 units = 105,000 + 2×7,000 = ₩119,000)</li>'
+      + '<li>Under 13 units, pay is <b>units × ₩8,000</b>. (e.g. 10 units = ₩80,000)</li>'
+      + '<li>You can change these values in Settings → <b>Pay rule</b>. All records are recalculated.</li></ul></details>'
+      + '<details><summary>📅 Calendar</summary><ul>'
+      + '<li>Swipe left/right or use ‹ › to change month. <b>Today</b> returns to this month.</li>'
+      + '<li>Each day shows the company and units. Colors: under 13 units orange / 13 units blue / over 13 units purple, day off gray.</li>'
+      + '<li>If a day has 3 or more records, two are shown with “+N more”.</li>'
+      + '<li>Fully paid days get a black border (can be turned off in Settings).</li></ul></details>'
+      + '<details><summary>✍️ Adding work</summary><ul>'
+      + '<li>Tap a date to open the input window. Existing records for that day are listed on top.</li>'
+      + '<li><b>Quick add</b>: set the units on the right (▲▼ by 0.1, or type; default 13.0), then tap a company button. The day’s pay is shown under the units.</li>'
+      + '<li>The <b>Day off</b> button under the units records a day off as <b>0 units for the most recent company</b>.</li>'
+      + '<li>To add a new company, type its name at the bottom and tap <b>Add</b>. It becomes a button next time.</li>'
+      + '<li>Tap an existing record to edit or delete it.</li></ul></details>'
+      + '<details><summary>📅 Date range</summary><ul>'
+      + '<li>Tap <b>📅 Date range</b> at the top to add many days at once: choose start/end date, company and units.</li>'
+      + '<li>Tick <b>weekdays to skip</b> (e.g. Sunday) if needed. Days already recorded for that company are skipped. Max 366 days.</li>'
+      + '<li>Choose <b>Day off</b> as the company to record the whole range as days off.</li>'
+      + '<li>Use <b>🗑️ Delete</b> in the same window to remove records by range and company. This cannot be undone.</li></ul></details>'
+      + '<details><summary>🏢 Companies</summary><ul>'
+      + '<li>Settings → <b>Companies</b>: edit name, phone, address and memo.</li>'
+      + '<li>Renaming a company also renames its existing records. Deleting a company keeps its records.</li></ul></details>'
+      + '<details><summary>💰 Monthly settlement</summary><ul>'
+      + '<li>Settings → <b>Monthly settlement</b>: choose a month and company to see total units, pay, expenses, tax and take-home.</li>'
+      + '<li>Tax can be <b>3.3% withholding</b> or <b>none</b>. You can mark a whole month as paid or unpaid.</li>'
+      + '<li>“Unpaid this month” on the home screen is the total not yet received.</li></ul></details>'
+      + '<details><summary>📤 Export & share</summary><ul>'
+      + '<li>Settings → <b>Export</b>: choose period and company, then make a <b>text list</b> (for messages) or an <b>Excel CSV file</b>. Choose date, units, pay and totals.</li></ul></details>'
+      + '<details><summary>💾 Save · backup · restore</summary><ul>'
+      + '<li>All records are <b>saved automatically on this device</b> and never sent to a server.</li>'
+      + '<li>Before changing phones or deleting the app, save a file with Settings → <b>JSON backup</b>. On the new phone use <b>Restore data</b>.</li></ul></details>'
+      + '<details><summary>🌐 Language</summary><ul>'
+      + '<li>The app follows your phone’s language (Korean, Thai, English). You can choose one in Settings → <b>Language</b>.</li></ul></details>'
+      + '<details><summary>📱 Install as an app</summary><ul>'
+      + '<li><b>iPhone</b>: open in Safari, tap Share ⬆︎ → <b>Add to Home Screen</b>.</li>'
+      + '<li>On iPhone, Safari and the Home Screen app keep separate data — enter records <b>in the Home Screen app</b>.</li>'
+      + '<li>If the app looks old, close it completely and open it again. Check the <b>App version</b> at the bottom of Settings.</li></ul></details>'
+      + '<details><summary>🔒 Privacy</summary><ul><li>All records stay on this device and are never sent to a server.</li></ul></details>',
+    th: '<details open><summary>💰 วิธีคำนวณค่าจ้าง</summary><ul>'
+      + '<li>วันละ <b>13.0 ยูนิต = 105,000 วอน</b></li>'
+      + '<li>ถ้าเกิน 13 ยูนิต จะได้เพิ่ม <b>ยูนิตละ 7,000 วอน</b> (เช่น 15 ยูนิต = 105,000 + 2×7,000 = 119,000 วอน)</li>'
+      + '<li>ถ้าไม่ถึง 13 ยูนิต คิดเป็น <b>ยูนิต × 8,000 วอน</b> (เช่น 10 ยูนิต = 80,000 วอน)</li>'
+      + '<li>เปลี่ยนค่าเหล่านี้ได้ที่ ตั้งค่า → <b>เกณฑ์ค่าจ้าง</b> ทุกบันทึกจะคำนวณใหม่</li></ul></details>'
+      + '<details><summary>📅 ปฏิทิน</summary><ul>'
+      + '<li>ปัดซ้าย/ขวา หรือกด ‹ › เพื่อเปลี่ยนเดือน กด <b>วันนี้</b> เพื่อกลับมาเดือนปัจจุบัน</li>'
+      + '<li>แต่ละวันแสดงชื่อบริษัทและยูนิต สี: ต่ำกว่า 13 ยูนิต สีส้ม / 13 ยูนิต สีน้ำเงิน / เกิน 13 ยูนิต สีม่วง / วันหยุด สีเทา</li>'
+      + '<li>ถ้าวันเดียวมี 3 รายการขึ้นไป จะแสดง 2 รายการและ “+ อีก N”</li>'
+      + '<li>วันที่ได้รับเงินครบแล้วจะมีกรอบดำ (ปิดได้ในตั้งค่า)</li></ul></details>'
+      + '<details><summary>✍️ บันทึกงาน</summary><ul>'
+      + '<li>แตะวันที่เพื่อเปิดหน้าบันทึก ถ้ามีบันทึกของวันนั้นจะแสดงด้านบน</li>'
+      + '<li><b>บันทึกด่วน</b>: ตั้งยูนิตทางขวา (▲▼ ทีละ 0.1 หรือพิมพ์เอง ค่าเริ่มต้น 13.0) แล้วแตะปุ่มบริษัท ค่าจ้างของวันนั้นแสดงใต้ยูนิต</li>'
+      + '<li>ปุ่ม <b>วันหยุด</b> ใต้ช่องยูนิตจะบันทึกวันหยุดเป็น <b>0 ยูนิตของบริษัทล่าสุด</b></li>'
+      + '<li>เพิ่มบริษัทใหม่: พิมพ์ชื่อที่ด้านล่างแล้วกด <b>เพิ่ม</b> ครั้งต่อไปจะมีปุ่มของบริษัทนั้น</li>'
+      + '<li>แตะบันทึกที่มีอยู่เพื่อแก้ไขหรือลบ</li></ul></details>'
+      + '<details><summary>📅 บันทึกหลายวัน</summary><ul>'
+      + '<li>กด <b>📅 ช่วงวันที่</b> ด้านบนเพื่อบันทึกหลายวันพร้อมกัน: เลือกวันเริ่ม/วันสิ้นสุด บริษัท และยูนิต</li>'
+      + '<li>เลือก <b>วันที่ต้องการข้าม</b> (เช่น วันอาทิตย์) ได้ วันที่มีบันทึกของบริษัทนั้นแล้วจะถูกข้าม สูงสุด 366 วัน</li>'
+      + '<li>เลือก <b>วันหยุด</b> ในช่องบริษัทเพื่อบันทึกทั้งช่วงเป็นวันหยุด</li>'
+      + '<li>ใช้ <b>🗑️ ลบ</b> ในหน้าเดียวกันเพื่อลบตามช่วงวันที่และบริษัท ลบแล้วกู้คืนไม่ได้</li></ul></details>'
+      + '<details><summary>🏢 บริษัท</summary><ul>'
+      + '<li>ตั้งค่า → <b>จัดการบริษัท</b>: แก้ชื่อ เบอร์โทร ที่อยู่ และบันทึก</li>'
+      + '<li>เปลี่ยนชื่อบริษัทแล้วบันทึกเดิมจะเปลี่ยนชื่อตาม ลบบริษัทแล้วบันทึกเดิมยังอยู่</li></ul></details>'
+      + '<details><summary>💰 สรุปยอดรายเดือน</summary><ul>'
+      + '<li>ตั้งค่า → <b>สรุปยอดรายเดือน</b>: เลือกเดือนและบริษัทเพื่อดูยูนิตรวม ค่าจ้าง ค่าใช้จ่าย ภาษี และยอดรับสุทธิ</li>'
+      + '<li>เลือก <b>หักภาษี 3.3%</b> หรือ <b>ไม่หักภาษี</b> ได้ และเปลี่ยนทั้งเดือนเป็นได้รับเงินแล้ว/ยังไม่ได้รับได้</li>'
+      + '<li>“ยอดค้างรับเดือนนี้” ที่หน้าแรกคือยอดที่ยังไม่ได้รับเงิน</li></ul></details>'
+      + '<details><summary>📤 ส่งออก & แชร์</summary><ul>'
+      + '<li>ตั้งค่า → <b>ส่งออก</b>: เลือกช่วงวันที่และบริษัท แล้วทำเป็น <b>ข้อความ</b> (ส่งแชท) หรือ <b>ไฟล์ Excel CSV</b> เลือกได้ว่าจะใส่วันที่ ยูนิต ค่าจ้าง และยอดรวม</li></ul></details>'
+      + '<details><summary>💾 บันทึก · สำรอง · กู้คืน</summary><ul>'
+      + '<li>ทุกบันทึก<b>เก็บอัตโนมัติในเครื่องนี้</b> และไม่ถูกส่งไปยังเซิร์ฟเวอร์</li>'
+      + '<li>ก่อนเปลี่ยนโทรศัพท์หรือลบแอป ให้บันทึกไฟล์ที่ ตั้งค่า → <b>สำรองข้อมูล JSON</b> แล้วใช้ <b>นำเข้าข้อมูล</b> ในเครื่องใหม่</li></ul></details>'
+      + '<details><summary>🌐 ภาษา</summary><ul>'
+      + '<li>แอปจะใช้ภาษาตามโทรศัพท์ (เกาหลี ไทย อังกฤษ) เลือกเองได้ที่ ตั้งค่า → <b>ภาษา</b></li></ul></details>'
+      + '<details><summary>📱 ติดตั้งเป็นแอป</summary><ul>'
+      + '<li><b>iPhone</b>: เปิดใน Safari แตะปุ่มแชร์ ⬆︎ → <b>เพิ่มไปยังหน้าจอโฮม</b></li>'
+      + '<li>บน iPhone ข้อมูลใน Safari และแอปบนหน้าจอโฮมแยกกัน ให้บันทึก<b>ในแอปบนหน้าจอโฮม</b></li>'
+      + '<li>ถ้าแอปยังเป็นหน้าจอเก่า ให้ปิดแอปแล้วเปิดใหม่ ดู <b>เวอร์ชันแอป</b> ได้ที่ล่างสุดของตั้งค่า</li></ul></details>'
+      + '<details><summary>🔒 ความเป็นส่วนตัว</summary><ul><li>ทุกบันทึกเก็บในเครื่องนี้เท่านั้น และไม่ถูกส่งไปยังเซิร์ฟเวอร์</li></ul></details>'
+  },
+  iosGuide: {
+    en: '<ol class="ios-steps"><li>Open this page in <b>Safari</b>.</li><li>Tap the Share button <span class="ios-share">⬆︎</span>.</li><li>Scroll down and tap <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b> (top right). The <b>Work Calendar</b> icon appears on your Home Screen.</li></ol>'
+      + '<div class="bulk-preview" style="font-weight:600;">⚠️ On iPhone, <b>Safari</b> and the <b>Home Screen app</b> keep separate data. Enter records in the Home Screen app. If you already entered records in Safari, make a <b>JSON backup</b> there and use <b>Restore data</b> in the app.</div>',
+    th: '<ol class="ios-steps"><li>เปิดหน้านี้ใน <b>Safari</b></li><li>แตะปุ่มแชร์ <span class="ios-share">⬆︎</span></li><li>เลื่อนลงแล้วแตะ <b>เพิ่มไปยังหน้าจอโฮม</b></li><li>แตะ <b>เพิ่ม</b> (มุมขวาบน) ไอคอน <b>ปฏิทินงาน</b> จะอยู่บนหน้าจอโฮม</li></ol>'
+      + '<div class="bulk-preview" style="font-weight:600;">⚠️ บน iPhone ข้อมูลใน <b>Safari</b> และ <b>แอปบนหน้าจอโฮม</b> แยกกัน ให้บันทึกในแอปบนหน้าจอโฮม ถ้าเคยบันทึกใน Safari ไว้แล้ว ให้ <b>สำรองข้อมูล JSON</b> ก่อน แล้วใช้ <b>นำเข้าข้อมูล</b> ในแอป</div>'
+  }
+};
 </script>
   <style>
     :root{
@@ -344,7 +699,7 @@ html.dark .dayoff-quick-btn{background:#2a3430;border-color:#43524b;color:#d5e0d
 html.dark .dayoff-quick-btn:hover{background:#33423b}
 .theme-seg{display:flex;gap:6px;margin-top:10px}
 .theme-seg .btn{flex:1}
-#settingsSheet .theme-seg .btn.on{background:var(--green-dark);color:#fff;border-color:var(--green-dark)}
+#settingsSheet .theme-seg .btn.on,#settingsSheet #langSeg .btn.on{background:var(--green-dark);color:#fff;border-color:var(--green-dark)}
 .help-body details{border:1px solid #dce4de;border-radius:12px;padding:10px 12px;margin-top:8px}
 .help-body summary{cursor:pointer;font-weight:800;font-size:calc(15px * var(--fs,1))}
 .help-body ul{margin:8px 0 2px;padding-left:18px;font-size:calc(13px * var(--fs,1));line-height:1.55;color:#2c3833}
@@ -357,7 +712,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
   <div class="sheet-box" style="position:relative;">
     <div class="sheet-head-row"><h1 class="sheet-title" style="margin:0;">❓ 사용 도움말</h1></div>
     <button type="button" class="btn" id="helpCloseBtn" aria-label="닫기">×</button>
-    <div class="help-body">
+    <div class="help-body" id="helpBody">
       <details open><summary>📅 달력 보기</summary>
         <ul>
           <li>화면을 좌우로 쓸어 넘기거나 ‹ › 버튼으로 달을 바꿉니다. <b>오늘</b> 버튼은 이번 달로 돌아옵니다.</li>
@@ -387,7 +742,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
       <details><summary>✍️ 근무 입력하기</summary>
         <ul>
           <li>날짜를 누르면 입력창이 열립니다. 그날 기록이 있으면 위에 목록으로 나옵니다.</li>
-          <li><b>빠른 입력</b>: 오른쪽 유닛(▲▼ 또는 직접 입력, 기본 13.0)을 정한 뒤, 업체 버튼을 누르면 바로 기록됩니다. 유닛 아래에 그날 급여가 미리 표시됩니다.</li>
+          <li><b>빠른 입력</b>: 오른쪽 유닛(▲▼로 0.1씩 또는 직접 입력, 기본 13.0)을 정한 뒤, 업체 버튼을 누르면 바로 기록됩니다. 유닛 아래에 그날 급여가 미리 표시됩니다.</li>
           <li>유닛 입력칸 아래의 <b>휴무</b> 버튼으로 쉬는 날을 등록합니다. 휴무는 별도 업체가 아니라 <b>가장 최근에 입력한 업체의 0유닛</b>으로 기록되어, 내보내기·정산에서 그 업체 안에 함께 정리됩니다.</li>
           <li>새 업체는 빠른 입력 맨 아래 <b>업체명 · 추가</b> 줄에 입력하고 <b>추가</b>를 누르면 기록되고, 다음부터 업체 버튼으로 나타납니다.</li>
                     <li>이미 입력한 기록을 누르면 수정하거나 삭제할 수 있습니다.</li>
@@ -432,6 +787,11 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
       <details><summary>🔒 개인정보</summary>
         <ul>
           <li>입력한 모든 기록은 이 기기에만 저장되며 서버로 전송되지 않습니다. <a href="privacy.html" target="_blank" rel="noopener">개인정보처리방침 보기</a></li>
+        </ul>
+      </details>
+      <details><summary>🌐 언어</summary>
+        <ul>
+          <li>앱은 폰의 언어 설정(한국어·태국어·영어)에 맞춰 표시됩니다. 설정 → <b>언어</b>에서 직접 고를 수도 있습니다.</li>
         </ul>
       </details>
       <details><summary>📱 앱처럼 설치하기</summary>
@@ -555,6 +915,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
 <div class="sheet" id="iosInstallSheet" style="z-index:1400;">
   <div class="sheet-box">
     <h1 class="sheet-title">📱 아이폰 홈 화면에 설치</h1>
+    <div id="iosGuide">
     <ol class="ios-steps">
       <li><b>Safari</b>로 이 주소를 엽니다.</li>
       <li>화면 아래(또는 위)의 공유 버튼 <span class="ios-share">⬆︎</span> 을 누릅니다.</li>
@@ -562,6 +923,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
       <li>오른쪽 위 <b>추가</b>를 누르면 홈 화면에 <b>업무달력</b> 아이콘이 생깁니다.</li>
     </ol>
     <div class="bulk-preview" style="font-weight:600;">⚠️ 아이폰은 <b>Safari 화면</b>과 <b>홈 화면 앱</b>의 저장 공간이 서로 다릅니다. 기록은 설치한 홈 화면 앱에서 입력하세요. Safari에서 입력한 기록이 있다면 먼저 설정 → <b>JSON 백업</b> 후, 앱에서 <b>데이터 불러오기</b>로 옮길 수 있습니다.</div>
+    </div>
     <div class="sheet-actions">
       <span></span>
       <button type="button" class="btn primary" id="iosInstallClose">확인</button>
@@ -825,6 +1187,15 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
         <button type="button" class="btn" id="openHelpBtn" style="width:100%">❓ 사용 도움말</button>
       </section>
       <section class="set-sec">
+        <strong>🌐 언어</strong>
+        <div class="theme-seg" id="langSeg" style="flex-wrap:wrap">
+          <button type="button" class="btn" data-lang="auto" style="flex:1 1 100%">자동 (폰 설정)</button>
+          <button type="button" class="btn" data-lang="ko">한국어</button>
+          <button type="button" class="btn" data-lang="th">ไทย</button>
+          <button type="button" class="btn" data-lang="en">English</button>
+        </div>
+      </section>
+      <section class="set-sec">
         <strong>화면 모드</strong>
         <div class="theme-seg" id="themeSeg">
           <button type="button" class="btn" data-theme="auto">🌗 자동</button>
@@ -880,13 +1251,14 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
           정산 완료 날짜 검은색 테두리
         </label>
       </section>
-      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));">앱 버전 2026.10.12-w2<span id="viewInfo"></span></div>
+      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.12-w4<span id="viewInfo"></span></div>
     </div>
   </div>
 </div>
 
 <script>
 const $ = id => document.getElementById(id);
+applyStaticI18n();
 const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isStandalone = window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
 const storageKey = 'wife-calendar-v1';
@@ -904,7 +1276,7 @@ function generateId() {
 }
 
 const starterPresets = [
-  {id:'starter-1',site:'회사'}
+  {id:'starter-1',site:t('회사')}
 ];
 
 // ===== 유닛 급여 계산 =====
@@ -922,7 +1294,7 @@ function payForUnits(u){
   const pay = u >= baseUnits ? basePay + (u - baseUnits) * extraRate : u * underRate;
   return Math.round(pay);
 }
-function won(n){ return Number(n||0).toLocaleString('ko-KR') + '원'; }
+function won(n){ const v = Math.round(Number(n||0)).toLocaleString('ko-KR'); return LANG === 'ko' ? v + '원' : '₩' + v; }
 
 let records = [], presets = [], dataFileHandle = null, saveTimer = null, dirty = false, editingId = null;
 
@@ -1007,12 +1379,11 @@ function save(){
 function updateFileStatus(){
   const b = $('fileStatusBtn');
   if(!b) return;
-  b.textContent = dataFileHandle ? (dirty ? '저장 대기' : '저장됨') : '브라우저 저장';
+  b.textContent = t(dataFileHandle ? (dirty ? '저장 대기' : '저장됨') : '브라우저 저장');
 }
 
 function formatDateActionDate(d){
-  let [y,m,day] = d.split('-');
-  return `${y}년 ${Number(m)}월 ${Number(day)}일`;
+  return new Date(d + 'T00:00:00').toLocaleDateString(LOCALE, {year:'numeric', month:'long', day:'numeric'});
 }
 
 // 휴무 판정: 0유닛 기록 (예전 방식의 '휴무' 업체명 기록 포함)
@@ -1036,15 +1407,16 @@ function sameSite(a,b){ return String(a||'').trim().replace(/\s+/g,' ').toLocale
 function hasSameSiteOnDate(date, site, excludeId=null){
   return records.some(r => r.date === date && r.id !== excludeId && sameSite(r.site, site));
 }
-function calendarSiteName(name){ return String(name||'').replace(/\s+/g,'').slice(0,3); }
+function calendarSiteName(name){ const n = String(name||'').replace(/\s+/g,''); return LANG === 'ko' ? n.slice(0,3) : n; }
 function escapeHtml(s){ return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 
 // 달력 렌더링 (휴무 전용 표시 로직 포함)
 function render(){
   const y = cursor.getFullYear(), m = cursor.getMonth();
-  $('monthTitle').textContent = `${y}년 ${m+1}월`;
-  $('summaryMonth').textContent = `${m+1}월 누적 유닛`;
-  $('companyTitle').textContent = `${m+1}월 업체별 유닛 및 정산`;
+  const monthName = cursor.toLocaleDateString(LOCALE, {month:'long'});
+  $('monthTitle').textContent = cursor.toLocaleDateString(LOCALE, {year:'numeric', month:'long'});
+  $('summaryMonth').textContent = t('{m} 누적 유닛', {m: monthName});
+  $('companyTitle').textContent = t('{m} 업체별 유닛 및 정산', {m: monthName});
   
   const first = new Date(y, m, 1).getDay();
   const last = new Date(y, m+1, 0).getDate();
@@ -1065,7 +1437,7 @@ function render(){
       let u = Number(r.units) || 0;
       if(isDayOff(r)) {
         return `<button class="entry dayoff" type="button" data-record="${r.id}">
-          <div class="site">휴무</div>
+          <div class="site">${t('휴무')}</div>
         </button>`;
       }
 
@@ -1079,7 +1451,7 @@ function render(){
       </button>`;
     }).join('');
     
-    if(rs.length > 2) entries += `<div class="site more">+ ${rs.length-2}건</div>`;
+    if(rs.length > 2) entries += `<div class="site more">${t('+ {n}건', {n: rs.length-2})}</div>`;
     
     let el = document.createElement('div');
     el.className = cl;
@@ -1107,15 +1479,15 @@ function render(){
   
   let units = monthRs.reduce((s,r) => s + Number(r.units || 0), 0);
   const monthGross = monthRs.reduce((s,r) => s + amount(r), 0);
-  $('monthTotal').innerHTML = `${units.toFixed(1)}<small>유닛</small>`;
-  $('monthGross').textContent = `세전 ${won(monthGross)}`;
+  $('monthTotal').innerHTML = LANG === 'ko' ? `${units.toFixed(1)}<small>유닛</small>` : `${units.toFixed(1)}<small> ${t('유닛')}</small>`;
+  $('monthGross').textContent = t('세전 {x}', {x: won(monthGross)});
   
   let unpaidTotal = monthRs.filter(r => !r.paid && !isDayOff(r)).reduce((s,r) => {
     const gross = amount(r);
     const exp = Number(r.expense) || 0;
     return s + Math.floor(gross * 0.967) + exp;
   }, 0);
-  $('monthUnpaid').innerHTML = `${unpaidTotal.toLocaleString('ko-KR')}<small>원</small>`;
+  $('monthUnpaid').textContent = won(unpaidTotal);
   
   renderCompanyTotals(monthRs);
 }
@@ -1149,8 +1521,8 @@ function renderCompanyTotals(monthRs){
   let html = '';
   if(dayOffCount > 0){
     html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 8px; background:#f1f5f9; border-radius:8px; margin-bottom:6px; font-size:calc(12px * var(--fs,1));">
-      <span style="font-weight:800; color:#475569;">🏖️ 이번 달 휴무</span>
-      <b style="color:#334155;">총 ${dayOffCount}일</b>
+      <span style="font-weight:800; color:#475569;">${t('🏖️ 이번 달 휴무')}</span>
+      <b style="color:#334155;">${t('총 {n}일', {n: dayOffCount})}</b>
     </div>`;
   }
 
@@ -1160,18 +1532,18 @@ function renderCompanyTotals(monthRs){
       return `<div style="display:flex; flex-direction:column; gap:4px; padding-bottom:7px; border-bottom:1px solid var(--line);">
                 <div style="display:flex; justify-content:space-between; font-size:calc(12px * var(--fs,1));">
                   <span style="font-weight:700;">${escapeHtml(site)}</span>
-                  <b style="color:var(--green);">${data.units.toFixed(1)}유닛 · ${won(data.amount)}</b>
+                  <b style="color:var(--green);">${U(data.units)} · ${won(data.amount)}</b>
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(11px * var(--fs,1)); color:var(--muted);">
-                  <span>실수령: <b>${afterTax.toLocaleString('ko-KR')}원</b></span>
+                  <span>${t('실수령:')} <b>${won(afterTax)}</b></span>
                   ${data.unpaidAmount > 0 
-                    ? `<button type="button" class="btn danger" style="padding:3px 7px; font-size:calc(10px * var(--fs,1)); font-weight:800;" data-quick-pay-site="${escapeHtml(site)}" title="클릭 시 이번 달 전체 입금 완료 처리">미수금 ${data.unpaidAmount.toLocaleString()}원 [완료처리]</button>` 
-                    : '<span class="badge-paid">전액완납</span>'}
+                    ? `<button type="button" class="btn danger" style="padding:3px 7px; font-size:calc(10px * var(--fs,1)); font-weight:800;" data-quick-pay-site="${escapeHtml(site)}" title="${t('클릭 시 이번 달 전체 입금 완료 처리')}">${t('미수금 {x} [완료처리]', {x: won(data.unpaidAmount)})}</button>` 
+                    : `<span class="badge-paid">${t('전액완납')}</span>`}
                 </div>
               </div>`;
     }).join('');
   } else if(!dayOffCount){
-    html = '<span class="empty">이번 달 기록 없음</span>';
+    html = `<span class="empty">${t('이번 달 기록 없음')}</span>`;
   }
 
   $('companyTotals').innerHTML = html;
@@ -1191,13 +1563,13 @@ function renderDateActionPopup(){
         return `
         <button type="button" class="date-action-record" data-date-record="${r.id}" style="${dayOff?'background:#f1f5f9; border-color:#cbd5e1;':''}">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong>${dayOff ? '🏖️ 휴무' + (r.site !== '휴무' ? ' · ' + escapeHtml(r.site) : '') : escapeHtml(r.site)}</strong>
-            <span class="${dayOff ? 'badge-dayoff' : (r.paid ? 'badge-paid' : 'badge-unpaid')}">${dayOff ? '휴무' : (r.paid ? '입금완료' : '미지급')}</span>
+            <strong>${dayOff ? t('🏖️ 휴무') + (r.site !== '휴무' ? ' · ' + escapeHtml(r.site) : '') : escapeHtml(r.site)}</strong>
+            <span class="${dayOff ? 'badge-dayoff' : (r.paid ? 'badge-paid' : 'badge-unpaid')}">${t(dayOff ? '휴무' : (r.paid ? '입금완료' : '미지급'))}</span>
           </div>
-          <span>${Number(r.units).toFixed(1)}유닛 · ${dayOff ? '휴식일' : '급여 ' + won(amount(r)) + (r.expense ? ' · 경비 ' + won(r.expense) : '') + ' · 합계 ' + won(totalPay(r))}</span>
+          <span>${U(r.units)} · ${dayOff ? t('휴식일') : t('급여') + ' ' + won(amount(r)) + (r.expense ? ' · ' + t('경비') + ' ' + won(r.expense) : '') + ' · ' + t('합계') + ' ' + won(totalPay(r))}</span>
         </button>`;
       }).join('')
-    : '<div class="date-action-empty">등록된 작업이 없습니다.</div>';
+    : `<div class="date-action-empty">${t('등록된 작업이 없습니다.')}</div>`;
     
   let normalized = presets.slice().sort((a,b) => (b.lastUsed||0) - (a.lastUsed||0));
   
@@ -1205,7 +1577,7 @@ function renderDateActionPopup(){
   let isDayOffUsed = hasSameSiteOnDate(selectedDate, dayOffTarget);
   const dayOffBtn = $('quickDayOffBtn');
   dayOffBtn.classList.toggle('already-used', isDayOffUsed);
-  dayOffBtn.title = `휴무(0유닛) · ${dayOffTarget}`;
+  dayOffBtn.title = t('휴무(0유닛) · {s}', {s: dayOffTarget});
   
   let presetButtonsHtml = normalized.map(p => {
     let used = hasSameSiteOnDate(selectedDate, p.site);
@@ -1247,7 +1619,7 @@ function changeQuickUnits(delta){
 // 기록 수정 시트
 function openSheet(date = iso(new Date()), r = null){
   editingId = r?.id || null;
-  $('sheetTitle').textContent = r ? '기록 수정' : '일한 날 기록';
+  $('sheetTitle').textContent = t(r ? '기록 수정' : '일한 날 기록');
   $('dateInput').value = r?.date || date;
   $('siteInput').value = r?.site || '';
   $('unitsInput').value = r ? r.units : payRule.baseUnits;
@@ -1271,7 +1643,7 @@ function closeSheet(){ $('sheet').classList.remove('open'); }
 function addDayOffRecord(){
   const site = dayOffSite();
   if(hasSameSiteOnDate(selectedDate, site)){
-    alert(`"${formatDateActionDate(selectedDate)}"에는 "${site}" 기록이 이미 있습니다.`);
+    alert(t('"{d}"에는 "{s}" 기록이 이미 있습니다.', {d: formatDateActionDate(selectedDate), s: site}));
     return;
   }
   records.push({
@@ -1302,10 +1674,10 @@ function batchSetPaidStatus(monthVal, siteVal, paidStatus) {
     save();
     render();
     updateSettlementResult();
-    const siteLabel = siteVal ? `[${siteVal}] 업체` : '전체 업체';
-    alert(`${monthVal}월 ${siteLabel} ${count}건의 기록을 "${paidStatus ? '입금 완료' : '미지급'}" 상태로 변경했습니다.`);
+    const siteLabel = siteVal ? t('[{s}] 업체', {s: siteVal}) : t('전체 업체');
+    alert(t('{m} {l} {n}건의 기록을 "{st}" 상태로 변경했습니다.', {m: monthVal, l: siteLabel, n: count, st: t(paidStatus ? '입금 완료' : '미지급')}));
   } else {
-    alert('해당 월에 변경할 기록이 없습니다.');
+    alert(t('해당 월에 변경할 기록이 없습니다.'));
   }
 }
 
@@ -1319,7 +1691,7 @@ $('openSettlementBtn').onclick = () => {
     sm.value = `${y}-${m}`;
   }
   const uniqueSites = [...new Set(records.filter(r => r.site !== '휴무').map(r => r.site))].sort();
-  $('settlementCompany').innerHTML = '<option value="">전체 업체 (통합)</option>' + uniqueSites.map(site => `<option value="${escapeHtml(site)}">${escapeHtml(site)}</option>`).join('');
+  $('settlementCompany').innerHTML = `<option value="">${t('전체 업체 (통합)')}</option>` + uniqueSites.map(site => `<option value="${escapeHtml(site)}">${escapeHtml(site)}</option>`).join('');
   updateSettlementResult();
   $('settlementSheet').classList.add('open');
 };
@@ -1363,18 +1735,18 @@ function updateSettlementResult() {
   const totalTax = Math.floor(tAmount * taxRate);
   const totalNet = (tAmount - totalTax) + tExpense;
   
-  $('setUnits').textContent = tUnits.toFixed(1) + '유닛';
-  $('setAmount').textContent = tAmount.toLocaleString('ko-KR') + '원';
-  $('setExpenseAmount').textContent = '+ ' + tExpense.toLocaleString('ko-KR') + '원';
-  $('setTaxLabel').textContent = taxRate > 0 ? `공제 세액 (${(taxRate*100).toFixed(1)}%)` : '공제 세액 (면제)';
-  $('setTaxAmount').textContent = '- ' + totalTax.toLocaleString('ko-KR') + '원';
-  $('setTaxedAmount').textContent = totalNet.toLocaleString('ko-KR') + '원';
-  $('setPaidAmount').textContent = tPaid.toLocaleString('ko-KR') + '원';
-  $('setUnpaidAmount').textContent = tUnpaid.toLocaleString('ko-KR') + '원';
+  $('setUnits').textContent = U(tUnits);
+  $('setAmount').textContent = won(tAmount);
+  $('setExpenseAmount').textContent = '+ ' + won(tExpense);
+  $('setTaxLabel').textContent = taxRate > 0 ? t('공제 세액 ({p}%)', {p: (taxRate*100).toFixed(1)}) : t('공제 세액 (면제)');
+  $('setTaxAmount').textContent = '- ' + won(totalTax);
+  $('setTaxedAmount').textContent = won(totalNet);
+  $('setPaidAmount').textContent = won(tPaid);
+  $('setUnpaidAmount').textContent = won(tUnpaid);
   
-  const targetLabel = siteVal ? `[${siteVal}]` : '[전체 업체]';
-  $('batchPayBtn').textContent = `✅ ${targetLabel} 이번 달 [전체 입금 완료] 처리`;
-  $('batchUnpayBtn').textContent = `↩️ ${targetLabel} 이번 달 [미지급(미수금)]으로 되돌리기`;
+  const targetLabel = siteVal ? `[${siteVal}]` : t('[전체 업체]');
+  $('batchPayBtn').textContent = t('✅ {l} 이번 달 [전체 입금 완료] 처리', {l: targetLabel});
+  $('batchUnpayBtn').textContent = t('↩️ {l} 이번 달 [미지급(미수금)]으로 되돌리기', {l: targetLabel});
   
   res.style.display = 'flex';
 }
@@ -1383,8 +1755,8 @@ function updateSettlementResult() {
 $('batchPayBtn').onclick = () => {
   const monthVal = $('settlementMonth').value;
   const siteVal = $('settlementCompany').value;
-  const targetLabel = siteVal ? `[${siteVal}] 업체` : '전체 업체';
-  if(confirm(`${monthVal}월 ${targetLabel}의 모든 기록을 "입금 완료" 상태로 일괄 변경할까요?`)) {
+  const targetLabel = siteVal ? t('[{s}] 업체', {s: siteVal}) : t('전체 업체');
+  if(confirm(t('{m} {l}의 모든 기록을 "입금 완료" 상태로 일괄 변경할까요?', {m: monthVal, l: targetLabel}))) {
     batchSetPaidStatus(monthVal, siteVal, true);
   }
 };
@@ -1392,8 +1764,8 @@ $('batchPayBtn').onclick = () => {
 $('batchUnpayBtn').onclick = () => {
   const monthVal = $('settlementMonth').value;
   const siteVal = $('settlementCompany').value;
-  const targetLabel = siteVal ? `[${siteVal}] 업체` : '전체 업체';
-  if(confirm(`${monthVal}월 ${targetLabel}의 모든 기록을 "미지급(미수금)" 상태로 되돌릴까요?`)) {
+  const targetLabel = siteVal ? t('[{s}] 업체', {s: siteVal}) : t('전체 업체');
+  if(confirm(t('{m} {l}의 모든 기록을 "미지급(미수금)" 상태로 되돌릴까요?', {m: monthVal, l: targetLabel}))) {
     batchSetPaidStatus(monthVal, siteVal, false);
   }
 };
@@ -1408,7 +1780,7 @@ document.addEventListener('click', e => {
     const y = cursor.getFullYear();
     const m = String(cursor.getMonth() + 1).padStart(2, '0');
     const monthVal = `${y}-${m}`;
-    if(confirm(`${monthVal}월 [${site}] 업체의 모든 기록을 "입금 완료" 처리할까요?`)){
+    if(confirm(t('{m} [{s}] 업체의 모든 기록을 "입금 완료" 처리할까요?', {m: monthVal, s: site}))){
       batchSetPaidStatus(monthVal, site, true);
     }
   }
@@ -1422,15 +1794,15 @@ async function downloadJsonBackup(){
   // 아이폰: 공유 시트로 '파일에 저장'·카카오톡 등에 바로 보낼 수 있게 한다
   if(isIOS && navigator.canShare){
     try{
-      const file = new File([json], `업무달력_백업_${iso(new Date())}.json`, {type:'application/json'});
-      if(navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:'업무달력 백업'}); return; }
+      const file = new File([json], `${t('업무달력')}_${t('백업')}_${iso(new Date())}.json`, {type:'application/json'});
+      if(navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:t('업무달력 백업')}); return; }
     }catch(e){ if(e && e.name === 'AbortError') return; }
   }
   const blob = new Blob([json], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `업무달력_백업_${iso(new Date())}.json`;
+  a.download = `${t('업무달력')}_${t('백업')}_${iso(new Date())}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -1464,20 +1836,20 @@ function buildExportData(){
   let filtered = records.map(r => ({...r, site: exportSiteOf(r), dayOff: isDayOff(r)})).filter(r => (!company || r.site === company) && r.date >= start && r.date <= end)
                         .sort((a,b) => a.date.localeCompare(b.date) || a.site.localeCompare(b.site));
                         
-  if(!filtered.length) return { format, content: null, message: '선택한 기간에 기록이 없습니다.' };
+  if(!filtered.length) return { format, content: null, message: t('선택한 기간에 기록이 없습니다.') };
 
   if(format === 'csv'){
-    let headers = ['현장명'];
-    if(flags.date) headers.push('날짜');
-    if(flags.units) headers.push('유닛');
-    if(flags.pay) headers.push('급여(원)');
-    headers.push('메모');
+    let headers = [t('현장명')];
+    if(flags.date) headers.push(t('날짜'));
+    if(flags.units) headers.push(LANG === 'ko' ? '유닛' : t('유닛'));
+    if(flags.pay) headers.push(t('급여(원)'));
+    headers.push(t('메모'));
 
     let rows = [headers];
     filtered.forEach(r => {
       let row = [r.site];
       if(flags.date) row.push(r.date);
-      if(flags.units) row.push(r.dayOff ? '0.0 (휴무)' : Number(r.units).toFixed(1));
+      if(flags.units) row.push(r.dayOff ? `0.0 (${t('휴무')})` : Number(r.units).toFixed(1));
       if(flags.pay) row.push(amount(r));
       row.push(r.memo || '');
       rows.push(row);
@@ -1486,11 +1858,11 @@ function buildExportData(){
     if(flags.amountTotal){
       let totalUnits = filtered.reduce((s,r) => s + Number(r.units || 0), 0);
       rows.push([]);
-      rows.push(['유닛 합계', totalUnits.toFixed(1) + '유닛']);
-      if(flags.pay) rows.push(['급여 합계', filtered.reduce((s,r) => s + amount(r), 0)]);
+      rows.push([t('유닛 합계'), U(totalUnits)]);
+      if(flags.pay) rows.push([t('급여 합계'), filtered.reduce((s,r) => s + amount(r), 0)]);
     }
 
-    if(extraMessage) { rows.push([]); rows.push(['같이 보낼 내용', extraMessage]); }
+    if(extraMessage) { rows.push([]); rows.push([t('같이 보낼 내용'), extraMessage]); }
     let csvContent = '\uFEFF' + rows.map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
     return { format: 'csv', content: csvContent };
   }
@@ -1504,14 +1876,14 @@ function buildExportData(){
     rs.forEach(r => {
       let parts = [];
       if(flags.date) parts.push(r.date);
-      if(flags.units) parts.push(r.dayOff ? '0.0유닛 (휴무)' : `${Number(r.units).toFixed(1)}유닛`);
+      if(flags.units) parts.push(r.dayOff ? `${U(0)} (${t('휴무')})` : U(r.units));
       if(flags.pay && !r.dayOff) parts.push(won(amount(r)));
       lines.push(parts.join('  '));
     });
     if(flags.amountTotal){
       let sumU = rs.reduce((s,r) => s + Number(r.units||0), 0);
-      lines.push(`▶ 유닛 합계: ${sumU.toFixed(1)}유닛`);
-      if(flags.pay) lines.push(`▶ 급여 합계: ${won(rs.reduce((s,r) => s + amount(r), 0))}`);
+      lines.push(t('▶ 유닛 합계: {x}', {x: U(sumU)}));
+      if(flags.pay) lines.push(t('▶ 급여 합계: {x}', {x: won(rs.reduce((s,r) => s + amount(r), 0))}));
     }
   });
 
@@ -1540,7 +1912,7 @@ $('recordForm').onsubmit = e => {
   };
   if(!r.date || !r.site) return;
   if(hasSameSiteOnDate(r.date, r.site, editingId)){
-    alert(`"${r.site}" 업체는 ${r.date}에 이미 등록되어 있습니다.`);
+    alert(t('"{s}" 업체는 {d}에 이미 등록되어 있습니다.', {s: r.site, d: formatDateActionDate(r.date)}));
     return;
   }
   if(editingId){
@@ -1555,7 +1927,7 @@ $('recordForm').onsubmit = e => {
 };
 
 $('deleteBtn').onclick = () => {
-  if(editingId && confirm('이 기록을 삭제할까요?')){
+  if(editingId && confirm(t('이 기록을 삭제할까요?'))){
     records = records.filter(r => r.id !== editingId);
     save();
     closeSheet();
@@ -1586,7 +1958,7 @@ document.addEventListener('click', e => {
     let p = presets.find(x => x.id === pb.dataset.datePreset);
     if(!p) return;
     if(hasSameSiteOnDate(selectedDate, p.site)){
-      alert(`"${p.site}" 업체는 이미 등록되어 있습니다.`);
+      alert(t('"{s}" 업체는 이미 등록되어 있습니다.', {s: p.site}));
       return;
     }
     const units = Math.max(0.1, Math.round((parseFloat(String($('quickUnits').value).replace(',','.')) || payRule.baseUnits) * 10) / 10);
@@ -1607,15 +1979,15 @@ document.addEventListener('click', e => {
   }
 });
 
-$('quickUnitsUp').onclick = () => changeQuickUnits(0.5);
-$('quickUnitsDown').onclick = () => changeQuickUnits(-0.5);
+$('quickUnitsUp').onclick = () => changeQuickUnits(0.1);
+$('quickUnitsDown').onclick = () => changeQuickUnits(-0.1);
 $('quickUnits').addEventListener('input', updateQuickPay);
 $('dateActionAdd').onclick = () => {
   const siteEl = $('dateActionSite'), unitsEl = $('quickUnits');
   let site = siteEl.value.trim().replace(/\s+/g,' ');
   let units = parseFloat(String(unitsEl.value).replace(',','.')) || payRule.baseUnits;
-  if(!site){ alert('업체명을 입력해 주세요.'); siteEl.focus(); return; }
-  if(hasSameSiteOnDate(selectedDate, site)){ alert(`"${site}" 업체는 이미 등록되어 있습니다.`); return; }
+  if(!site){ alert(t('업체명을 입력해 주세요.')); siteEl.focus(); return; }
+  if(hasSameSiteOnDate(selectedDate, site)){ alert(t('"{s}" 업체는 이미 등록되어 있습니다.', {s: site})); return; }
   
   let p = presets.find(x => sameSite(x.site, site));
   if(!p){
@@ -1646,19 +2018,19 @@ function openCompanyManage(){
           <div class="company-manage-info">
             <strong>${escapeHtml(p.site)}</strong>
           </div>
-          <button type="button" class="company-manage-delete" data-del-preset="${p.id}">삭제</button>
+          <button type="button" class="company-manage-delete" data-del-preset="${p.id}">${t('삭제')}</button>
         </div>
         <div class="company-manage-fields">
-          <input type="text" data-company-name="${p.id}" value="${escapeHtml(p.site||'')}" placeholder="업체명" style="grid-column:1/-1">
-          <input type="tel" data-company-phone="${p.id}" value="${escapeHtml(p.phone||'')}" placeholder="전화번호" style="grid-column:1/-1">
-          <input type="text" data-company-address="${p.id}" value="${escapeHtml(p.address||'')}" placeholder="업체 주소">
-          <textarea data-company-memo="${p.id}" placeholder="업체 관련 메모 (담당자, 입금정보 등)">${escapeHtml(p.memo||'')}</textarea>
+          <input type="text" data-company-name="${p.id}" value="${escapeHtml(p.site||'')}" placeholder="${t('업체명')}" style="grid-column:1/-1">
+          <input type="tel" data-company-phone="${p.id}" value="${escapeHtml(p.phone||'')}" placeholder="${t('전화번호')}" style="grid-column:1/-1">
+          <input type="text" data-company-address="${p.id}" value="${escapeHtml(p.address||'')}" placeholder="${t('업체 주소')}">
+          <textarea data-company-memo="${p.id}" placeholder="${t('업체 관련 메모 (담당자, 입금정보 등)')}">${escapeHtml(p.memo||'')}</textarea>
         </div>
         <div class="company-manage-actions">
-          <button type="button" class="company-edit" data-save-company="${p.id}">정보 저장</button>
+          <button type="button" class="company-edit" data-save-company="${p.id}">${t('정보 저장')}</button>
         </div>
       </div>`).join('')
-    : '<div class="empty" style="text-align:center;">등록된 업체가 없습니다.</div>';
+    : `<div class="empty" style="text-align:center;">${t('등록된 업체가 없습니다.')}</div>`;
   $('companyManageSheet').classList.add('open');
 }
 $('companyManageClose').onclick = () => $('companyManageSheet').classList.remove('open');
@@ -1674,14 +2046,14 @@ document.addEventListener('click', e => {
     const nameEl = document.querySelector(`[data-company-name=\"${CSS.escape(id)}\"]`);
     const newName = nameEl ? nameEl.value.trim().replace(/\s+/g,' ') : p.site;
     if(!newName){
-      alert('업체명을 입력해 주세요.');
+      alert(t('업체명을 입력해 주세요.'));
       if(nameEl) nameEl.focus();
       return;
     }
     const oldName = p.site;
     if(newName !== oldName){
       if(presets.some(x => x.id !== id && sameSite(x.site, newName))){
-        alert('같은 이름의 업체가 이미 있습니다.');
+        alert(t('같은 이름의 업체가 이미 있습니다.'));
         if(nameEl) nameEl.focus();
         return;
       }
@@ -1694,7 +2066,7 @@ document.addEventListener('click', e => {
     save();
     render();
     openCompanyManage();
-    alert('업체 정보가 저장되었습니다.');
+    alert(t('업체 정보가 저장되었습니다.'));
     return;
   }
   const delBtn = e.target.closest('[data-del-preset]');
@@ -1710,7 +2082,7 @@ document.addEventListener('click', e => {
 $('exportCancel').onclick = closeExport;
 $('exportCompanyButton').onclick = () => {
   let sites = [...new Set(records.map(r => exportSiteOf(r)))].sort();
-  $('exportCompanies').innerHTML = `<button class="btn" type="button" data-sel-site="" style="text-align:left; padding:10px;">전체 업체</button>` +
+  $('exportCompanies').innerHTML = `<button class="btn" type="button" data-sel-site="" style="text-align:left; padding:10px;">${t('전체 업체')}</button>` +
     sites.map(s => `<button class="btn" type="button" data-sel-site="${escapeHtml(s)}" style="text-align:left; padding:10px;">${escapeHtml(s)}</button>`).join('');
   $('exportCompanySheet').classList.add('open');
 };
@@ -1720,7 +2092,7 @@ document.addEventListener('click', e => {
   if(b){
     const site = b.dataset.selSite;
     $('exportCompany').value = site;
-    $('exportCompanyButton').textContent = (site || '전체 업체') + ' ›';
+    $('exportCompanyButton').textContent = (site || t('전체 업체')) + ' ›';
     $('exportCompanySheet').classList.remove('open');
   }
 });
@@ -1735,7 +2107,7 @@ $('exportForm').onsubmit = e => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `업무기록_${$('exportStart').value}_${$('exportEnd').value}.csv`;
+    a.download = `${t('업무기록')}_${$('exportStart').value}_${$('exportEnd').value}.csv`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -1756,7 +2128,7 @@ $('shareBtn').onclick = async () => {
   // 휴대폰/지원 브라우저에서는 OS 기본 공유창을 사용합니다.
   if(navigator.share){
     try {
-      await navigator.share({ title: '업무달력 기록', text });
+      await navigator.share({ title: t('업무달력 기록'), text });
       return;
     } catch(e) {
       if(e && e.name === 'AbortError') return;
@@ -1770,18 +2142,18 @@ $('shareBtn').onclick = async () => {
 
 $('shareClose').onclick = () => $('sharePopup').classList.remove('open');
 $('shareCopy').onclick = async () => {
-  const t = $('shareText');
-  t.focus();
-  t.select();
+  const ta = $('shareText');
+  ta.focus();
+  ta.select();
   try {
     if(navigator.clipboard && window.isSecureContext){
-      await navigator.clipboard.writeText(t.value);
+      await navigator.clipboard.writeText(ta.value);
     } else if(!document.execCommand('copy')) {
       throw new Error('copy failed');
     }
-    alert('클립보드에 복사되었습니다.');
+    alert(t('클립보드에 복사되었습니다.'));
   } catch(e) {
-    alert('복사에 실패했습니다. 내용을 길게 눌러 직접 복사해 주세요.');
+    alert(t('복사에 실패했습니다. 내용을 길게 눌러 직접 복사해 주세요.'));
   }
 };
 
@@ -1793,11 +2165,11 @@ $('dataSaveBtn').onclick = async () => {
   try{
     if(window.showSaveFilePicker && window.isSecureContext){
       dataFileHandle = await showSaveFilePicker({
-        suggestedName: '업무달력_데이터.json',
-        types: [{description: 'JSON 파일', accept: {'application/json': ['.json']}}]
+        suggestedName: `${t('업무달력')}_data.json`,
+        types: [{description: t('JSON 파일'), accept: {'application/json': ['.json']}}]
       });
       await saveToDataFile();
-      alert('파일이 연결되었습니다. 이후 데이터가 자동 저장됩니다.');
+      alert(t('파일이 연결되었습니다. 이후 데이터가 자동 저장됩니다.'));
       return;
     }
   }catch(e){}
@@ -1821,8 +2193,8 @@ $('dataImportInput').onchange = e => {
       });
       saveToStorage();
       render();
-      alert('데이터를 성공적으로 불러왔습니다.');
-    }catch(err){ alert('올바른 업무달력 백업 파일이 아닙니다.'); }
+      alert(t('데이터를 성공적으로 불러왔습니다.'));
+    }catch(err){ alert(t('올바른 업무달력 백업 파일이 아닙니다.')); }
   };
   reader.readAsText(f, 'utf-8');
 };
@@ -1916,24 +2288,24 @@ function readPayRuleForm(){
 }
 function updatePayRuleExample(){
   const saved = payRule, r = readPayRuleForm();
-  if(!(r.baseUnits > 0) || [r.basePay, r.extraRate, r.underRate].some(v => !Number.isFinite(v) || v < 0)){ $('prExample').textContent = '올바른 값을 입력해 주세요.'; return; }
+  if(!(r.baseUnits > 0) || [r.basePay, r.extraRate, r.underRate].some(v => !Number.isFinite(v) || v < 0)){ $('prExample').textContent = t('올바른 값을 입력해 주세요.'); return; }
   payRule = r;
   const b = r.baseUnits;
-  const ex = [b - 1, b, b + 1, b + 2].filter(u => u > 0).map(u => `${u.toFixed(1)}유닛 → ${won(payForUnits(u))}`).join('\n');
+  const ex = [b - 1, b, b + 1, b + 2].filter(u => u > 0).map(u => `${U(u)} → ${won(payForUnits(u))}`).join('\n');
   payRule = saved;
   $('prExample').style.whiteSpace = 'pre-line';
-  $('prExample').textContent = `예시\n${ex}`;
+  $('prExample').textContent = `${t('예시')}\n${ex}`;
 }
 ['prBaseUnits','prBasePay','prExtraRate','prUnderRate'].forEach(id => $(id).addEventListener('input', updatePayRuleExample));
 $('prResetBtn').onclick = () => fillPayRuleForm(defaultPayRule);
 $('prSaveBtn').onclick = () => {
   const r = readPayRuleForm();
-  if(!(r.baseUnits > 0) || [r.basePay, r.extraRate, r.underRate].some(v => !Number.isFinite(v) || v < 0)){ alert('올바른 값을 입력해 주세요.'); return; }
+  if(!(r.baseUnits > 0) || [r.basePay, r.extraRate, r.underRate].some(v => !Number.isFinite(v) || v < 0)){ alert(t('올바른 값을 입력해 주세요.')); return; }
   payRule = r;
   savePayRule();
   save();
   render();
-  alert('급여 기준이 저장되었습니다. 모든 기록의 금액이 새 기준으로 다시 계산됩니다.');
+  alert(t('급여 기준이 저장되었습니다. 모든 기록의 금액이 새 기준으로 다시 계산됩니다.'));
 };
 $('settingsBtn').addEventListener('click', () => fillPayRuleForm(payRule));
 
@@ -1945,7 +2317,7 @@ try {
 <script id="settings-only-js">
 (function(){
   const KEY="wife_cal_settings_v1";
-  let st={font:1,border:true,hideSummary:false,theme:"auto"};
+  let st={font:1,border:true,hideSummary:false,theme:"auto",lang:"auto"};
   try{st=Object.assign(st,JSON.parse(localStorage.getItem(KEY)||"{}"));}catch(e){}
   const $=id=>document.getElementById(id);
   function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
@@ -1954,12 +2326,13 @@ try {
     document.documentElement.classList.toggle("dark",dk);
     var tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.content=dk?"#0c110e":"#16764f";
     document.querySelectorAll("#themeSeg .btn").forEach(function(b){b.classList.toggle("on",b.dataset.theme===st.theme);});
+    document.querySelectorAll("#langSeg .btn").forEach(function(b){b.classList.toggle("on",b.dataset.lang===(st.lang||"auto"));});
     var w=window.innerWidth||360;
     var base=w<=1100?Math.min(2.4,Math.max(1,w/390)):1;
     document.documentElement.style.setProperty("--base",String(Math.round(base*100)/100));
     document.documentElement.style.setProperty("--fsr",String(Math.round(st.font*base*100)/100));
     document.documentElement.style.setProperty("--fs",String(Math.round(st.font*base*100)/100));
-    var vi=$("viewInfo"); if(vi) vi.textContent=" · 화면 폭 "+w+"px";
+    var vi=$("viewInfo"); if(vi) vi.textContent=" · "+t("화면 폭")+" "+w+"px";
     $("fontSizeValue").textContent=Math.round(st.font*100)+"%";
     $("settingPaidBorder").checked=st.border;
     document.body.classList.toggle("no-paid-border",!st.border);
@@ -1976,6 +2349,7 @@ try {
   $("fontDownBtn").onclick=()=>{st.font=Math.max(.9,Math.round((st.font-.05)*20)/20);save();apply();};
   $("fontUpBtn").onclick=()=>{st.font=Math.min(1.3,Math.round((st.font+.05)*20)/20);save();apply();};
   $("fontResetBtn").onclick=()=>{st.font=1;save();apply();};
+  $("langSeg").addEventListener("click",function(e){var b=e.target.closest("[data-lang]");if(!b||b.dataset.lang===(st.lang||"auto"))return;st.lang=b.dataset.lang;save();location.reload();});
   $("themeSeg").addEventListener("click",function(e){var b=e.target.closest("[data-theme]");if(!b)return;st.theme=b.dataset.theme;save();apply();});
   if(window.matchMedia){try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",apply);}catch(e){}}
   $("settingHideSummary").onchange=e=>{st.hideSummary=e.target.checked;save();apply();};
@@ -2003,11 +2377,11 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     if(mode==='del'){
       var names=[]; records.forEach(function(r){ if(r.site!=='휴무' && names.indexOf(r.site)<0) names.push(r.site); });
       names.sort();
-      $('bulkSite').innerHTML='<option value="'+ALL+'">전체 업체 (휴무 포함)</option>'+names.map(function(n){return '<option value="s:'+escapeHtml(n)+'">'+escapeHtml(n)+'</option>';}).join('')+'<option value="'+OFF+'">🏖️ 휴무(0유닛)만</option>';
+      $('bulkSite').innerHTML='<option value="'+ALL+'">'+t('전체 업체 (휴무 포함)')+'</option>'+names.map(function(n){return '<option value="s:'+escapeHtml(n)+'">'+escapeHtml(n)+'</option>';}).join('')+'<option value="'+OFF+'">'+t('🏖️ 휴무(0유닛)만')+'</option>';
       return;
     }
     var opts=presets.slice().sort(function(a,b){return (b.lastUsed||0)-(a.lastUsed||0);}).map(function(p){return '<option value="'+p.id+'">'+escapeHtml(p.site)+'</option>';});
-    $('bulkSite').innerHTML=opts.join('')+'<option value="'+OFF+'">🏖️ 휴무 (0유닛) · 최근 업체</option><option value="'+NEW+'">＋ 새 업체 직접 입력</option>';
+    $('bulkSite').innerHTML=opts.join('')+'<option value="'+OFF+'">'+t('🏖️ 휴무 (0유닛) · 최근 업체')+'</option><option value="'+NEW+'">'+t('＋ 새 업체 직접 입력')+'</option>';
   }
   function siteInfo(){
     var v=$('bulkSite').value;
@@ -2042,21 +2416,21 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     var ds=days(), el=$('bulkPreview'), btn=$('bulkApplyBtn');
     $('bulkPay').value=won(payForUnits(+$('bulkUnits').value||0));
     btn.disabled=true;
-    if(ds===null){el.textContent='시작일과 종료일을 선택해 주세요.';return null;}
-    if(ds==='long'){el.textContent='기간이 너무 깁니다. (최대 10년)';return null;}
-    if(!ds.length){el.textContent='선택한 기간에 해당하는 날짜가 없습니다. (종료일이 시작일보다 빠르거나 모두 제외됨)';return null;}
+    if(ds===null){el.textContent=t('시작일과 종료일을 선택해 주세요.');return null;}
+    if(ds==='long'){el.textContent=t('기간이 너무 깁니다. (최대 10년)');return null;}
+    if(!ds.length){el.textContent=t('선택한 기간에 해당하는 날짜가 없습니다. (종료일이 시작일보다 빠르거나 모두 제외됨)');return null;}
     if(mode==='del'){
-      var t=delTargets(ds);
-      el.textContent=t.length?('삭제될 기록 '+t.length+'건 · 삭제 후에는 되돌릴 수 없습니다. 먼저 백업을 권장합니다.'):'선택한 조건에 해당하는 기록이 없습니다.';
-      btn.disabled=!t.length;
-      return t.length?{del:t}:null;
+      var dl=delTargets(ds);
+      el.textContent=dl.length?t('삭제될 기록 {n}건 · 삭제 후에는 되돌릴 수 없습니다. 먼저 백업을 권장합니다.',{n:dl.length}):t('선택한 조건에 해당하는 기록이 없습니다.');
+      btn.disabled=!dl.length;
+      return dl.length?{del:dl}:null;
     }
-    if(ds.length>366){el.textContent='입력은 한 번에 최대 366일까지 가능합니다.';return null;}
+    if(ds.length>366){el.textContent=t('입력은 한 번에 최대 366일까지 가능합니다.');return null;}
     var info=siteInfo();
-    if(!info.site){el.textContent='업체명을 입력해 주세요.';return null;}
+    if(!info.site){el.textContent=t('업체명을 입력해 주세요.');return null;}
     var add=ds.filter(function(d){return !hasSameSiteOnDate(d,info.site);});
     var skipN=ds.length-add.length;
-    el.textContent=(info.off?'휴무(0유닛) · '+info.site+' ':'“'+info.site+'” '+info.units+'유닛 ('+won(payForUnits(info.units))+') ')+add.length+'일 입력'+(skipN?' · 이미 등록된 '+skipN+'일은 건너뜀':'')+(info.off?'':' · 합계 '+won(payForUnits(info.units)*add.length));
+    el.textContent=(info.off?t('휴무(0유닛) · {s}',{s:info.site}):t('"{s}" {u} ({p})',{s:info.site,u:U(info.units),p:won(payForUnits(info.units))}))+' · '+t('{n}일 입력',{n:add.length})+(skipN?t(' · 이미 등록된 {n}일은 건너뜀',{n:skipN}):'')+(info.off?'':' · '+t('합계')+' '+won(payForUnits(info.units)*add.length));
     btn.disabled=!add.length;
     return {info:info,add:add};
   }
@@ -2073,8 +2447,8 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     mode=m;
     $('bulkSheet').classList.toggle('del-mode',m==='del');
     document.querySelectorAll('#bulkMode .btn').forEach(function(b){b.classList.toggle('on',b.dataset.mode===m);});
-    $('bulkDaysLabel').textContent=m==='del'?'삭제에서 제외할 요일 (선택)':'제외할 요일 (선택)';
-    $('bulkApplyBtn').textContent=m==='del'?'삭제하기':'입력하기';
+    $('bulkDaysLabel').textContent=t(m==='del'?'삭제에서 제외할 요일 (선택)':'제외할 요일 (선택)');
+    $('bulkApplyBtn').textContent=t(m==='del'?'삭제하기':'입력하기');
     fillSites(); onSite();
   }
   $('bulkOpenBtn').addEventListener('click',function(){
@@ -2094,13 +2468,13 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
   $('bulkApplyBtn').addEventListener('click',function(){
     var r=calc(); if(!r) return;
     if(r.del){
-      if(!confirm('🗑️ '+$('bulkStart').value+' ~ '+$('bulkEnd').value+'\n기록 '+r.del.length+'건을 삭제합니다.\n삭제 후에는 되돌릴 수 없습니다. 계속할까요?')) return;
+      if(!confirm(t('🗑️ {s} ~ {e}\n기록 {n}건을 삭제합니다.\n삭제 후에는 되돌릴 수 없습니다. 계속할까요?',{s:$('bulkStart').value,e:$('bulkEnd').value,n:r.del.length}))) return;
       var ids={}; r.del.forEach(function(x){ids[x.id]=1;});
       records=records.filter(function(x){return !ids[x.id];});
       save(); render(); sheet(false);
       return;
     }
-    if(!confirm($('bulkPreview').textContent+'\n\n입력할까요?')) return;
+    if(!confirm($('bulkPreview').textContent+'\n\n'+t('입력할까요?'))) return;
     var inf=r.info;
     r.add.forEach(function(d){
       records.push({id:generateId(),date:d,site:inf.site,units:inf.units,expense:0,paid:!!inf.off,memo:''});
