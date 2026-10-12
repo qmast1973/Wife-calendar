@@ -234,6 +234,8 @@ var I18N = {
   '파일이 연결되었습니다. 이후 데이터가 자동 저장됩니다.':['File linked. Data will be saved to it automatically.','เชื่อมไฟล์แล้ว ข้อมูลจะบันทึกอัตโนมัติ'],
   '데이터를 성공적으로 불러왔습니다.':['Data restored.','นำเข้าข้อมูลสำเร็จ'],
   '올바른 업무달력 백업 파일이 아닙니다.':['This is not a valid Work Calendar backup file.','ไม่ใช่ไฟล์สำรองข้อมูลปฏิทินงานที่ถูกต้อง'],
+  '지금 기록 {n}건을 불러온 파일의 기록 {m}건으로 바꿉니다. 계속할까요?':['Replace the current {n} records with the {m} records from this file?','แทนที่ข้อมูลปัจจุบัน {n} รายการด้วยข้อมูล {m} รายการจากไฟล์นี้หรือไม่?'],
+  '0유닛은 휴무 버튼으로 기록해 주세요.':['To record 0 units, please use the Day Off button.','หากต้องการบันทึก 0 ยูนิต กรุณาใช้ปุ่มวันหยุด'],
   // 전체화면 · 설치 안내
   '화면을 넓게 사용하려면 전체 화면으로 시작하세요.':['Start in full screen for more space.','เริ่มแบบเต็มหน้าจอเพื่อพื้นที่ที่มากขึ้น'],
   '전체 화면으로 시작':['Start full screen','เริ่มแบบเต็มหน้าจอ'],
@@ -1354,6 +1356,7 @@ async function saveToDataFile(){
 }
 
 function save(){
+  saveToStorage(); // 브라우저 저장은 즉시 (입력 직후 앱을 닫아도 기록 유지)
   dirty = true; updateFileStatus();
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => { saveToDataFile(); }, 1500);
@@ -1590,6 +1593,12 @@ function setQuickUnits(v){
 function updateQuickPay(){
   const el = $('quickPay');
   if(el) el.textContent = won(payForUnits(parseFloat(String($('quickUnits').value).replace(',','.')) || 0));
+}
+
+// 빠른 입력 유닛 읽기: 0도 그대로 읽고, 비었거나 숫자가 아니면 기준 유닛
+function readQuickUnits(){
+  const n = parseFloat(String($('quickUnits').value).replace(',','.'));
+  return Number.isFinite(n) ? Math.max(0, Math.round(n * 100) / 100) : payRule.baseUnits;
 }
 
 function changeQuickUnits(delta){
@@ -1938,7 +1947,8 @@ document.addEventListener('click', e => {
       alert(t('"{s}" 업체는 이미 등록되어 있습니다.', {s: p.site}));
       return;
     }
-    const units = Math.max(0.01, Math.round((parseFloat(String($('quickUnits').value).replace(',','.')) || payRule.baseUnits) * 100) / 100);
+    const units = readQuickUnits();
+    if(units <= 0){ alert(t('0유닛은 휴무 버튼으로 기록해 주세요.')); return; }
     p.lastUsed = Date.now();
     p.lastUnits = units;
     records.push({
@@ -1962,9 +1972,10 @@ $('quickUnits').addEventListener('input', updateQuickPay);
 $('dateActionAdd').onclick = () => {
   const siteEl = $('dateActionSite'), unitsEl = $('quickUnits');
   let site = siteEl.value.trim().replace(/\s+/g,' ');
-  let units = Math.round((parseFloat(String(unitsEl.value).replace(',','.')) || payRule.baseUnits) * 100) / 100;
+  let units = readQuickUnits();
   if(!site){ alert(t('업체명을 입력해 주세요.')); siteEl.focus(); return; }
   if(hasSameSiteOnDate(selectedDate, site)){ alert(t('"{s}" 업체는 이미 등록되어 있습니다.', {s: site})); return; }
+  if(units <= 0){ alert(t('0유닛은 휴무 버튼으로 기록해 주세요.')); unitsEl.focus(); return; }
   
   let p = presets.find(x => sameSite(x.site, site));
   if(!p){
@@ -2161,7 +2172,11 @@ $('dataImportInput').onchange = e => {
   reader.onload = () => {
     try{
       const d = JSON.parse(reader.result);
-      records = Array.isArray(d) ? d : (d.records || []);
+      // 업무달력 백업이 아니면 기존 기록을 지우지 않는다
+      const recs = Array.isArray(d) ? d : (d && d.records);
+      if(!Array.isArray(recs) || !recs.every(r => r && /^\d{4}-\d{2}-\d{2}$/.test(r.date) && typeof r.site === 'string')) throw new Error('invalid backup');
+      if(records.length && !confirm(t('지금 기록 {n}건을 불러온 파일의 기록 {m}건으로 바꿉니다. 계속할까요?', {n: records.length, m: recs.length}))) return;
+      records = recs;
       if(Array.isArray(d.presets)) presets = d.presets;
       if(d.payRule && typeof d.payRule === 'object'){ payRule = Object.assign({...defaultPayRule}, d.payRule); savePayRule(); }
       records.forEach(r => {
