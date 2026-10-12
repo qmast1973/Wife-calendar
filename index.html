@@ -1,0 +1,2130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="app-version" content="2026.10.12-w2">
+  <meta name="theme-color" content="#16764f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="업무달력">
+  <meta name="application-name" content="업무달력">
+  <meta name="format-detection" content="telephone=no">
+  <title>업무달력</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <script>
+// 화면 모드를 먼저 적용해 깜빡임 방지
+try{var _t=(JSON.parse(localStorage.getItem("wife_cal_settings_v1")||"{}").theme)||"auto";
+if(_t==="dark"||(_t==="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark");}catch(e){}
+</script>
+  <style>
+    :root{
+      --ink:#18201d;--muted:#69736e;--bg:#e8eeea;--card:#fff;--line:#e5e9e5;
+      --green:#16764f;--green-dark:#075b43;--light:#e7f5ec;--orange:#e99134;--red:#d04d43;
+      --blue:#1769c2;--purple:#7138b5;--gray-bg:#edf0f2;--gray-text:#546e7a;
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0;overscroll-behavior-y:none}
+    body{background:var(--bg);color:var(--ink);font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:calc(14px * var(--fs,1))}
+    .app{width:100%;max-width:100%;min-height:100svh;margin:auto;padding:12px 14px 34px;background:#f5f7f5}
+    @media(min-width:1101px){
+      .app{max-width:760px}
+      body{padding:20px 0}
+      .app{border-radius:26px;box-shadow:0 16px 45px #1d352024;min-height:720px}
+    }
+    
+    /* 헤더 */
+    .compact-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;min-height:calc(42px * var(--fs,1))}
+    .brand{display:flex;align-items:center;gap:8px;min-width:0;font-size:calc(18px * var(--fs,1));font-weight:800}
+    .mark{flex:none;width:calc(31px * var(--fs,1));height:calc(31px * var(--fs,1));border-radius:10px;background:var(--green);color:white;display:grid;place-items:center;font-size:calc(17px * var(--fs,1));line-height:1}
+    .header-actions{display:flex;gap:5px;flex:none}
+    .btn{border:0;background:white;color:var(--ink);font:inherit;font-weight:700;padding:8px 10px;border-radius:10px;cursor:pointer;box-shadow:0 1px 3px #1d322510;font-size:calc(12px * var(--fs,1));touch-action:manipulation}
+    .btn:hover{background:#f0f4f0}
+    .btn.primary{background:var(--green);color:#fff}
+    .btn.primary:hover{background:var(--green-dark)}
+    .btn.danger{color:var(--red);background:#fff4f3}
+
+    /* 레이아웃 & 카드 */
+    .layout{display:grid;grid-template-columns:1fr;gap:12px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 5px 18px #273b2b08}
+    
+    /* 달력 & 제스처 */
+    .calendar{
+      padding:12px 10px;
+      touch-action:pan-y;
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    .monthbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .month-title{font-size:calc(18px * var(--fs,1));font-weight:800}
+    .nav{display:flex;gap:4px}
+    .icon-btn{width:31px;height:31px;border:1px solid var(--line);border-radius:9px;background:white;cursor:pointer;font-size:calc(16px * var(--fs,1));font-weight:700;color:var(--ink)}
+    .week,.days{display:grid;grid-template-columns:repeat(7,1fr)}
+    .week div{padding:0 0 6px;text-align:center;color:var(--muted);font-size:calc(11px * var(--fs,1));font-weight:700}
+    .week div:first-child{color:var(--red)}
+    .week div:last-child{color:#3770ae}
+    .days{grid-auto-rows:1fr}
+    .day{min-height:calc(69px * var(--fs,1));border-top:1px solid var(--line);padding:4px 2px;cursor:pointer;position:relative}
+    .day:hover{background:#f7faf7}
+    .day.blank{cursor:default;background:transparent}
+    .day.selected-date-cell{outline:3px solid var(--green)!important;outline-offset:-3px!important;border-radius:10px!important;z-index:5}
+    .day.settled-date-cell{border:3px solid #000!important;box-sizing:border-box;border-radius:10px!important;z-index:4}
+    .date{font-size:calc(12px * var(--fs,1));font-weight:700}
+    .sun .date{color:var(--red)}
+    .sat .date{color:#3770ae}
+    .today .date{background:var(--green);color:#fff;width:calc(20px * var(--fs,1));height:calc(20px * var(--fs,1));display:grid;place-items:center;border-radius:50%;margin-top:-2px}
+    
+    /* 달력 엔트리(유닛 & 휴무 박스) */
+    .entry{
+      margin-top:3px;border-radius:6px;padding:2px 3px;text-align:center;
+      line-height:1.15;border:0;width:100%;cursor:pointer;display:flex;
+      flex-direction:column;align-items:center;justify-content:center;min-height:calc(39px * var(--fs,1));
+      background:var(--light);
+    }
+    .entry .site{display:block;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:calc(12.5px * var(--fs,1));font-weight:700}
+    .entry .pay{display:block;width:100%;font-size:calc(16px * var(--fs,1));font-weight:900;color:var(--green)}
+    .entry.partial{background:#fff3e4}
+    .entry.partial .pay{color:#a95e13}
+    .entry.manpower-05{background:#dff4d2!important}
+    .entry.manpower-05 .pay{color:#16834a!important}
+    .entry.manpower-10{background:#dcecff!important}
+    .entry.manpower-10 .pay{color:#1769c2!important}
+    .entry.manpower-15{background:#eadcff!important}
+    .entry.manpower-15 .pay{color:#7138b5!important}
+    .entry.manpower-20{background:#ffdede!important}
+    .entry.manpower-20 .pay{color:#c92525!important}
+    
+    /* 휴무 전용 스타일 */
+    .entry.dayoff{
+      background:var(--gray-bg)!important;
+      border:1px solid #d0d7de!important;
+    }
+    .entry.dayoff .site{
+      font-size:calc(14px * var(--fs,1))!important;
+      font-weight:900!important;
+      color:var(--gray-text)!important;
+    }
+    .entry.dayoff .pay{display:none!important}
+    .site.more{font-size:calc(9px * var(--fs,1));color:var(--muted);text-align:center;margin-top:2px}
+
+    /* 사이드 요약 */
+    .side{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .summary{padding:14px}
+    .label{color:var(--muted);font-size:calc(11px * var(--fs,1));font-weight:700}
+    .total{font-size:calc(22px * var(--fs,1));font-weight:900;margin:4px 0 2px}
+    .total small{font-size:calc(12px * var(--fs,1))}
+    .company-summary{padding:14px;grid-column:1/-1}
+    .company-summary h2{font-size:calc(13px * var(--fs,1));margin:0 0 8px;font-weight:800}
+    .company-totals{display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto}
+    .empty{color:var(--muted);font-size:calc(12px * var(--fs,1));padding:8px 0}
+
+    /* 배지 스타일 */
+    .badge-paid{background:#e7f5ec;color:#16764f;font-size:calc(10px * var(--fs,1));font-weight:800;padding:2px 6px;border-radius:4px;white-space:nowrap}
+    .badge-unpaid{background:#fff4f3;color:#d04d43;font-size:calc(10px * var(--fs,1));font-weight:800;padding:2px 6px;border-radius:4px;white-space:nowrap}
+    .badge-dayoff{background:#e2e8f0;color:#475569;font-size:calc(10px * var(--fs,1));font-weight:800;padding:2px 6px;border-radius:4px;white-space:nowrap}
+
+    /* 데이터 저장 패널 */
+    .save-panel{padding:14px}
+    .save-panel-title{font-size:calc(13px * var(--fs,1));font-weight:800;margin-bottom:8px}
+    .save-panel-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    
+    /* 모달 시트 공통 */
+    .sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;padding:10px;z-index:1000}
+    .sheet.open{display:flex}
+    .sheet-box{width:min(100%,calc(420px * var(--base,1)));background:#fff;border-radius:20px;padding:18px;box-shadow:0 12px 45px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto;box-sizing:border-box}
+    .sheet-title{font-size:calc(18px * var(--fs,1));font-weight:800;margin:0 0 14px}
+    .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .field{display:flex;flex-direction:column;gap:5px;font-size:calc(11px * var(--fs,1));font-weight:700}
+    .field.full{grid-column:1/-1}
+    .field input, .field select, .field textarea{
+      width:100%;border:1px solid #dce4de;border-radius:9px;padding:9px;font:inherit;
+      font-size:calc(12px * var(--fs,1));color:var(--ink);background:#fff;outline:0;box-sizing:border-box;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px #16764f19}
+    .field textarea{resize:vertical;min-height:70px}
+    .sheet-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:14px}
+    .right-actions{display:flex;gap:6px}
+
+    /* 빠른 입력 팝업 */
+    .date-action-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:1200;display:none;align-items:center;justify-content:center;padding:12px}
+    .date-action-backdrop.open{display:flex}
+    .date-action-sheet{--fs:calc(var(--fsr,1) * 1.2);width:min(100%,calc(560px * var(--base,1)));max-height:90vh;max-height:90dvh;overflow-y:auto;background:#fff;border-radius:22px;padding:16px 14px 22px;box-sizing:border-box;box-shadow:0 -10px 40px rgba(0,0,0,.2)}
+    .date-action-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+    .date-action-title{flex:1;min-width:0;white-space:nowrap;font-size:calc(14.5px * var(--fs,1));font-weight:900}
+    .date-action-add-head{white-space:nowrap;height:calc(36px * var(--fs,1));padding:0 14px;border-radius:10px;border:0;background:var(--green);color:#fff;font:inherit;font-weight:800;cursor:pointer}
+    .date-action-records{display:grid;gap:6px;margin-bottom:12px}
+    .date-action-record{width:100%;border:1px solid #dce8e1;background:#f5faf7;border-radius:10px;padding:10px;text-align:left;cursor:pointer;font:inherit}
+    .date-action-record strong{font-size:calc(14px * var(--fs,1))}
+    .date-action-record span{display:block;margin-top:2px;font-size:calc(11px * var(--fs,1));color:#527064}
+    .date-action-empty{padding:8px 2px;color:#777;font-size:calc(12px * var(--fs,1))}
+    .date-action-quick{border-top:1px solid #eee;padding-top:12px}
+    .quick-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .quick-title-row strong{font-size:calc(16px * var(--fs,1))}
+    .quick-unit-control{display:grid;grid-template-columns:calc(64px * var(--fs,1)) calc(26px * var(--fs,1));gap:2px;align-items:stretch}
+    .quick-unit-control input{width:100%;height:calc(34px * var(--fs,1));text-align:center;border:1px solid #d9e2dd;border-radius:8px;font-size:calc(16px * var(--fs,1));font-weight:800;background:#fff}
+    .quick-unit-arrows{display:grid;grid-template-rows:1fr 1fr;gap:2px}
+    .quick-unit-arrows button{border:0;background:var(--green);color:#fff;border-radius:4px;font-size:calc(9px * var(--fs,1));cursor:pointer;padding:0}
+    .date-action-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+    .date-action-preset{border:1px solid #cfe1d8;background:#fff;border-radius:8px;padding:8px 10px;font:inherit;font-size:calc(12px * var(--fs,1));font-weight:800;cursor:pointer}
+    .date-action-preset.already-used{opacity:.5;border-style:dashed}
+    
+    /* 빠른 휴무 버튼 */
+    .dayoff-quick-btn{
+      border:1px solid #cfd8dc;background:#edf0f2;color:#37474f;border-radius:8px;
+      padding:8px 12px;font:inherit;font-size:calc(12px * var(--fs,1));font-weight:800;cursor:pointer;
+      display:inline-flex;align-items:center;gap:4px;
+    }
+    .dayoff-quick-btn:hover{background:#e2e8f0}
+    .quick-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+    .quick-right .dayoff-quick-btn{width:100%;justify-content:center;padding:calc(7px * var(--fs,1)) calc(12px * var(--fs,1))}
+    
+    .date-action-new{display:flex;gap:6px;width:100%}
+    .date-action-new input{height:calc(44px * var(--fs,1));border:1px solid #d6e0db;border-radius:10px;padding:0 10px;font:inherit;font-size:calc(12px * var(--fs,1));box-sizing:border-box}
+    .date-action-new input:first-child{flex:1.2 1 0;min-width:0}
+    .date-action-new input:nth-child(2){flex:1 1 0;min-width:0}
+    .date-action-new .date-action-add-head{flex:none;height:calc(44px * var(--fs,1));padding:0 calc(16px * var(--fs,1));font-size:calc(14px * var(--fs,1));white-space:nowrap}
+
+    /* 업체 관리 */
+    .company-manage-list{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto}
+    .company-manage-row{display:flex;flex-direction:column;gap:7px;border:1px solid var(--line);border-radius:10px;padding:9px}
+    .company-manage-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .company-manage-fields{display:grid;grid-template-columns:1fr 1.5fr;gap:6px}
+    .company-manage-fields input,.company-manage-fields textarea{width:100%;box-sizing:border-box;border:1px solid #d6e0db;border-radius:8px;padding:7px 8px;font:inherit;font-size:calc(12px * var(--fs,1));background:#fff}
+    .company-manage-fields textarea{grid-column:1/-1;min-height:52px;resize:vertical}
+    .company-manage-actions{display:flex;justify-content:flex-end;gap:6px}
+    @media(max-width:600px){.company-manage-fields{grid-template-columns:1fr}.company-manage-fields textarea{grid-column:auto}}
+    .company-manage-info strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:calc(13px * var(--fs,1))}
+    .company-manage-info span{display:block;margin-top:2px;color:var(--muted);font-size:calc(11px * var(--fs,1))}
+    .company-edit{border:1px solid #cfe2d6;border-radius:8px;background:#f7fcf8;color:#246746;padding:6px 8px;font:inherit;font-size:calc(11px * var(--fs,1));font-weight:700;cursor:pointer}
+    .company-manage-delete{border:1px solid #f0d0cc;border-radius:8px;background:#fff4f3;color:var(--red);padding:6px 8px;font:inherit;font-size:calc(11px * var(--fs,1));font-weight:700;cursor:pointer}
+
+    /* 공유 팝업 */
+    .share-popup{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:1500}
+    .share-popup.open{display:flex}
+    .share-popup-box{width:min(92vw,500px);background:#fff;border-radius:18px;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+    .share-popup-title{font-size:calc(18px * var(--fs,1));font-weight:900;margin:0 0 6px}
+    .share-popup-help{font-size:calc(12px * var(--fs,1));color:#666;margin-bottom:10px}
+    .share-popup-text{width:100%;min-height:220px;border:1px solid #ddd;border-radius:10px;padding:10px;font:600 13px/1.5 inherit;resize:vertical;box-sizing:border-box}
+    .share-popup-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:10px}
+
+    /* 전체화면 시작화면 */
+    #fullscreenStart{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:rgba(244,247,245,.97);padding:20px}
+    #fullscreenStart.show{display:flex}
+    #fullscreenStart .fs-card{width:min(340px,90vw);background:#fff;border-radius:20px;padding:22px;box-shadow:0 12px 40px rgba(0,0,0,.15);text-align:center}
+    #fullscreenStart .fs-title{font-size:calc(24px * var(--fs,1));font-weight:900;margin-bottom:8px}
+    #fullscreenStart .fs-desc{font-size:calc(13px * var(--fs,1));line-height:1.5;color:#666;margin-bottom:16px}
+    #fullscreenStart button{display:block;width:100%;border:0;border-radius:10px;padding:12px;font-size:calc(14px * var(--fs,1));font-weight:800;margin-top:8px;cursor:pointer}
+    #fullscreenStartBtn{background:var(--green);color:#fff}
+    #fullscreenSkipBtn{background:#f0f2f1;color:#333}
+
+    /* PWA 설치 버튼 */
+    #pwaInstallBottom{display:none;width:100%;margin:12px 0 4px;padding:12px;border:0;border-radius:12px;background:var(--green-dark);color:#fff;font-size:calc(14px * var(--fs,1));font-weight:800;cursor:pointer}
+    .pwa-ready #pwaInstallBottom{display:block}
+    /* 아이폰 홈 화면 앱: 다이내믹 아일랜드·홈 바 영역 피하기 */
+    .app{padding-top:max(12px, env(safe-area-inset-top,0px));padding-left:max(14px, env(safe-area-inset-left,0px));padding-right:max(14px, env(safe-area-inset-right,0px));padding-bottom:calc(34px + env(safe-area-inset-bottom,0px))}
+    .sheet{padding-top:max(10px, env(safe-area-inset-top,0px));padding-bottom:max(10px, env(safe-area-inset-bottom,0px))}
+    .date-action-backdrop{padding-top:max(12px, env(safe-area-inset-top,0px));padding-bottom:max(12px, env(safe-area-inset-bottom,0px))}
+    .date-action-sheet{max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 24px)}
+    button,a,.day,.entry{-webkit-tap-highlight-color:transparent}
+    .day,.entry,.brand,.month-title{-webkit-touch-callout:none}
+    /* iOS 홈 화면 추가 안내 */
+    #iosInstallSheet .ios-steps{margin:6px 0 0;padding-left:20px;font-size:calc(14px * var(--fs,1));line-height:1.7}
+    #iosInstallSheet .ios-share{display:inline-grid;place-items:center;width:1.6em;height:1.6em;border-radius:6px;background:#e8f0fe;color:#1769c2;font-weight:900;vertical-align:middle}
+  </style>
+
+<style id="settings-only-css">
+#settingsBtn{flex:none;width:calc(40px * var(--fs,1));height:calc(40px * var(--fs,1));border-radius:50%;font-size:calc(19px * var(--fs,1));padding:0;box-shadow:0 1px 4px #1d322526}
+#settingsCloseBtn{position:absolute;top:12px;right:12px;width:44px;height:44px;padding:0;font-size:calc(24px * var(--fs,1))}
+.set-sec input[type=checkbox]{flex:none;width:calc(18px * var(--fs,1));height:calc(18px * var(--fs,1))}
+.set-sec{border:1px solid #dce4de;border-radius:12px;padding:12px}
+.set-sec .btn{min-height:40px}
+body.hide-summary aside.side{display:none}
+body.no-paid-border .day.settled-date-cell{border:0!important}
+html,body{overflow-x:clip;max-width:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html{touch-action:pan-x pan-y}
+.sheet-box{max-height:90vh;max-height:90dvh;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1;min-width:calc(34px * var(--fs,1));height:calc(34px * var(--fs,1));padding:0 calc(9px * var(--fs,1));font-size:calc(14px * var(--fs,1));white-space:nowrap}
+.nav{gap:clamp(3px,1.2vw,5px)}
+.month-title{font-size:calc(17px * var(--fs,1));white-space:nowrap}
+.btn{min-height:36px}
+.field input,.field select,.field textarea,.company-manage-fields input,.company-manage-fields textarea{font-size:calc(16px * var(--fs,1))!important}
+@media(max-width:360px){.app{padding:10px 8px 28px}.day{min-height:52px}.month-title{font-size:calc(16px * var(--fs,1))}}
+.date-action-new input{min-width:0;width:100%}
+.date-action-close{width:calc(36px * var(--fs,1));height:calc(36px * var(--fs,1));border:0;border-radius:10px;background:#eef2ef;color:var(--ink);font-size:calc(24px * var(--fs,1));line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+.date-action-backdrop,.sheet,.share-popup{overscroll-behavior:contain}
+.date-action-sheet,.sheet-box{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+body.modal-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
+#settingsSheet .btn:not(.primary){background:#e9f4ee;color:var(--green-dark);border:1.5px solid #8fc4a8;box-shadow:0 2px 0 #b9d9c7;padding:10px 14px;min-height:calc(44px * var(--fs,1))}
+#settingsSheet .btn:not(.primary):active{background:#d3eadc;box-shadow:none;transform:translateY(2px)}
+#settingsSheet .btn.primary{border:1.5px solid var(--green-dark);box-shadow:0 3px 0 #04402f;min-height:calc(48px * var(--fs,1))}
+#settingsSheet .btn.primary:active{box-shadow:none;transform:translateY(3px)}
+#settingsSheet #settingsCloseBtn{background:#f1f3f2;color:var(--ink);border:1.5px solid #c5ccc8;box-shadow:none;padding:0}
+#settingsSheet #fileStatusBtn{background:#fff;color:#555;border-style:dashed}
+#helpSheet #helpCloseBtn{background:#f1f3f2;border:1.5px solid #c5ccc8;box-shadow:none}
+#bulkOpenBtn{height:calc(40px * var(--fs,1));border-radius:calc(20px * var(--fs,1));padding:0 calc(14px * var(--fs,1));white-space:nowrap;box-shadow:0 3px 0 #04402f;font-size:calc(13px * var(--fs,1))}
+#bulkOpenBtn:active{box-shadow:none;transform:translateY(2px)}
+.header-actions{align-items:center;gap:calc(8px * var(--fs,1))}
+#bulkSheet .sheet-box{position:relative}
+#bulkSheet{z-index:1250}
+#bulkSheet .field{min-width:0}
+#bulkSheet input,#bulkSheet select{min-width:0;max-width:100%}
+.bulk-days{display:flex;gap:6px;flex-wrap:wrap}
+.bulk-days label{display:flex;align-items:center;gap:4px;border:1.5px solid #c9d8cf;border-radius:10px;padding:6px 10px;font-weight:700;font-size:calc(13px * var(--fs,1));background:#fff}
+.bulk-days label:has(input:checked){background:#ffe9e7;border-color:#e6a49e;color:var(--red)}
+.bulk-preview{margin-top:12px;padding:10px 12px;border-radius:12px;background:#f5faf7;border:1px solid #dce8e1;font-weight:700;font-size:calc(13px * var(--fs,1));line-height:1.5}
+#bulkCloseBtn{position:absolute;top:12px;right:12px;width:calc(44px * var(--fs,1));height:calc(44px * var(--fs,1));padding:0;font-size:calc(24px * var(--fs,1));background:#f1f3f2;border:1.5px solid #c5ccc8;box-shadow:none}
+#bulkSheet.del-mode .bulk-add-only{display:none!important}
+#bulkSheet .theme-seg .btn.on{background:var(--green-dark);color:#fff;border:1.5px solid var(--green-dark);box-shadow:none}
+#bulkSheet.del-mode .theme-seg .btn.on{background:var(--red);border-color:var(--red)}
+#bulkSheet.del-mode #bulkApplyBtn{background:var(--red);border-color:var(--red);box-shadow:0 3px 0 #8f2d26}
+#bulkSheet .btn:not(.primary){border:1.5px solid #c5ccc8}
+html.dark #bulkSheet .btn:not(.primary):not(.on){background:#26322c;border-color:#43524b}
+/* ===== 다크 모드 ===== */
+html.dark{color-scheme:dark;--ink:#e6eee8;--muted:#9fb0a6;--bg:#0c110e;--card:#1b2420;--line:#2d3a34;--light:#1d3a2b;--gray-bg:#2a3430;--gray-text:#b5c3bb;--green:#2f9d6c;--green-dark:#1f7a52;--red:#ff8178;--blue:#6aaeff;--purple:#b992f0;--orange:#f0a24a}
+html.dark body{background:var(--bg);color:var(--ink)}
+html.dark .app{background:#121915}
+html.dark .card,html.dark .calendar{background:var(--card);border-color:var(--line)}
+html.dark .btn{background:#26322c;color:var(--ink);box-shadow:0 1px 3px #0008}
+html.dark .btn:hover{background:#2e3c35}
+html.dark .btn.primary{background:var(--green-dark);color:#fff}
+html.dark .btn.danger{background:#3a2422;color:#ff9a92}
+html.dark .icon-btn{background:#26322c;color:var(--ink);border-color:var(--line)}
+html.dark .day{border-top-color:var(--line)}
+html.dark .day:hover{background:#1f2a25}
+html.dark .sun .date{color:#ff8178}html.dark .sat .date{color:#7db4ff}
+html.dark .week div:first-child{color:#ff8178}html.dark .week div:last-child{color:#7db4ff}
+html.dark .entry{background:#1d3a2b}
+html.dark .entry .site{color:#e6eee8}
+html.dark .entry .pay{color:#6fd3a0}
+html.dark .entry.partial{background:#4a361c}html.dark .entry.partial .pay{color:#f0b765}
+html.dark .entry.manpower-05{background:#1f3d27!important}html.dark .entry.manpower-05 .pay{color:#79d98f!important}
+html.dark .entry.manpower-10{background:#1d3550!important}html.dark .entry.manpower-10 .pay{color:#7dbaff!important}
+html.dark .entry.manpower-15{background:#35294f!important}html.dark .entry.manpower-15 .pay{color:#c3a1f5!important}
+html.dark .entry.manpower-20{background:#4d2626!important}html.dark .entry.manpower-20 .pay{color:#ff958d!important}
+html.dark .entry.dayoff{background:#2a3430!important;border-color:#3b4943!important}
+html.dark .day.settled-date-cell{border-color:#e6eee8!important}
+html.dark .sheet-box,html.dark .date-action-sheet,html.dark .share-popup-box{background:#1b2420;color:var(--ink)}
+html.dark .field input,html.dark .field select,html.dark .field textarea,html.dark .company-manage-fields input,html.dark .company-manage-fields textarea,html.dark .date-action-new input,html.dark .quick-unit-control input,html.dark select,html.dark input[type=text],html.dark input[type=number],html.dark input[type=tel],html.dark input[type=date],html.dark input[type=month],html.dark textarea{background:#121915;color:var(--ink);border-color:#3a4943}
+html.dark ::placeholder{color:#7d8d84}
+html.dark .date-action-record{background:#1f2a25;border-color:#33433b;color:var(--ink)}
+html.dark .date-action-record span{color:#9fb0a6}
+html.dark .date-action-preset{background:#1f2a25;border-color:#3a4943;color:var(--ink)}
+html.dark .date-action-quick{border-top-color:var(--line)}
+html.dark .date-action-close{background:#2a3430;color:var(--ink)}
+html.dark .date-action-empty{color:#9fb0a6}
+html.dark .company-manage-row{border-color:var(--line)}
+html.dark .company-edit{background:#1f3a2b;border-color:#2f5a44;color:#9be0bc}
+html.dark .company-manage-delete{background:#3a2422;border-color:#5a3532;color:#ff9a92}
+html.dark .set-sec,html.dark .help-body details{border-color:#33433b}
+html.dark .help-body ul{color:#cdd9d1}
+html.dark #settingsSheet .btn:not(.primary){background:#1f3a2b;color:#9be0bc;border-color:#2f7a55;box-shadow:0 2px 0 #12261c}
+html.dark #settingsSheet .btn:not(.primary):active{background:#27503a}
+html.dark #settingsSheet .btn.primary{border-color:#2f9d6c;box-shadow:0 3px 0 #0f3a28}
+html.dark #settingsSheet #settingsCloseBtn,html.dark #helpSheet #helpCloseBtn,html.dark #bulkCloseBtn{background:#2a3430;color:var(--ink);border-color:#43524b}
+html.dark #settingsSheet #fileStatusBtn{background:#121915;color:#9fb0a6}
+html.dark #settingsBtn{background:#26322c}
+html.dark .bulk-days label{background:#121915;border-color:#3a4943;color:var(--ink)}
+html.dark .bulk-days label:has(input:checked){background:#4d2626;border-color:#a65a55;color:#ff9a92}
+html.dark .bulk-preview,html.dark #settlementResult{background:#1f2a25!important;border-color:#33433b!important;color:var(--ink)}
+html.dark #settlementResult span[style*="color:var(--ink)"]{color:var(--ink)!important}
+html.dark .badge-paid{background:#1d3a2b;color:#7fe0ab}
+html.dark .badge-unpaid{background:#3a2422;color:#ff9a92}
+html.dark .badge-dayoff{background:#2a3430;color:#b5c3bb}
+html.dark #fullscreenStart{background:rgba(12,17,14,.97)}
+html.dark #fullscreenStart .fs-card{background:#1b2420;color:var(--ink)}
+html.dark #fullscreenStart .fs-desc{color:#9fb0a6}
+html.dark #fullscreenSkipBtn{background:#2a3430;color:var(--ink)}
+html.dark .month-title,html.dark .sheet-title,html.dark .brand{color:var(--ink)}
+html.dark [style*="background:#f1f5f9"]{background:#2a3430!important;color:var(--ink)!important;border-color:#43524b!important}
+html.dark a{color:#7dbaff}
+html.dark .dayoff-quick-btn{background:#2a3430;border-color:#43524b;color:#d5e0d9}
+html.dark .dayoff-quick-btn:hover{background:#33423b}
+.theme-seg{display:flex;gap:6px;margin-top:10px}
+.theme-seg .btn{flex:1}
+#settingsSheet .theme-seg .btn.on{background:var(--green-dark);color:#fff;border-color:var(--green-dark)}
+.help-body details{border:1px solid #dce4de;border-radius:12px;padding:10px 12px;margin-top:8px}
+.help-body summary{cursor:pointer;font-weight:800;font-size:calc(15px * var(--fs,1))}
+.help-body ul{margin:8px 0 2px;padding-left:18px;font-size:calc(13px * var(--fs,1));line-height:1.55;color:#2c3833}
+.help-body li{margin-top:4px}
+#helpCloseBtn{position:absolute;top:12px;right:12px;width:calc(44px * var(--fs,1));height:calc(44px * var(--fs,1));padding:0;font-size:calc(24px * var(--fs,1))}
+</style>
+</head>
+<body><!-- 도움말 -->
+<div class="sheet" id="helpSheet" style="z-index:1300;">
+  <div class="sheet-box" style="position:relative;">
+    <div class="sheet-head-row"><h1 class="sheet-title" style="margin:0;">❓ 사용 도움말</h1></div>
+    <button type="button" class="btn" id="helpCloseBtn" aria-label="닫기">×</button>
+    <div class="help-body">
+      <details open><summary>📅 달력 보기</summary>
+        <ul>
+          <li>화면을 좌우로 쓸어 넘기거나 ‹ › 버튼으로 달을 바꿉니다. <b>오늘</b> 버튼은 이번 달로 돌아옵니다.</li>
+          <li>날짜 칸에는 그날 일한 업체명과 유닛이 표시됩니다. 유닛에 따라 칸 색이 달라집니다. (13유닛 미만 주황 / 13유닛 파랑 / 13유닛 초과 보라, 휴무는 회색)</li>
+          <li>하루에 기록이 3건 이상이면 두 건만 보이고 “+N건”으로 표시됩니다.</li>
+          <li>입금 정산이 끝난 날은 검은 테두리로 표시됩니다. (설정에서 끌 수 있어요)</li>
+        </ul>
+      </details>
+      <details><summary>📅 기간 일괄 입력</summary>
+        <ul>
+          <li>홈 위쪽 <b>📅 기간 입력</b> 버튼을 누르면 여러 날을 한 번에 입력할 수 있습니다.</li>
+          <li>시작일·종료일, 업체, 유닛을 정하세요. 하루 급여는 유닛으로 자동 계산됩니다.</li>
+          <li>쉬지 않는 요일이 있으면 <b>제외할 요일</b>(예: 일요일)을 체크하세요. 그 요일은 건너뜁니다.</li>
+          <li>같은 업체가 이미 등록된 날은 건너뛰고, 아래에 입력될 일수가 미리 표시됩니다. 한 번에 최대 366일입니다.</li>
+          <li>업체에서 <b>휴무</b>를 고르면 기간 전체를 휴무로 입력합니다.</li>
+          <li>잘못 입력했다면 같은 창 위쪽의 <b>🗑️ 일괄 삭제</b>로 기간과 업체를 골라 한 번에 지울 수 있습니다. 삭제 후에는 되돌릴 수 없으니 백업을 권장합니다.</li>
+        </ul>
+      </details>
+      <details open><summary>💰 급여 계산 방식</summary>
+        <ul>
+          <li>하루 <b>13.0유닛 = 105,000원</b></li>
+          <li>13유닛을 넘으면 <b>초과 1유닛당 7,000원</b>이 더해집니다. (예: 15유닛 = 105,000 + 2×7,000 = 119,000원)</li>
+          <li>13유닛 미만이면 <b>유닛 × 8,000원</b>입니다. (예: 10유닛 = 80,000원)</li>
+          <li>기준 금액은 설정 → <b>유닛 급여 기준</b>에서 바꿀 수 있으며, 바꾸면 모든 기록이 새 기준으로 다시 계산됩니다.</li>
+        </ul>
+      </details>
+      <details><summary>✍️ 근무 입력하기</summary>
+        <ul>
+          <li>날짜를 누르면 입력창이 열립니다. 그날 기록이 있으면 위에 목록으로 나옵니다.</li>
+          <li><b>빠른 입력</b>: 오른쪽 유닛(▲▼ 또는 직접 입력, 기본 13.0)을 정한 뒤, 업체 버튼을 누르면 바로 기록됩니다. 유닛 아래에 그날 급여가 미리 표시됩니다.</li>
+          <li>유닛 입력칸 아래의 <b>휴무</b> 버튼으로 쉬는 날을 등록합니다. 휴무는 별도 업체가 아니라 <b>가장 최근에 입력한 업체의 0유닛</b>으로 기록되어, 내보내기·정산에서 그 업체 안에 함께 정리됩니다.</li>
+          <li>새 업체는 빠른 입력 맨 아래 <b>업체명 · 추가</b> 줄에 입력하고 <b>추가</b>를 누르면 기록되고, 다음부터 업체 버튼으로 나타납니다.</li>
+                    <li>이미 입력한 기록을 누르면 수정하거나 삭제할 수 있습니다.</li>
+        </ul>
+      </details>
+      <details><summary>🏢 업체 관리</summary>
+        <ul>
+          <li>설정 → <b>업체 관리</b>에서 업체명, 전화번호, 주소, 메모(담당자·입금 정보 등)를 수정합니다.</li>
+          <li>업체명을 바꾸면 이미 입력한 기록의 업체명도 함께 바뀝니다.</li>
+          <li>업체를 삭제해도 이미 입력한 달력 기록은 지워지지 않습니다. (빠른 입력 버튼만 사라집니다)</li>
+        </ul>
+      </details>
+      <details><summary>💰 월별 정산 · 입금 관리</summary>
+        <ul>
+          <li>설정 → <b>월별 업체 정산 및 입금 관리</b>에서 월과 업체를 고르면 누적 유닛, 급여 합계, 경비, 세금, 최종 수령액이 계산됩니다.</li>
+          <li>세금은 <b>3.3% 공제</b> 또는 <b>공제 없음</b>을 고를 수 있습니다.</li>
+          <li>업체별로 한 달 치를 <b>전체 입금 완료</b> 또는 <b>미지급</b>으로 한꺼번에 바꿀 수 있습니다.</li>
+          <li>홈 화면의 “이번 달 미수금”은 아직 입금되지 않은 금액의 합계입니다.</li>
+        </ul>
+      </details>
+      <details><summary>📤 내보내기 · 공유</summary>
+        <ul>
+          <li>설정 → <b>내보내기</b>에서 기간과 업체를 고르고, <b>텍스트 목록</b>(카카오톡·문자 전송용) 또는 <b>엑셀 CSV 파일</b>로 만들 수 있습니다.</li>
+          <li>날짜, 유닛, 급여, 합계 등 넣을 항목을 골라 내용을 정할 수 있습니다.</li>
+        </ul>
+      </details>
+      <details><summary>💾 저장 · 백업 · 복원</summary>
+        <ul>
+          <li>모든 기록은 <b>이 기기의 브라우저에 자동 저장</b>되며 서버로 전송되지 않습니다.</li>
+          <li>기기를 바꾸거나 앱을 지우기 전에는 설정 → <b>JSON 백업 다운로드</b>로 파일을 꼭 저장해 두세요.</li>
+          <li>새 기기에서는 <b>데이터 불러오기</b>로 그 백업 파일을 선택하면 복원됩니다.</li>
+          <li><b>파일 연동/자동저장</b>은 지원되는 브라우저에서 파일을 연결해 두면 변경 때마다 그 파일에도 저장합니다. 아래 “저장됨/저장 대기/브라우저 저장” 표시로 상태를 볼 수 있어요.</li>
+        </ul>
+      </details>
+      <details><summary>⚙️ 설정</summary>
+        <ul>
+          <li><b>화면 글자 크기</b>: A− / A+ 로 90%~130% 사이에서 조절합니다. 화면이 넓은 기기에서는 자동으로 더 크게 표시됩니다.</li>
+          <li><b>숨기기</b>: 누적 유닛·미수금·업체별 정산 영역을 홈에서 감춥니다. (데이터는 그대로입니다)</li>
+          <li><b>검은색 테두리</b>: 입금 정산 완료 날짜 표시를 켜고 끕니다.</li>
+        </ul>
+      </details>
+      <details><summary>🔒 개인정보</summary>
+        <ul>
+          <li>입력한 모든 기록은 이 기기에만 저장되며 서버로 전송되지 않습니다. <a href="privacy.html" target="_blank" rel="noopener">개인정보처리방침 보기</a></li>
+        </ul>
+      </details>
+      <details><summary>📱 앱처럼 설치하기</summary>
+        <ul>
+          <li><b>아이폰</b>: Safari로 열고 공유 버튼 ⬆︎ → <b>홈 화면에 추가</b>를 누르면 앱처럼 설치됩니다. (화면 아래 설치 버튼을 누르면 안내가 나와요)</li>
+          <li>아이폰은 Safari와 홈 화면 앱의 저장 공간이 따로라서, 기록은 <b>홈 화면 앱에서</b> 입력하세요.</li>
+          <li>안드로이드: 브라우저 메뉴의 <b>홈 화면에 추가</b>(또는 화면 아래 설치 버튼)로 설치합니다.</li>
+          <li>앱이 예전 화면으로 보이면 완전히 종료했다가 다시 여세요. 설정 맨 아래 <b>앱 버전</b>으로 최신인지 확인할 수 있습니다.</li>
+        </ul>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- 기간 선택 일괄 유닛 입력 -->
+<div class="sheet" id="bulkSheet">
+  <div class="sheet-box">
+    <div class="sheet-head-row"><h1 class="sheet-title" style="margin:0;">📅 기간 선택 일괄 입력</h1></div>
+    <button type="button" class="btn" id="bulkCloseBtn" aria-label="닫기">×</button>
+    <div class="theme-seg" id="bulkMode" style="margin-top:12px;">
+      <button type="button" class="btn on" data-mode="add">➕ 일괄 입력</button>
+      <button type="button" class="btn" data-mode="del">🗑️ 일괄 삭제</button>
+    </div>
+    <div class="formgrid" style="margin-top:12px;">
+      <label class="field"><span>시작일</span><input type="date" id="bulkStart"></label>
+      <label class="field"><span>종료일</span><input type="date" id="bulkEnd"></label>
+      <label class="field full"><span>업체</span>
+        <select id="bulkSite"></select>
+      </label>
+      <label class="field full bulk-add-only" id="bulkSiteNewWrap" style="display:none"><span>새 업체명</span><input type="text" id="bulkSiteNew" placeholder="업체명 입력"></label>
+      <label class="field bulk-add-only"><span>유닛</span><input type="number" id="bulkUnits" value="13" min="0" step="0.1" inputmode="decimal"></label>
+      <label class="field bulk-add-only"><span>하루 급여 (자동)</span><input type="text" id="bulkPay" readonly tabindex="-1" style="font-weight:800;color:var(--green);"></label>
+      <div class="field full"><span id="bulkDaysLabel">제외할 요일 (선택)</span>
+        <div class="bulk-days" id="bulkDays">
+          <label><input type="checkbox" value="0">일</label><label><input type="checkbox" value="1">월</label><label><input type="checkbox" value="2">화</label><label><input type="checkbox" value="3">수</label><label><input type="checkbox" value="4">목</label><label><input type="checkbox" value="5">금</label><label><input type="checkbox" value="6">토</label>
+        </div>
+      </div>
+    </div>
+    <div class="bulk-preview" id="bulkPreview">기간을 선택해 주세요.</div>
+    <div class="sheet-actions">
+      <button type="button" class="btn" id="bulkCancelBtn" style="flex:1">취소</button>
+      <button type="button" class="btn primary" id="bulkApplyBtn" style="flex:2">입력하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// 설치된 앱이 옛 버전 캐시를 쓰지 않도록 서버의 최신 버전을 확인하고 다르면 새 주소로 다시 불러온다
+(function(){
+  try{
+    var cur=document.querySelector('meta[name="app-version"]').content;
+    fetch(location.pathname+'?chk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){
+      var m=t.match(/<meta name="app-version" content="([^"]+)"/);
+      if(m&&m[1]!==cur&&sessionStorage.getItem('wifecal_upd')!==m[1]){
+        sessionStorage.setItem('wifecal_upd',m[1]);
+        location.replace(location.pathname+'?v='+encodeURIComponent(m[1]));
+      }
+    }).catch(function(){});
+  }catch(e){}
+})();
+</script>
+
+
+<div id="fullscreenStart" aria-hidden="true">
+  <div class="fs-card">
+    <div class="fs-title">업무달력</div>
+    <div class="fs-desc">화면을 넓게 사용하려면 전체 화면으로 시작하세요.</div>
+    <button type="button" id="fullscreenStartBtn">전체 화면으로 시작</button>
+    <button type="button" id="fullscreenSkipBtn">그냥 시작</button>
+  </div>
+</div>
+
+<main class="app">
+  <header class="compact-header">
+    <div class="brand"><span class="mark">₩</span><span>업무달력</span></div>
+    <div class="header-actions">
+      <button type="button" class="btn primary" id="bulkOpenBtn" aria-label="기간 선택 일괄 입력">📅 기간 입력</button>
+      <button type="button" class="btn" id="settingsBtn" aria-label="설정" title="설정">⚙️</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- 달력 섹션 (좌우 스와이프 제스처 지원) -->
+    <section class="card calendar" id="calendarSection">
+      <div class="monthbar">
+        <div class="month-title" id="monthTitle"></div>
+        <div class="nav">
+          <button class="icon-btn" id="prevBtn" aria-label="이전 달">‹</button>
+          <button class="icon-btn" id="todayBtn">오늘</button>
+          <button class="icon-btn" id="nextBtn" aria-label="다음 달">›</button>
+        </div>
+      </div>
+      <div class="week">
+        <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+      </div>
+      <div class="days" id="days"></div>
+    </section>
+
+    <!-- 요약 섹션 -->
+    <aside class="side">
+      <section class="card summary">
+        <div class="label" id="summaryMonth">이번 달 누적 유닛</div>
+        <div class="total" id="monthTotal">0<small>유닛</small></div>
+        <div class="label" id="monthGross">세전 0원</div>
+      </section>
+      <section class="card summary">
+        <div class="label">이번 달 미수금(미입금)</div>
+        <div class="total" id="monthUnpaid" style="color:var(--red); font-size:calc(18px * var(--fs,1));">0<small>원</small></div>
+      </section>
+      <section class="card company-summary">
+        <h2 id="companyTitle">업체별 유닛 및 정산</h2>
+        <div id="companyTotals" class="company-totals"></div>
+      </section>
+    </aside>
+  </div>
+
+  <button id="pwaInstallBottom" type="button" onclick="installWorkApp()">📱 홈 화면에 업무달력 설치</button>
+</main>
+
+<!-- 아이폰 홈 화면 추가 안내 -->
+<div class="sheet" id="iosInstallSheet" style="z-index:1400;">
+  <div class="sheet-box">
+    <h1 class="sheet-title">📱 아이폰 홈 화면에 설치</h1>
+    <ol class="ios-steps">
+      <li><b>Safari</b>로 이 주소를 엽니다.</li>
+      <li>화면 아래(또는 위)의 공유 버튼 <span class="ios-share">⬆︎</span> 을 누릅니다.</li>
+      <li>목록을 내려서 <b>홈 화면에 추가</b>를 누릅니다.</li>
+      <li>오른쪽 위 <b>추가</b>를 누르면 홈 화면에 <b>업무달력</b> 아이콘이 생깁니다.</li>
+    </ol>
+    <div class="bulk-preview" style="font-weight:600;">⚠️ 아이폰은 <b>Safari 화면</b>과 <b>홈 화면 앱</b>의 저장 공간이 서로 다릅니다. 기록은 설치한 홈 화면 앱에서 입력하세요. Safari에서 입력한 기록이 있다면 먼저 설정 → <b>JSON 백업</b> 후, 앱에서 <b>데이터 불러오기</b>로 옮길 수 있습니다.</div>
+    <div class="sheet-actions">
+      <span></span>
+      <button type="button" class="btn primary" id="iosInstallClose">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 기록 수정/추가 시트 -->
+<div class="sheet" id="sheet">
+  <form class="sheet-box" id="recordForm">
+    <div class="sheet-actions" style="margin-top:0; margin-bottom:12px;">
+      <h1 class="sheet-title" id="sheetTitle" style="margin:0;">기록 수정</h1>
+      <div class="right-actions">
+        <button type="button" class="btn danger" id="deleteBtn">삭제</button>
+        <button type="button" class="btn" id="cancelBtn">취소</button>
+        <button class="btn primary" type="submit">저장</button>
+      </div>
+    </div>
+    <div class="formgrid">
+      <label class="field">
+        <span>날짜</span>
+        <input id="dateInput" type="date" required>
+      </label>
+      <label class="field">
+        <span>현장(업체)명</span>
+        <input id="siteInput" type="text" placeholder="예: 회사 또는 휴무" required>
+      </label>
+      <label class="field">
+        <span>유닛</span>
+        <input id="unitsInput" step="0.1" min="0" type="number" value="13.0" inputmode="decimal" required>
+      </label>
+      <label class="field">
+        <span>급여 (자동 계산)</span>
+        <input id="payPreview" type="text" readonly tabindex="-1" style="font-weight:800;color:var(--green);">
+      </label>
+      <label class="field">
+        <span>기타 경비 (식대/유류비 등)</span>
+        <input id="expenseInput" type="number" min="0" step="1000" value="0" placeholder="0">
+      </label>
+      <label class="field" style="justify-content:center;">
+        <span>입금 여부</span>
+        <label style="display:flex; align-items:center; gap:6px; margin-top:6px; cursor:pointer;">
+          <input id="paidInput" type="checkbox" style="width:18px; height:18px; accent-color:var(--green);">
+          <span style="font-size:calc(13px * var(--fs,1)); font-weight:800;">입금 완료</span>
+        </label>
+      </label>
+      <label class="field full">
+        <span>메모 (선택)</span>
+        <textarea id="memoInput" placeholder="작업 내용, 특이사항, 경비 내역 등을 적어두세요."></textarea>
+      </label>
+    </div>
+  </form>
+</div>
+
+<!-- 날짜 클릭 빠른입력 팝업 -->
+<div class="date-action-backdrop" id="dateActionPopup">
+  <div class="date-action-sheet">
+    <div class="date-action-head">
+      <div class="date-action-title" id="dateActionTitle">날짜 입력</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button type="button" class="date-action-close" id="dateActionCloseBtn" aria-label="닫기">×</button>
+      </div>
+    </div>
+    <div class="date-action-records" id="dateActionRecords"></div>
+    <div class="date-action-quick">
+      <div class="quick-title-row">
+        <div style="display:flex;align-items:center;gap:6px">
+          <strong>빠른 입력</strong>
+          <button type="button" class="btn" id="companyManageBtn" style="padding:4px 8px;font-size:calc(11px * var(--fs,1))">업체 관리</button>
+        </div>
+        <div class="quick-right">
+          <div class="quick-unit-control" aria-label="유닛">
+            <input id="quickUnits" type="text" value="13.0" inputmode="decimal">
+            <div class="quick-unit-arrows">
+              <button type="button" id="quickUnitsUp">▲</button>
+              <button type="button" id="quickUnitsDown">▼</button>
+            </div>
+          </div>
+          <div id="quickPay" style="font-weight:900;color:var(--green);font-size:calc(13px * var(--fs,1))">0원</div>
+          <button type="button" class="dayoff-quick-btn" id="quickDayOffBtn">🏖️ 휴무</button>
+        </div>
+      </div>
+      
+      <!-- 업체 프리셋 및 휴무 빠른등록 버튼 -->
+      <div class="date-action-presets" id="dateActionPresets"></div>
+      
+      <div class="date-action-new">
+        <input id="dateActionSite" type="text" placeholder="업체명">
+        <button type="button" class="date-action-add-head" id="dateActionAdd">추가</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 월별 업체 정산 & 입금 관리 팝업 -->
+<div class="sheet" id="settlementSheet">
+  <div class="sheet-box" style="position:relative;">
+    <div class="sheet-head-row"><h1 class="sheet-title" style="margin:0;">월별 업체 정산 & 입금 관리</h1></div>
+    <button type="button" class="btn" id="settlementXBtn" aria-label="닫기" style="position:absolute; top:12px; right:12px; width:36px; height:36px; padding:0; font-size:calc(22px * var(--fs,1)); line-height:1; border-radius:50%;">×</button>
+    <div class="formgrid">
+      <label class="field">
+        <span>월 선택</span>
+        <input type="month" id="settlementMonth">
+      </label>
+      <label class="field">
+        <span>세금 공제 방식</span>
+        <select id="settlementTaxType">
+          <option value="3.3">사업소득세 (3.3% 공제)</option>
+          <option value="0">공제 없음 (세전 100%)</option>
+        </select>
+      </label>
+      <label class="field full">
+        <span>업체 선택</span>
+        <select id="settlementCompany">
+          <option value="">전체 업체 (통합)</option>
+        </select>
+      </label>
+    </div>
+
+    <div id="settlementResult" style="margin-top:14px; padding:16px; background:#f5faf7; border-radius:12px; border:1px solid #dce8e1; display:none; flex-direction:column; gap:10px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(15px * var(--fs,1)); font-weight:800; border-bottom:1px solid #cfe2d6; padding-bottom:8px;">
+        <span>누적 유닛</span>
+        <span style="color:var(--green); font-size:calc(17px * var(--fs,1));" id="setUnits">0.0유닛</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(13px * var(--fs,1));">
+        <span style="color:var(--muted); font-weight:700;">유닛 급여 (세전)</span>
+        <span id="setAmount" style="font-weight:700;">0원</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(13px * var(--fs,1));">
+        <span style="color:var(--muted); font-weight:700;">기타 경비 합산</span>
+        <span id="setExpenseAmount" style="font-weight:700;">+ 0원</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(13px * var(--fs,1)); color:var(--red);">
+        <span style="font-weight:700;" id="setTaxLabel">공제 세액 (3.3%)</span>
+        <span id="setTaxAmount" style="font-weight:700;">- 0원</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(15px * var(--fs,1)); font-weight:900; border-top:1px solid #cfe2d6; padding-top:8px;">
+        <span>최종 수령액 합계</span>
+        <span style="color:var(--ink); font-size:calc(17px * var(--fs,1));" id="setTaxedAmount">0원</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(13px * var(--fs,1)); margin-top:4px;">
+        <span class="badge-paid">입금 완료</span>
+        <span id="setPaidAmount" style="font-weight:800; color:var(--green);">0원</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(13px * var(--fs,1));">
+        <span class="badge-unpaid">미지급(미수금)</span>
+        <span id="setUnpaidAmount" style="font-weight:800; color:var(--red);">0원</span>
+      </div>
+
+      <!-- 월단위 업체 일괄 입금 관리 버튼 -->
+      <div style="display:flex; flex-direction:column; gap:6px; margin-top:10px; padding-top:10px; border-top:1px dashed #cfe2d6;">
+        <button type="button" class="btn primary" id="batchPayBtn" style="padding:10px; font-size:calc(13px * var(--fs,1)); font-weight:800;">
+          ✅ 선택 업체 이번 달 [전체 입금 완료] 처리
+        </button>
+        <button type="button" class="btn" id="batchUnpayBtn" style="padding:8px; font-size:calc(12px * var(--fs,1)); color:var(--muted);">
+          ↩️ 선택 업체 이번 달 [미지급(미수금)]으로 되돌리기
+        </button>
+      </div>
+    </div>
+
+    <div class="sheet-actions">
+      <span></span>
+      <button type="button" class="btn" id="settlementCloseBtn">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 내보내기 시트 -->
+<div class="sheet" id="exportSheet">
+  <form class="sheet-box" id="exportForm">
+    <h1 class="sheet-title">기록 내보내기</h1>
+    <div class="formgrid">
+      <label class="field full">
+        <span>업체 선택</span>
+        <button class="btn" id="exportCompanyButton" type="button" style="text-align:left; width:100%; border:1px solid #dce4de;">전체 업체 ›</button>
+        <input id="exportCompany" type="hidden" value="">
+      </label>
+      <label class="field">
+        <span>시작일</span>
+        <input id="exportStart" type="date" required>
+      </label>
+      <label class="field">
+        <span>종료일</span>
+        <input id="exportEnd" type="date" required>
+      </label>
+      <label class="field full">
+        <span>형식</span>
+        <select id="exportFormat">
+          <option value="text">텍스트 목록 (카카오톡/문자용)</option>
+          <option value="csv">엑셀 CSV 파일</option>
+        </select>
+      </label>
+      <label class="field full">
+        <span>같이 보낼 내용</span>
+        <textarea id="exportExtraMessage" placeholder="예: 입금계좌 국민은행 123-456-789012 홍길동
+또는 입금 관련 안내사항을 입력하세요."></textarea>
+      </label>
+      <fieldset style="grid-column:1/-1; border:1px solid #dce4de; border-radius:9px; padding:10px; display:flex; flex-wrap:wrap; gap:8px; font-size:calc(12px * var(--fs,1));">
+        <legend style="font-weight:700; padding:0 4px;">포함 항목</legend>
+        <label><input id="includeDate" type="checkbox" checked> 날짜</label>
+        <label><input id="includeUnits" type="checkbox" checked> 유닛</label>
+        <label><input id="includePay" type="checkbox"> 급여</label>
+        <label><input id="includeAmountTotal" type="checkbox" checked> 합계</label>
+      </fieldset>
+    </div>
+    <div class="sheet-actions">
+      <span></span>
+      <div class="right-actions">
+        <button type="button" class="btn" id="exportCancel">취소</button>
+        <button type="button" class="btn" id="shareBtn">공유</button>
+        <button class="btn primary" type="submit" id="exportSubmitBtn">내보내기 / 복사</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- 내보낼 업체 선택 모달 -->
+<div class="sheet" id="exportCompanySheet">
+  <div class="sheet-box">
+    <h1 class="sheet-title">내보낼 업체 선택</h1>
+    <div id="exportCompanies" style="display:flex; flex-direction:column; gap:6px; max-height:50vh; overflow-y:auto;"></div>
+    <div class="sheet-actions">
+      <span></span>
+      <button type="button" class="btn" id="exportCompanyCancel">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 공유 텍스트 팝업 -->
+<div class="share-popup" id="sharePopup">
+  <div class="share-popup-box">
+    <h2 class="share-popup-title">공유하기</h2>
+    <div class="share-popup-help">아래 내용을 복사해서 카카오톡, 문자메시지 등에 붙여 넣을 수 있습니다.</div>
+    <textarea id="shareText" class="share-popup-text" readonly></textarea>
+    <div class="share-popup-actions">
+      <button type="button" class="btn" id="shareClose">닫기</button>
+      <button type="button" class="btn primary" id="shareCopy">클립보드 복사</button>
+    </div>
+  </div>
+</div>
+
+<!-- 업체 관리 시트 -->
+<div class="sheet" id="companyManageSheet" style="z-index:1300;">
+  <div class="sheet-box">
+    <h1 class="sheet-title">업체 관리</h1>
+    <div id="companyManageList" class="company-manage-list"></div>
+    <div class="sheet-actions">
+      <span></span>
+      <button type="button" class="btn" id="companyManageClose">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 설정 메뉴 -->
+<div class="sheet" id="settingsSheet">
+  <div class="sheet-box" style="position:relative;">
+    <div class="sheet-head-row"><h1 class="sheet-title">⚙️ 설정</h1></div>
+    <button type="button" class="btn" id="settingsCloseBtn" aria-label="닫기">×</button>
+    <div style="display:grid;gap:12px;">
+      <section class="set-sec">
+        <button type="button" class="btn" id="openHelpBtn" style="width:100%">❓ 사용 도움말</button>
+      </section>
+      <section class="set-sec">
+        <strong>화면 모드</strong>
+        <div class="theme-seg" id="themeSeg">
+          <button type="button" class="btn" data-theme="auto">🌗 자동</button>
+          <button type="button" class="btn" data-theme="light">☀️ 라이트</button>
+          <button type="button" class="btn" data-theme="dark">🌙 다크</button>
+        </div>
+      </section>
+      <section class="set-sec">
+        <strong>화면 글자 크기</strong>
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;">
+          <button type="button" class="btn" id="fontDownBtn">A−</button>
+          <strong id="fontSizeValue">100%</strong>
+          <button type="button" class="btn" id="fontUpBtn">A+</button>
+          <button type="button" class="btn" id="fontResetBtn">기본</button>
+        </div>
+      </section>
+      <section class="set-sec">
+        <strong>💰 유닛 급여 기준</strong>
+        <div class="formgrid" style="margin-top:10px;">
+          <label class="field"><span>하루 기준 유닛</span><input type="number" id="prBaseUnits" min="0.1" step="0.1" inputmode="decimal"></label>
+          <label class="field"><span>기준 유닛 급여 (원)</span><input type="number" id="prBasePay" min="0" step="1000" inputmode="numeric"></label>
+          <label class="field"><span>초과 1유닛당 (원)</span><input type="number" id="prExtraRate" min="0" step="100" inputmode="numeric"></label>
+          <label class="field"><span>기준 미만 1유닛당 (원)</span><input type="number" id="prUnderRate" min="0" step="100" inputmode="numeric"></label>
+        </div>
+        <div class="bulk-preview" id="prExample" style="font-size:calc(12px * var(--fs,1))"></div>
+        <div style="display:flex;gap:6px;margin-top:10px;">
+          <button type="button" class="btn" id="prResetBtn" style="flex:1">기본값</button>
+          <button type="button" class="btn primary" id="prSaveBtn" style="flex:2">기준 저장</button>
+        </div>
+      </section>
+      <section class="set-sec">
+        <strong>데이터 백업 &amp; 정산</strong>
+        <div class="save-panel-row" style="margin-top:10px;">
+          <button type="button" class="btn primary" id="openSettlementBtn" style="flex:1 1 100%;background:var(--green-dark);">🔍 월별 업체 정산 및 입금 관리</button>
+          <button type="button" class="btn" id="settingsExportBtn">내보내기</button>
+          <button type="button" class="btn" id="settingsCompanyBtn">업체 관리</button>
+          <button type="button" class="btn" id="dataSaveBtn">파일 연동/자동저장</button>
+          <button type="button" class="btn" id="directJsonDownloadBtn">JSON 백업 다운로드</button>
+          <button type="button" class="btn" id="dataImportBtn">데이터 불러오기</button>
+          <button type="button" class="btn" id="fileStatusBtn" title="저장 상태">저장됨</button>
+        </div>
+        <input id="dataImportInput" type="file" accept=".json,application/json" style="display:none">
+      </section>
+      <section class="set-sec">
+        <label style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="settingHideSummary">
+          누적 유닛 · 미수금 · 업체별 정산 숨기기
+        </label>
+      </section>
+      <section class="set-sec">
+        <label style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="settingPaidBorder" checked>
+          정산 완료 날짜 검은색 테두리
+        </label>
+      </section>
+      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));">앱 버전 2026.10.12-w2<span id="viewInfo"></span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+const storageKey = 'wife-calendar-v1';
+const presetKey = 'wife-calendar-presets-v1';
+const exportMessageKey = 'wife-calendar-export-message-v1';
+
+function generateId() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c === '0' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+const starterPresets = [
+  {id:'starter-1',site:'회사'}
+];
+
+// ===== 유닛 급여 계산 =====
+// 하루 기준 13.0유닛 = 105,000원, 13유닛 초과분은 1유닛당 7,000원,
+// 13유닛 미만이면 유닛 × 8,000원 (설정에서 변경 가능)
+const payRuleKey = 'wife-calendar-payrule-v1';
+const defaultPayRule = {baseUnits:13, basePay:105000, extraRate:7000, underRate:8000};
+let payRule = {...defaultPayRule};
+try{ payRule = Object.assign({...defaultPayRule}, JSON.parse(localStorage.getItem(payRuleKey) || '{}')); }catch(e){}
+function savePayRule(){ try{ localStorage.setItem(payRuleKey, JSON.stringify(payRule)); }catch(e){} }
+function payForUnits(u){
+  u = Number(u) || 0;
+  if(u <= 0) return 0;
+  const {baseUnits, basePay, extraRate, underRate} = payRule;
+  const pay = u >= baseUnits ? basePay + (u - baseUnits) * extraRate : u * underRate;
+  return Math.round(pay);
+}
+function won(n){ return Number(n||0).toLocaleString('ko-KR') + '원'; }
+
+let records = [], presets = [], dataFileHandle = null, saveTimer = null, dirty = false, editingId = null;
+
+function localFallbackLoad(){
+  try{
+    const v1 = localStorage.getItem(storageKey);
+    let loaded = null;
+    if(v1){
+      const parsed = JSON.parse(v1);
+      loaded = Array.isArray(parsed) ? parsed : (parsed.records || []);
+    }
+    records = Array.isArray(loaded) ? loaded : [];
+    records.forEach(r => {
+      if (typeof r.expense === 'undefined') r.expense = 0;
+      if (typeof r.paid === 'undefined') r.paid = false;
+    });
+  }catch(e){ records = []; }
+
+  try{
+    presets = JSON.parse(localStorage.getItem(presetKey) || 'null') || starterPresets.map(x => ({...x}));
+  }catch(e){
+    presets = starterPresets.map(x => ({...x}));
+  }
+  if(!Array.isArray(presets) || !presets.length) presets = starterPresets.map(x => ({...x}));
+  presets.forEach(p => {
+    if (typeof p.phone === 'undefined') p.phone = '';
+    if (typeof p.address === 'undefined') p.address = '';
+    if (typeof p.memo === 'undefined') p.memo = '';
+  });
+}
+
+function iso(d){
+  const x = new Date(d);
+  const y = x.getFullYear();
+  const m = String(x.getMonth()+1).padStart(2,'0');
+  const day = String(x.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+localFallbackLoad();
+try { $('exportExtraMessage').value = localStorage.getItem(exportMessageKey) || ''; } catch(e) {}
+let cursor = new Date();
+cursor = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+let selectedDate = iso(new Date());
+
+function saveToStorage(){
+  const payload = {version: 4, app: '업무달력', savedAt: new Date().toISOString(), records, presets, payRule};
+  try{
+    localStorage.setItem(storageKey, JSON.stringify(payload));
+    localStorage.setItem(presetKey, JSON.stringify(presets));
+  }catch(e){}
+}
+
+async function saveToDataFile(){
+  saveToStorage();
+  if(!dataFileHandle){
+    dirty = true; updateFileStatus(); return false;
+  }
+  try{
+    const perm = await dataFileHandle.queryPermission({mode:'readwrite'});
+    if(perm !== 'granted'){
+      dirty = true; updateFileStatus(); return false;
+    }
+    const writable = await dataFileHandle.createWritable();
+    const payload = {version: 4, app: '업무달력', savedAt: new Date().toISOString(), records, presets, payRule};
+    await writable.write(JSON.stringify(payload, null, 2));
+    await writable.close();
+    dirty = false; updateFileStatus();
+    return true;
+  }catch(e){
+    dirty = true; updateFileStatus();
+    return false;
+  }
+}
+
+function save(){
+  dirty = true; updateFileStatus();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { saveToDataFile(); }, 1500);
+}
+
+function updateFileStatus(){
+  const b = $('fileStatusBtn');
+  if(!b) return;
+  b.textContent = dataFileHandle ? (dirty ? '저장 대기' : '저장됨') : '브라우저 저장';
+}
+
+function formatDateActionDate(d){
+  let [y,m,day] = d.split('-');
+  return `${y}년 ${Number(m)}월 ${Number(day)}일`;
+}
+
+// 휴무 판정: 0유닛 기록 (예전 방식의 '휴무' 업체명 기록 포함)
+function isDayOff(r){ return r.site === '휴무' || ((Number(r.units)||0) === 0 && !(Number(r.expense)||0)); }
+// 휴무를 기록할 업체: 가장 최근에 입력한 업체 (없으면 최근 사용 프리셋, 그것도 없으면 '휴무')
+function dayOffSite(){
+  for(let i = records.length - 1; i >= 0; i--){ if(!isDayOff(records[i])) return records[i].site; }
+  const p = presets.slice().sort((a,b) => (b.lastUsed||0) - (a.lastUsed||0))[0];
+  return p ? p.site : '휴무';
+}
+// 내보내기용 업체명: 예전 '휴무' 업체 기록은 날짜가 가장 가까운 실제 업체로 분류
+function exportSiteOf(r){
+  if(r.site !== '휴무') return r.site;
+  let best = null, bd = Infinity;
+  records.forEach(x => { if(x.site !== '휴무'){ const d = Math.abs(new Date(x.date) - new Date(r.date)); if(d < bd){ bd = d; best = x.site; } } });
+  return best || r.site;
+}
+function amount(r){ return isDayOff(r) ? 0 : payForUnits(r.units); }
+function totalPay(r){ return amount(r) + (Number(r.expense) || 0); }
+function sameSite(a,b){ return String(a||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('ko-KR') === String(b||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('ko-KR'); }
+function hasSameSiteOnDate(date, site, excludeId=null){
+  return records.some(r => r.date === date && r.id !== excludeId && sameSite(r.site, site));
+}
+function calendarSiteName(name){ return String(name||'').replace(/\s+/g,'').slice(0,3); }
+function escapeHtml(s){ return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+
+// 달력 렌더링 (휴무 전용 표시 로직 포함)
+function render(){
+  const y = cursor.getFullYear(), m = cursor.getMonth();
+  $('monthTitle').textContent = `${y}년 ${m+1}월`;
+  $('summaryMonth').textContent = `${m+1}월 누적 유닛`;
+  $('companyTitle').textContent = `${m+1}월 업체별 유닛 및 정산`;
+  
+  const first = new Date(y, m, 1).getDay();
+  const last = new Date(y, m+1, 0).getDate();
+  const days = $('days');
+  days.innerHTML = '';
+  
+  for(let i=0; i<first; i++) days.insertAdjacentHTML('beforeend', '<div class="day blank"></div>');
+  
+  for(let d=1; d<=last; d++){
+    let key = iso(new Date(y, m, d));
+    let rs = records.filter(r => r.date === key);
+    let dow = (first + d - 1) % 7;
+    const workRs = rs.filter(r => !isDayOff(r));
+    const isSettled = workRs.length > 0 && workRs.every(r => Boolean(r.paid));
+    let cl = 'day ' + (dow===0 ? 'sun ' : dow===6 ? 'sat ' : '') + (key===iso(new Date()) ? 'today ' : '') + (key===selectedDate ? 'selected-date-cell ' : '') + (isSettled ? 'settled-date-cell ' : '');
+    
+    let entries = rs.slice(0,2).map(r => {
+      let u = Number(r.units) || 0;
+      if(isDayOff(r)) {
+        return `<button class="entry dayoff" type="button" data-record="${r.id}">
+          <div class="site">휴무</div>
+        </button>`;
+      }
+
+      // 기준(13유닛) 미만 주황 / 기준 파랑 / 초과 보라
+      const bu = Number(payRule.baseUnits) || 13;
+      let colorCl = Math.abs(u-bu)<0.001 ? 'manpower-10' : (u > bu ? 'manpower-15' : 'partial');
+      
+      return `<button class="entry ${colorCl}" type="button" data-record="${r.id}">
+        <div class="site">${escapeHtml(calendarSiteName(r.site))}</div>
+        <div class="pay">${u.toFixed(1)}</div>
+      </button>`;
+    }).join('');
+    
+    if(rs.length > 2) entries += `<div class="site more">+ ${rs.length-2}건</div>`;
+    
+    let el = document.createElement('div');
+    el.className = cl;
+    el.innerHTML = `<div class="date">${d}</div>${entries}`;
+    el.addEventListener('click', e => {
+      if(isSwiping) return;
+      const recordId = e.target.closest('[data-record]')?.dataset.record;
+      const record = recordId ? records.find(r => r.id === recordId) : null;
+      selectedDate = key;
+      render();
+      if(recordId && record){
+        e.stopPropagation();
+        openSheet(null, record);
+        return;
+      }
+      openDateActionPopup(key);
+    });
+    days.appendChild(el);
+  }
+  
+  let monthRs = records.filter(r => {
+    let d = new Date(r.date + 'T00:00:00');
+    return d.getFullYear() === y && d.getMonth() === m;
+  });
+  
+  let units = monthRs.reduce((s,r) => s + Number(r.units || 0), 0);
+  const monthGross = monthRs.reduce((s,r) => s + amount(r), 0);
+  $('monthTotal').innerHTML = `${units.toFixed(1)}<small>유닛</small>`;
+  $('monthGross').textContent = `세전 ${won(monthGross)}`;
+  
+  let unpaidTotal = monthRs.filter(r => !r.paid && !isDayOff(r)).reduce((s,r) => {
+    const gross = amount(r);
+    const exp = Number(r.expense) || 0;
+    return s + Math.floor(gross * 0.967) + exp;
+  }, 0);
+  $('monthUnpaid').innerHTML = `${unpaidTotal.toLocaleString('ko-KR')}<small>원</small>`;
+  
+  renderCompanyTotals(monthRs);
+}
+
+// 업체별 요약 렌더링
+function renderCompanyTotals(monthRs){
+  let totals = {};
+  let dayOffCount = 0;
+  
+  monthRs.forEach(r => {
+    if(isDayOff(r)){
+      dayOffCount++;
+      return;
+    }
+    if(!totals[r.site]){
+      totals[r.site] = { units: 0, amount: 0, expense: 0, unpaidCount: 0, unpaidAmount: 0 };
+    }
+    const amt = amount(r);
+    const exp = Number(r.expense) || 0;
+    const net = Math.floor(amt * 0.967) + exp;
+    
+    totals[r.site].units += Number(r.units || 0);
+    totals[r.site].amount += amt;
+    totals[r.site].expense += exp;
+    if(!r.paid){
+      totals[r.site].unpaidCount++;
+      totals[r.site].unpaidAmount += net;
+    }
+  });
+
+  let html = '';
+  if(dayOffCount > 0){
+    html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 8px; background:#f1f5f9; border-radius:8px; margin-bottom:6px; font-size:calc(12px * var(--fs,1));">
+      <span style="font-weight:800; color:#475569;">🏖️ 이번 달 휴무</span>
+      <b style="color:#334155;">총 ${dayOffCount}일</b>
+    </div>`;
+  }
+
+  if(Object.keys(totals).length){
+    html += Object.entries(totals).map(([site, data]) => {
+      const afterTax = Math.floor(data.amount * 0.967) + data.expense;
+      return `<div style="display:flex; flex-direction:column; gap:4px; padding-bottom:7px; border-bottom:1px solid var(--line);">
+                <div style="display:flex; justify-content:space-between; font-size:calc(12px * var(--fs,1));">
+                  <span style="font-weight:700;">${escapeHtml(site)}</span>
+                  <b style="color:var(--green);">${data.units.toFixed(1)}유닛 · ${won(data.amount)}</b>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(11px * var(--fs,1)); color:var(--muted);">
+                  <span>실수령: <b>${afterTax.toLocaleString('ko-KR')}원</b></span>
+                  ${data.unpaidAmount > 0 
+                    ? `<button type="button" class="btn danger" style="padding:3px 7px; font-size:calc(10px * var(--fs,1)); font-weight:800;" data-quick-pay-site="${escapeHtml(site)}" title="클릭 시 이번 달 전체 입금 완료 처리">미수금 ${data.unpaidAmount.toLocaleString()}원 [완료처리]</button>` 
+                    : '<span class="badge-paid">전액완납</span>'}
+                </div>
+              </div>`;
+    }).join('');
+  } else if(!dayOffCount){
+    html = '<span class="empty">이번 달 기록 없음</span>';
+  }
+
+  $('companyTotals').innerHTML = html;
+}
+
+// 빠른 입력 팝업
+function closeDateActionPopup(){ $('dateActionPopup').classList.remove('open'); }
+
+function renderDateActionPopup(){
+  if(!selectedDate) return;
+  $('dateActionTitle').textContent = formatDateActionDate(selectedDate);
+  let rs = records.filter(r => r.date === selectedDate);
+  
+  $('dateActionRecords').innerHTML = rs.length
+    ? rs.map(r => {
+        const dayOff = isDayOff(r);
+        return `
+        <button type="button" class="date-action-record" data-date-record="${r.id}" style="${dayOff?'background:#f1f5f9; border-color:#cbd5e1;':''}">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>${dayOff ? '🏖️ 휴무' + (r.site !== '휴무' ? ' · ' + escapeHtml(r.site) : '') : escapeHtml(r.site)}</strong>
+            <span class="${dayOff ? 'badge-dayoff' : (r.paid ? 'badge-paid' : 'badge-unpaid')}">${dayOff ? '휴무' : (r.paid ? '입금완료' : '미지급')}</span>
+          </div>
+          <span>${Number(r.units).toFixed(1)}유닛 · ${dayOff ? '휴식일' : '급여 ' + won(amount(r)) + (r.expense ? ' · 경비 ' + won(r.expense) : '') + ' · 합계 ' + won(totalPay(r))}</span>
+        </button>`;
+      }).join('')
+    : '<div class="date-action-empty">등록된 작업이 없습니다.</div>';
+    
+  let normalized = presets.slice().sort((a,b) => (b.lastUsed||0) - (a.lastUsed||0));
+  
+  let dayOffTarget = dayOffSite();
+  let isDayOffUsed = hasSameSiteOnDate(selectedDate, dayOffTarget);
+  const dayOffBtn = $('quickDayOffBtn');
+  dayOffBtn.classList.toggle('already-used', isDayOffUsed);
+  dayOffBtn.title = `휴무(0유닛) · ${dayOffTarget}`;
+  
+  let presetButtonsHtml = normalized.map(p => {
+    let used = hasSameSiteOnDate(selectedDate, p.site);
+    return `<button type="button" class="date-action-preset ${used?'already-used':''}" data-date-preset="${p.id}">${escapeHtml(p.site)}</button>`;
+  }).join('');
+
+  $('dateActionPresets').innerHTML = presetButtonsHtml;
+}
+
+function openDateActionPopup(date){
+  selectedDate = date;
+  const first = records.find(r => r.date === date);
+  setQuickUnits(first && !isDayOff(first) ? first.units : payRule.baseUnits);
+  renderDateActionPopup();
+  updateQuickPay();
+  $('dateActionPopup').classList.add('open');
+}
+
+function setQuickUnits(v){
+  let n = parseFloat(String(v).replace(',','.'));
+  if(!Number.isFinite(n)) n = payRule.baseUnits;
+  n = Math.max(0, Math.round(n * 10) / 10);
+  const el = $('quickUnits');
+  if(el) el.value = n.toFixed(1);
+}
+
+function updateQuickPay(){
+  const el = $('quickPay');
+  if(el) el.textContent = won(payForUnits(parseFloat(String($('quickUnits').value).replace(',','.')) || 0));
+}
+
+function changeQuickUnits(delta){
+  const el = $('quickUnits');
+  if(!el) return;
+  setQuickUnits((parseFloat(el.value) || 0) + delta);
+  updateQuickPay();
+}
+
+// 기록 수정 시트
+function openSheet(date = iso(new Date()), r = null){
+  editingId = r?.id || null;
+  $('sheetTitle').textContent = r ? '기록 수정' : '일한 날 기록';
+  $('dateInput').value = r?.date || date;
+  $('siteInput').value = r?.site || '';
+  $('unitsInput').value = r ? r.units : payRule.baseUnits;
+  updatePayPreview();
+  $('expenseInput').value = r?.expense || 0;
+  $('paidInput').checked = Boolean(r?.paid);
+  $('memoInput').value = r?.memo || '';
+  $('deleteBtn').style.visibility = r ? 'visible' : 'hidden';
+  $('sheet').classList.add('open');
+  setTimeout(() => $('siteInput').focus(), 80);
+}
+
+function updatePayPreview(){
+  $('payPreview').value = won(payForUnits(+$('unitsInput').value || 0));
+}
+$('unitsInput').addEventListener('input', updatePayPreview);
+
+function closeSheet(){ $('sheet').classList.remove('open'); }
+
+// [휴무 등록 로직]
+function addDayOffRecord(){
+  const site = dayOffSite();
+  if(hasSameSiteOnDate(selectedDate, site)){
+    alert(`"${formatDateActionDate(selectedDate)}"에는 "${site}" 기록이 이미 있습니다.`);
+    return;
+  }
+  records.push({
+    id: generateId(),
+    date: selectedDate,
+    site: site,
+    units: 0,
+    expense: 0,
+    paid: true,
+    memo: ''
+  });
+  save();
+  render();
+  closeDateActionPopup();
+}
+
+// [업체별/월별 일괄 입금 상태 변경 함수]
+function batchSetPaidStatus(monthVal, siteVal, paidStatus) {
+  if(!monthVal) return;
+  let count = 0;
+  records.forEach(r => {
+    if(!isDayOff(r) && (!siteVal || r.site === siteVal) && r.date.startsWith(monthVal)) {
+      r.paid = paidStatus;
+      count++;
+    }
+  });
+  if(count > 0) {
+    save();
+    render();
+    updateSettlementResult();
+    const siteLabel = siteVal ? `[${siteVal}] 업체` : '전체 업체';
+    alert(`${monthVal}월 ${siteLabel} ${count}건의 기록을 "${paidStatus ? '입금 완료' : '미지급'}" 상태로 변경했습니다.`);
+  } else {
+    alert('해당 월에 변경할 기록이 없습니다.');
+  }
+}
+
+// 월별 업체 정산 & 입금 관리
+$('openSettlementBtn').onclick = () => {
+  const sm = $('settlementMonth');
+  if (!sm.value) {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, '0');
+    sm.value = `${y}-${m}`;
+  }
+  const uniqueSites = [...new Set(records.filter(r => r.site !== '휴무').map(r => r.site))].sort();
+  $('settlementCompany').innerHTML = '<option value="">전체 업체 (통합)</option>' + uniqueSites.map(site => `<option value="${escapeHtml(site)}">${escapeHtml(site)}</option>`).join('');
+  updateSettlementResult();
+  $('settlementSheet').classList.add('open');
+};
+
+$('settlementCloseBtn').onclick = () => $('settlementSheet').classList.remove('open');
+$('settlementXBtn').onclick = () => $('settlementSheet').classList.remove('open');
+$('settlementSheet').onclick = (e) => { if(e.target === $('settlementSheet')) $('settlementSheet').classList.remove('open'); };
+$('settlementMonth').onchange = updateSettlementResult;
+$('settlementCompany').onchange = updateSettlementResult;
+$('settlementTaxType').onchange = updateSettlementResult;
+
+function updateSettlementResult() {
+  const monthVal = $('settlementMonth').value;
+  const siteVal = $('settlementCompany').value;
+  const taxRate = parseFloat($('settlementTaxType').value) / 100;
+  const res = $('settlementResult');
+  
+  if (!monthVal) {
+    res.style.display = 'none';
+    return;
+  }
+  
+  const filtered = records.filter(r => !isDayOff(r) && (!siteVal || r.site === siteVal) && r.date.startsWith(monthVal));
+  let tUnits = 0, tAmount = 0, tExpense = 0, tPaid = 0, tUnpaid = 0;
+  
+  filtered.forEach(r => {
+    const u = Number(r.units || 0);
+    const amt = amount(r);
+    const exp = Number(r.expense || 0);
+    const tax = Math.floor(amt * taxRate);
+    const net = (amt - tax) + exp;
+    
+    tUnits += u;
+    tAmount += amt;
+    tExpense += exp;
+    
+    if(r.paid) tPaid += net;
+    else tUnpaid += net;
+  });
+  
+  const totalTax = Math.floor(tAmount * taxRate);
+  const totalNet = (tAmount - totalTax) + tExpense;
+  
+  $('setUnits').textContent = tUnits.toFixed(1) + '유닛';
+  $('setAmount').textContent = tAmount.toLocaleString('ko-KR') + '원';
+  $('setExpenseAmount').textContent = '+ ' + tExpense.toLocaleString('ko-KR') + '원';
+  $('setTaxLabel').textContent = taxRate > 0 ? `공제 세액 (${(taxRate*100).toFixed(1)}%)` : '공제 세액 (면제)';
+  $('setTaxAmount').textContent = '- ' + totalTax.toLocaleString('ko-KR') + '원';
+  $('setTaxedAmount').textContent = totalNet.toLocaleString('ko-KR') + '원';
+  $('setPaidAmount').textContent = tPaid.toLocaleString('ko-KR') + '원';
+  $('setUnpaidAmount').textContent = tUnpaid.toLocaleString('ko-KR') + '원';
+  
+  const targetLabel = siteVal ? `[${siteVal}]` : '[전체 업체]';
+  $('batchPayBtn').textContent = `✅ ${targetLabel} 이번 달 [전체 입금 완료] 처리`;
+  $('batchUnpayBtn').textContent = `↩️ ${targetLabel} 이번 달 [미지급(미수금)]으로 되돌리기`;
+  
+  res.style.display = 'flex';
+}
+
+// 정산 창 내 일괄 입금/취소 버튼 이벤트
+$('batchPayBtn').onclick = () => {
+  const monthVal = $('settlementMonth').value;
+  const siteVal = $('settlementCompany').value;
+  const targetLabel = siteVal ? `[${siteVal}] 업체` : '전체 업체';
+  if(confirm(`${monthVal}월 ${targetLabel}의 모든 기록을 "입금 완료" 상태로 일괄 변경할까요?`)) {
+    batchSetPaidStatus(monthVal, siteVal, true);
+  }
+};
+
+$('batchUnpayBtn').onclick = () => {
+  const monthVal = $('settlementMonth').value;
+  const siteVal = $('settlementCompany').value;
+  const targetLabel = siteVal ? `[${siteVal}] 업체` : '전체 업체';
+  if(confirm(`${monthVal}월 ${targetLabel}의 모든 기록을 "미지급(미수금)" 상태로 되돌릴까요?`)) {
+    batchSetPaidStatus(monthVal, siteVal, false);
+  }
+};
+
+// 메인 화면 사이드바 업체별 요약에서 [완료처리] 버튼 클릭 이벤트
+document.addEventListener('click', e => {
+  const quickPayBtn = e.target.closest('[data-quick-pay-site]');
+  if(quickPayBtn){
+    e.preventDefault();
+    e.stopPropagation();
+    const site = quickPayBtn.dataset.quickPaySite;
+    const y = cursor.getFullYear();
+    const m = String(cursor.getMonth() + 1).padStart(2, '0');
+    const monthVal = `${y}-${m}`;
+    if(confirm(`${monthVal}월 [${site}] 업체의 모든 기록을 "입금 완료" 처리할까요?`)){
+      batchSetPaidStatus(monthVal, site, true);
+    }
+  }
+});
+
+// JSON 백업 다운로드
+async function downloadJsonBackup(){
+  saveToStorage();
+  const payload = {version: 4, app: '업무달력', savedAt: new Date().toISOString(), records, presets, payRule};
+  const json = JSON.stringify(payload, null, 2);
+  // 아이폰: 공유 시트로 '파일에 저장'·카카오톡 등에 바로 보낼 수 있게 한다
+  if(isIOS && navigator.canShare){
+    try{
+      const file = new File([json], `업무달력_백업_${iso(new Date())}.json`, {type:'application/json'});
+      if(navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:'업무달력 백업'}); return; }
+    }catch(e){ if(e && e.name === 'AbortError') return; }
+  }
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `업무달력_백업_${iso(new Date())}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+$('directJsonDownloadBtn').onclick = downloadJsonBackup;
+
+// 내보내기 & 엑셀 CSV 생성
+function openExport(){
+  let first = records.map(r => r.date).sort()[0] || selectedDate;
+  $('exportStart').value = first;
+  $('exportEnd').value = iso(new Date());
+  $('exportSheet').classList.add('open');
+}
+function closeExport(){ $('exportSheet').classList.remove('open'); }
+
+function buildExportData(){
+  let company = $('exportCompany').value;
+  let start = $('exportStart').value;
+  let end = $('exportEnd').value;
+  let format = $('exportFormat').value;
+  let extraMessage = $('exportExtraMessage').value.trim();
+  try { localStorage.setItem(exportMessageKey, $('exportExtraMessage').value); } catch(e) {}
+  let flags = {
+    date: $('includeDate').checked,
+    units: $('includeUnits').checked,
+    pay: $('includePay').checked,
+    amountTotal: $('includeAmountTotal').checked
+  };
+  
+  let filtered = records.map(r => ({...r, site: exportSiteOf(r), dayOff: isDayOff(r)})).filter(r => (!company || r.site === company) && r.date >= start && r.date <= end)
+                        .sort((a,b) => a.date.localeCompare(b.date) || a.site.localeCompare(b.site));
+                        
+  if(!filtered.length) return { format, content: null, message: '선택한 기간에 기록이 없습니다.' };
+
+  if(format === 'csv'){
+    let headers = ['현장명'];
+    if(flags.date) headers.push('날짜');
+    if(flags.units) headers.push('유닛');
+    if(flags.pay) headers.push('급여(원)');
+    headers.push('메모');
+
+    let rows = [headers];
+    filtered.forEach(r => {
+      let row = [r.site];
+      if(flags.date) row.push(r.date);
+      if(flags.units) row.push(r.dayOff ? '0.0 (휴무)' : Number(r.units).toFixed(1));
+      if(flags.pay) row.push(amount(r));
+      row.push(r.memo || '');
+      rows.push(row);
+    });
+
+    if(flags.amountTotal){
+      let totalUnits = filtered.reduce((s,r) => s + Number(r.units || 0), 0);
+      rows.push([]);
+      rows.push(['유닛 합계', totalUnits.toFixed(1) + '유닛']);
+      if(flags.pay) rows.push(['급여 합계', filtered.reduce((s,r) => s + amount(r), 0)]);
+    }
+
+    if(extraMessage) { rows.push([]); rows.push(['같이 보낼 내용', extraMessage]); }
+    let csvContent = '\uFEFF' + rows.map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+    return { format: 'csv', content: csvContent };
+  }
+
+  let lines = [];
+  let companies = [...new Set(filtered.map(r => r.site))];
+  companies.forEach((site, idx) => {
+    let rs = filtered.filter(r => r.site === site);
+    if(idx > 0) lines.push('------------------------');
+    lines.push(`[${site}]`);
+    rs.forEach(r => {
+      let parts = [];
+      if(flags.date) parts.push(r.date);
+      if(flags.units) parts.push(r.dayOff ? '0.0유닛 (휴무)' : `${Number(r.units).toFixed(1)}유닛`);
+      if(flags.pay && !r.dayOff) parts.push(won(amount(r)));
+      lines.push(parts.join('  '));
+    });
+    if(flags.amountTotal){
+      let sumU = rs.reduce((s,r) => s + Number(r.units||0), 0);
+      lines.push(`▶ 유닛 합계: ${sumU.toFixed(1)}유닛`);
+      if(flags.pay) lines.push(`▶ 급여 합계: ${won(rs.reduce((s,r) => s + amount(r), 0))}`);
+    }
+  });
+
+  if(extraMessage) lines.push('\n' + extraMessage);
+  return { format: 'text', content: lines.join('\n') };
+}
+
+// 이벤트 핸들러 등록
+$('prevBtn').onclick = () => { cursor = new Date(cursor.getFullYear(), cursor.getMonth()-1, 1); render(); };
+$('nextBtn').onclick = () => { cursor = new Date(cursor.getFullYear(), cursor.getMonth()+1, 1); render(); };
+$('todayBtn').onclick = () => { cursor = new Date(); cursor = new Date(cursor.getFullYear(), cursor.getMonth(), 1); selectedDate = iso(new Date()); render(); };
+
+$('cancelBtn').onclick = closeSheet;
+$('sheet').onclick = e => { if(e.target === $('sheet')) closeSheet(); };
+
+$('recordForm').onsubmit = e => {
+  e.preventDefault();
+  let r = {
+    id: editingId || generateId(),
+    date: $('dateInput').value,
+    site: $('siteInput').value.trim().replace(/\s+/g,' '),
+    units: +$('unitsInput').value || 0,
+    expense: +$('expenseInput').value || 0,
+    paid: $('paidInput').checked,
+    memo: $('memoInput').value.trim()
+  };
+  if(!r.date || !r.site) return;
+  if(hasSameSiteOnDate(r.date, r.site, editingId)){
+    alert(`"${r.site}" 업체는 ${r.date}에 이미 등록되어 있습니다.`);
+    return;
+  }
+  if(editingId){
+    let i = records.findIndex(x => x.id === editingId);
+    if(i >= 0) records[i] = r;
+  } else {
+    records.push(r);
+  }
+  save();
+  closeSheet();
+  render();
+};
+
+$('deleteBtn').onclick = () => {
+  if(editingId && confirm('이 기록을 삭제할까요?')){
+    records = records.filter(r => r.id !== editingId);
+    save();
+    closeSheet();
+    render();
+  }
+};
+
+// 빠른 입력 클릭 처리 (휴무 버튼 및 업체 프리셋)
+document.addEventListener('click', e => {
+  let dayOffBtn = e.target.closest('#quickDayOffBtn');
+  if(dayOffBtn){
+    e.preventDefault();
+    e.stopPropagation();
+    addDayOffRecord();
+    return;
+  }
+
+  let rb = e.target.closest('[data-date-record]');
+  if(rb){
+    let r = records.find(x => x.id === rb.dataset.dateRecord);
+    if(r){ closeDateActionPopup(); openSheet(null, r); }
+    return;
+  }
+  
+  let pb = e.target.closest('[data-date-preset]');
+  if(pb){
+    e.preventDefault();
+    let p = presets.find(x => x.id === pb.dataset.datePreset);
+    if(!p) return;
+    if(hasSameSiteOnDate(selectedDate, p.site)){
+      alert(`"${p.site}" 업체는 이미 등록되어 있습니다.`);
+      return;
+    }
+    const units = Math.max(0.1, Math.round((parseFloat(String($('quickUnits').value).replace(',','.')) || payRule.baseUnits) * 10) / 10);
+    p.lastUsed = Date.now();
+    p.lastUnits = units;
+    records.push({
+      id: generateId(),
+      date: selectedDate,
+      site: p.site,
+      units,
+      expense: 0,
+      paid: false,
+      memo: ''
+    });
+    save();
+    render();
+    closeDateActionPopup();
+  }
+});
+
+$('quickUnitsUp').onclick = () => changeQuickUnits(0.5);
+$('quickUnitsDown').onclick = () => changeQuickUnits(-0.5);
+$('quickUnits').addEventListener('input', updateQuickPay);
+$('dateActionAdd').onclick = () => {
+  const siteEl = $('dateActionSite'), unitsEl = $('quickUnits');
+  let site = siteEl.value.trim().replace(/\s+/g,' ');
+  let units = parseFloat(String(unitsEl.value).replace(',','.')) || payRule.baseUnits;
+  if(!site){ alert('업체명을 입력해 주세요.'); siteEl.focus(); return; }
+  if(hasSameSiteOnDate(selectedDate, site)){ alert(`"${site}" 업체는 이미 등록되어 있습니다.`); return; }
+  
+  let p = presets.find(x => sameSite(x.site, site));
+  if(!p){
+    p = {id: generateId(), site, lastUsed: Date.now(), lastUnits: units};
+    presets.push(p);
+  } else {
+    p.lastUsed = Date.now();
+  }
+  
+  records.push({id: generateId(), date: selectedDate, site: p.site, units, expense:0, paid:false, memo:''});
+  save();
+  siteEl.value = '';
+  render();
+  closeDateActionPopup();
+};
+
+['dateActionSite'].forEach(id => $(id).addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); $('dateActionAdd').click(); } }));
+
+// 업체 관리
+$('companyManageBtn').onclick = () => { closeDateActionPopup(); openCompanyManage(); };
+function openCompanyManage(){
+  const box = $('companyManageList');
+  const ordered = presets.slice().sort((a,b) => (b.lastUsed||0) - (a.lastUsed||0));
+  box.innerHTML = ordered.length
+    ? ordered.map(p => `
+      <div class="company-manage-row">
+        <div class="company-manage-top">
+          <div class="company-manage-info">
+            <strong>${escapeHtml(p.site)}</strong>
+          </div>
+          <button type="button" class="company-manage-delete" data-del-preset="${p.id}">삭제</button>
+        </div>
+        <div class="company-manage-fields">
+          <input type="text" data-company-name="${p.id}" value="${escapeHtml(p.site||'')}" placeholder="업체명" style="grid-column:1/-1">
+          <input type="tel" data-company-phone="${p.id}" value="${escapeHtml(p.phone||'')}" placeholder="전화번호" style="grid-column:1/-1">
+          <input type="text" data-company-address="${p.id}" value="${escapeHtml(p.address||'')}" placeholder="업체 주소">
+          <textarea data-company-memo="${p.id}" placeholder="업체 관련 메모 (담당자, 입금정보 등)">${escapeHtml(p.memo||'')}</textarea>
+        </div>
+        <div class="company-manage-actions">
+          <button type="button" class="company-edit" data-save-company="${p.id}">정보 저장</button>
+        </div>
+      </div>`).join('')
+    : '<div class="empty" style="text-align:center;">등록된 업체가 없습니다.</div>';
+  $('companyManageSheet').classList.add('open');
+}
+$('companyManageClose').onclick = () => $('companyManageSheet').classList.remove('open');
+document.addEventListener('click', e => {
+  const saveBtn = e.target.closest('[data-save-company]');
+  if(saveBtn){
+    const id = saveBtn.dataset.saveCompany;
+    const p = presets.find(x => x.id === id);
+    if(!p) return;
+    const phone = document.querySelector(`[data-company-phone=\"${CSS.escape(id)}\"]`);
+    const address = document.querySelector(`[data-company-address=\"${CSS.escape(id)}\"]`);
+    const memo = document.querySelector(`[data-company-memo=\"${CSS.escape(id)}\"]`);
+    const nameEl = document.querySelector(`[data-company-name=\"${CSS.escape(id)}\"]`);
+    const newName = nameEl ? nameEl.value.trim().replace(/\s+/g,' ') : p.site;
+    if(!newName){
+      alert('업체명을 입력해 주세요.');
+      if(nameEl) nameEl.focus();
+      return;
+    }
+    const oldName = p.site;
+    if(newName !== oldName){
+      if(presets.some(x => x.id !== id && sameSite(x.site, newName))){
+        alert('같은 이름의 업체가 이미 있습니다.');
+        if(nameEl) nameEl.focus();
+        return;
+      }
+      records.forEach(r => { if(sameSite(r.site, oldName)) r.site = newName; });
+      p.site = newName;
+    }
+    p.phone = phone ? phone.value.trim() : '';
+    p.address = address ? address.value.trim() : '';
+    p.memo = memo ? memo.value.trim() : '';
+    save();
+    render();
+    openCompanyManage();
+    alert('업체 정보가 저장되었습니다.');
+    return;
+  }
+  const delBtn = e.target.closest('[data-del-preset]');
+  if(delBtn){
+    const id = delBtn.dataset.delPreset;
+    presets = presets.filter(x => x.id !== id);
+    save();
+    openCompanyManage();
+  }
+});
+
+// 내보내기 제출
+$('exportCancel').onclick = closeExport;
+$('exportCompanyButton').onclick = () => {
+  let sites = [...new Set(records.map(r => exportSiteOf(r)))].sort();
+  $('exportCompanies').innerHTML = `<button class="btn" type="button" data-sel-site="" style="text-align:left; padding:10px;">전체 업체</button>` +
+    sites.map(s => `<button class="btn" type="button" data-sel-site="${escapeHtml(s)}" style="text-align:left; padding:10px;">${escapeHtml(s)}</button>`).join('');
+  $('exportCompanySheet').classList.add('open');
+};
+$('exportCompanyCancel').onclick = () => $('exportCompanySheet').classList.remove('open');
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-sel-site]');
+  if(b){
+    const site = b.dataset.selSite;
+    $('exportCompany').value = site;
+    $('exportCompanyButton').textContent = (site || '전체 업체') + ' ›';
+    $('exportCompanySheet').classList.remove('open');
+  }
+});
+
+$('exportForm').onsubmit = e => {
+  e.preventDefault();
+  const res = buildExportData();
+  if(!res.content){ alert(res.message); return; }
+  
+  if(res.format === 'csv'){
+    const blob = new Blob([res.content], {type: 'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `업무기록_${$('exportStart').value}_${$('exportEnd').value}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    closeExport();
+  } else {
+    $('shareText').value = res.content;
+    $('sharePopup').classList.add('open');
+    closeExport();
+  }
+};
+
+$('shareBtn').onclick = async () => {
+  const res = buildExportData();
+  if(!res.content){ alert(res.message); return; }
+  const text = res.content;
+
+  // 휴대폰/지원 브라우저에서는 OS 기본 공유창을 사용합니다.
+  if(navigator.share){
+    try {
+      await navigator.share({ title: '업무달력 기록', text });
+      return;
+    } catch(e) {
+      if(e && e.name === 'AbortError') return;
+    }
+  }
+
+  // 기본 공유를 지원하지 않는 환경은 기존 복사 팝업으로 대체합니다.
+  $('shareText').value = text;
+  $('sharePopup').classList.add('open');
+};
+
+$('shareClose').onclick = () => $('sharePopup').classList.remove('open');
+$('shareCopy').onclick = async () => {
+  const t = $('shareText');
+  t.focus();
+  t.select();
+  try {
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(t.value);
+    } else if(!document.execCommand('copy')) {
+      throw new Error('copy failed');
+    }
+    alert('클립보드에 복사되었습니다.');
+  } catch(e) {
+    alert('복사에 실패했습니다. 내용을 길게 눌러 직접 복사해 주세요.');
+  }
+};
+
+// 파일 시스템 접근 & 데이터 가져오기
+$('settingsExportBtn').onclick = () => { $('settingsSheet').classList.remove('open'); openExport(); };
+$('settingsCompanyBtn').onclick = () => { $('settingsSheet').classList.remove('open'); closeDateActionPopup(); openCompanyManage(); };
+$('dataSaveBtn').onclick = async () => {
+  saveToStorage();
+  try{
+    if(window.showSaveFilePicker && window.isSecureContext){
+      dataFileHandle = await showSaveFilePicker({
+        suggestedName: '업무달력_데이터.json',
+        types: [{description: 'JSON 파일', accept: {'application/json': ['.json']}}]
+      });
+      await saveToDataFile();
+      alert('파일이 연결되었습니다. 이후 데이터가 자동 저장됩니다.');
+      return;
+    }
+  }catch(e){}
+  downloadJsonBackup();
+};
+
+$('dataImportBtn').onclick = () => $('dataImportInput').click();
+$('dataImportInput').onchange = e => {
+  const f = e.target.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const d = JSON.parse(reader.result);
+      records = Array.isArray(d) ? d : (d.records || []);
+      if(Array.isArray(d.presets)) presets = d.presets;
+      if(d.payRule && typeof d.payRule === 'object'){ payRule = Object.assign({...defaultPayRule}, d.payRule); savePayRule(); }
+      records.forEach(r => {
+        if(typeof r.expense === 'undefined') r.expense = 0;
+        if(typeof r.paid === 'undefined') r.paid = false;
+      });
+      saveToStorage();
+      render();
+      alert('데이터를 성공적으로 불러왔습니다.');
+    }catch(err){ alert('올바른 업무달력 백업 파일이 아닙니다.'); }
+  };
+  reader.readAsText(f, 'utf-8');
+};
+
+// 전체화면 및 PWA
+$('fullscreenStartBtn').onclick = async () => {
+  try { await document.documentElement.requestFullscreen(); } catch(e){}
+  $('fullscreenStart').classList.remove('show');
+};
+$('fullscreenSkipBtn').onclick = () => $('fullscreenStart').classList.remove('show');
+
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.documentElement.classList.add('pwa-ready');
+});
+// 아이폰은 설치 팝업이 없으므로 Safari에서 열었을 때 '홈 화면에 추가' 안내 버튼을 보여준다
+if(isIOS && !isStandalone) document.documentElement.classList.add('pwa-ready');
+$('iosInstallClose').onclick = () => $('iosInstallSheet').classList.remove('open');
+$('iosInstallSheet').onclick = e => { if(e.target === $('iosInstallSheet')) $('iosInstallSheet').classList.remove('open'); };
+// 홈 화면 앱의 데이터가 저장 공간 정리로 지워지지 않도록 영구 저장 요청
+try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); }catch(e){}
+window.installWorkApp = async () => {
+  if(isIOS && !deferredPrompt){ $('iosInstallSheet').classList.add('open'); return; }
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+};
+
+// 달력 화면 좌우 스와이프 제스처 기능
+let touchStartX = 0;
+let touchStartY = 0;
+let isSwiping = false;
+
+const calendarSection = $('calendarSection');
+
+calendarSection.addEventListener('touchstart', e => {
+  if(!e.touches || e.touches.length !== 1) return;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  isSwiping = false;
+}, { passive: true });
+
+calendarSection.addEventListener('touchmove', e => {
+  if(!e.touches || e.touches.length !== 1) return;
+  const currentX = e.touches[0].clientX;
+  const currentY = e.touches[0].clientY;
+  const diffX = currentX - touchStartX;
+  const diffY = currentY - touchStartY;
+  
+  if(Math.abs(diffX) > 15 && Math.abs(diffX) > Math.abs(diffY)) {
+    isSwiping = true;
+  }
+}, { passive: true });
+
+calendarSection.addEventListener('touchend', e => {
+  if(!e.changedTouches || e.changedTouches.length !== 1) return;
+  const touchEndX = e.changedTouches[0].clientX;
+  const touchEndY = e.changedTouches[0].clientY;
+  const diffX = touchEndX - touchStartX;
+  const diffY = touchEndY - touchStartY;
+  
+  const minSwipeDistance = 45;
+  
+  if(Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) >= minSwipeDistance) {
+    if(diffX < 0) {
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+      render();
+    } else {
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1);
+      render();
+    }
+    setTimeout(() => { isSwiping = false; }, 100);
+  } else {
+    isSwiping = false;
+  }
+}, { passive: true });
+
+// 유닛 급여 기준 설정
+function fillPayRuleForm(rule){
+  $('prBaseUnits').value = rule.baseUnits;
+  $('prBasePay').value = rule.basePay;
+  $('prExtraRate').value = rule.extraRate;
+  $('prUnderRate').value = rule.underRate;
+  updatePayRuleExample();
+}
+function readPayRuleForm(){
+  return {baseUnits:+$('prBaseUnits').value, basePay:+$('prBasePay').value, extraRate:+$('prExtraRate').value, underRate:+$('prUnderRate').value};
+}
+function updatePayRuleExample(){
+  const saved = payRule, r = readPayRuleForm();
+  if(!(r.baseUnits > 0) || [r.basePay, r.extraRate, r.underRate].some(v => !Number.isFinite(v) || v < 0)){ $('prExample').textContent = '올바른 값을 입력해 주세요.'; return; }
+  payRule = r;
+  const b = r.baseUnits;
+  const ex = [b - 1, b, b + 1, b + 2].filter(u => u > 0).map(u => `${u.toFixed(1)}유닛 → ${won(payForUnits(u))}`).join('\n');
+  payRule = saved;
+  $('prExample').style.whiteSpace = 'pre-line';
+  $('prExample').textContent = `예시\n${ex}`;
+}
+['prBaseUnits','prBasePay','prExtraRate','prUnderRate'].forEach(id => $(id).addEventListener('input', updatePayRuleExample));
+$('prResetBtn').onclick = () => fillPayRuleForm(defaultPayRule);
+$('prSaveBtn').onclick = () => {
+  const r = readPayRuleForm();
+  if(!(r.baseUnits > 0) || [r.basePay, r.extraRate, r.underRate].some(v => !Number.isFinite(v) || v < 0)){ alert('올바른 값을 입력해 주세요.'); return; }
+  payRule = r;
+  savePayRule();
+  save();
+  render();
+  alert('급여 기준이 저장되었습니다. 모든 기록의 금액이 새 기준으로 다시 계산됩니다.');
+};
+$('settingsBtn').addEventListener('click', () => fillPayRuleForm(payRule));
+
+// 초기 실행
+try {
+  render();
+} catch(e) { console.error(e); }
+</script>
+<script id="settings-only-js">
+(function(){
+  const KEY="wife_cal_settings_v1";
+  let st={font:1,border:true,hideSummary:false,theme:"auto"};
+  try{st=Object.assign(st,JSON.parse(localStorage.getItem(KEY)||"{}"));}catch(e){}
+  const $=id=>document.getElementById(id);
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+  function apply(){
+    var dk=st.theme==="dark"||(st.theme!=="light"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.classList.toggle("dark",dk);
+    var tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.content=dk?"#0c110e":"#16764f";
+    document.querySelectorAll("#themeSeg .btn").forEach(function(b){b.classList.toggle("on",b.dataset.theme===st.theme);});
+    var w=window.innerWidth||360;
+    var base=w<=1100?Math.min(2.4,Math.max(1,w/390)):1;
+    document.documentElement.style.setProperty("--base",String(Math.round(base*100)/100));
+    document.documentElement.style.setProperty("--fsr",String(Math.round(st.font*base*100)/100));
+    document.documentElement.style.setProperty("--fs",String(Math.round(st.font*base*100)/100));
+    var vi=$("viewInfo"); if(vi) vi.textContent=" · 화면 폭 "+w+"px";
+    $("fontSizeValue").textContent=Math.round(st.font*100)+"%";
+    $("settingPaidBorder").checked=st.border;
+    document.body.classList.toggle("no-paid-border",!st.border);
+    $("settingHideSummary").checked=!!st.hideSummary;
+    document.body.classList.toggle("hide-summary",!!st.hideSummary);
+  }
+  function close(){ $("settingsSheet").classList.remove("open"); document.body.classList.remove("sheet-open"); }
+  $("settingsBtn").onclick=()=>{$("settingsSheet").classList.add("open");document.body.classList.add("sheet-open");apply();};
+  $("settingsCloseBtn").onclick=close;
+  $("settingsSheet").onclick=e=>{if(e.target===$("settingsSheet"))close();};
+  // 설정 안의 기능 버튼을 누르면 설정창을 닫고 해당 기능 실행
+  ["openSettlementBtn","directJsonDownloadBtn","dataImportBtn","settingsExportBtn","settingsCompanyBtn"].forEach(id=>
+    $(id).addEventListener("click",close));
+  $("fontDownBtn").onclick=()=>{st.font=Math.max(.9,Math.round((st.font-.05)*20)/20);save();apply();};
+  $("fontUpBtn").onclick=()=>{st.font=Math.min(1.3,Math.round((st.font+.05)*20)/20);save();apply();};
+  $("fontResetBtn").onclick=()=>{st.font=1;save();apply();};
+  $("themeSeg").addEventListener("click",function(e){var b=e.target.closest("[data-theme]");if(!b)return;st.theme=b.dataset.theme;save();apply();});
+  if(window.matchMedia){try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",apply);}catch(e){}}
+  $("settingHideSummary").onchange=e=>{st.hideSummary=e.target.checked;save();apply();};
+  $("settingPaidBorder").onchange=e=>{st.border=e.target.checked;save();apply();};
+  $("openHelpBtn").onclick=()=>{close();$("helpSheet").classList.add("open");};
+  $("helpCloseBtn").onclick=()=>$("helpSheet").classList.remove("open");
+  $("helpSheet").onclick=e=>{if(e.target===$("helpSheet"))$("helpSheet").classList.remove("open");};
+  window.addEventListener("resize",apply);
+  apply();
+})();
+</script>
+<script>
+// 두 손가락 확대/축소 및 더블탭 확대 방지 (iOS)
+['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault();});});
+</script>
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+</script>
+<script id="bulk-input-js">
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var NEW='__new__', OFF='__off__', ALL='__all__', mode='add';
+  function sheet(open){ $('bulkSheet').classList.toggle('open',open); }
+  function fillSites(){
+    if(mode==='del'){
+      var names=[]; records.forEach(function(r){ if(r.site!=='휴무' && names.indexOf(r.site)<0) names.push(r.site); });
+      names.sort();
+      $('bulkSite').innerHTML='<option value="'+ALL+'">전체 업체 (휴무 포함)</option>'+names.map(function(n){return '<option value="s:'+escapeHtml(n)+'">'+escapeHtml(n)+'</option>';}).join('')+'<option value="'+OFF+'">🏖️ 휴무(0유닛)만</option>';
+      return;
+    }
+    var opts=presets.slice().sort(function(a,b){return (b.lastUsed||0)-(a.lastUsed||0);}).map(function(p){return '<option value="'+p.id+'">'+escapeHtml(p.site)+'</option>';});
+    $('bulkSite').innerHTML=opts.join('')+'<option value="'+OFF+'">🏖️ 휴무 (0유닛) · 최근 업체</option><option value="'+NEW+'">＋ 새 업체 직접 입력</option>';
+  }
+  function siteInfo(){
+    var v=$('bulkSite').value;
+    if(v===OFF) return {site:dayOffSite(),units:0,off:true};
+    if(v===NEW) return {site:$('bulkSiteNew').value.trim().replace(/\s+/g,' '),units:+$('bulkUnits').value||0};
+    var p=presets.find(function(x){return x.id===v;});
+    return {site:p?p.site:'',units:+$('bulkUnits').value||0};
+  }
+  function days(){
+    var s=$('bulkStart').value,e=$('bulkEnd').value; if(!s||!e) return null;
+    var a=new Date(s+'T00:00:00'),b=new Date(e+'T00:00:00');
+    if(isNaN(a)||isNaN(b)||b<a) return [];
+    var skip={}; document.querySelectorAll('#bulkDays input:checked').forEach(function(c){skip[c.value]=1;});
+    var out=[],n=0;
+    for(var d=new Date(a);d<=b;d.setDate(d.getDate()+1)){
+      if(++n>3660) return 'long';
+      if(!skip[d.getDay()]) out.push(iso(d));
+    }
+    return out;
+  }
+  function delTargets(ds){
+    var set={}; ds.forEach(function(d){set[d]=1;});
+    var v=$('bulkSite').value;
+    return records.filter(function(r){
+      if(!set[r.date]) return false;
+      if(v===ALL) return true;
+      if(v===OFF) return isDayOff(r);
+      return v.indexOf('s:')===0 && r.site===v.slice(2).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&#39;/g,"'").replace(/&quot;/g,'"');
+    });
+  }
+  function calc(){
+    var ds=days(), el=$('bulkPreview'), btn=$('bulkApplyBtn');
+    $('bulkPay').value=won(payForUnits(+$('bulkUnits').value||0));
+    btn.disabled=true;
+    if(ds===null){el.textContent='시작일과 종료일을 선택해 주세요.';return null;}
+    if(ds==='long'){el.textContent='기간이 너무 깁니다. (최대 10년)';return null;}
+    if(!ds.length){el.textContent='선택한 기간에 해당하는 날짜가 없습니다. (종료일이 시작일보다 빠르거나 모두 제외됨)';return null;}
+    if(mode==='del'){
+      var t=delTargets(ds);
+      el.textContent=t.length?('삭제될 기록 '+t.length+'건 · 삭제 후에는 되돌릴 수 없습니다. 먼저 백업을 권장합니다.'):'선택한 조건에 해당하는 기록이 없습니다.';
+      btn.disabled=!t.length;
+      return t.length?{del:t}:null;
+    }
+    if(ds.length>366){el.textContent='입력은 한 번에 최대 366일까지 가능합니다.';return null;}
+    var info=siteInfo();
+    if(!info.site){el.textContent='업체명을 입력해 주세요.';return null;}
+    var add=ds.filter(function(d){return !hasSameSiteOnDate(d,info.site);});
+    var skipN=ds.length-add.length;
+    el.textContent=(info.off?'휴무(0유닛) · '+info.site+' ':'“'+info.site+'” '+info.units+'유닛 ('+won(payForUnits(info.units))+') ')+add.length+'일 입력'+(skipN?' · 이미 등록된 '+skipN+'일은 건너뜀':'')+(info.off?'':' · 합계 '+won(payForUnits(info.units)*add.length));
+    btn.disabled=!add.length;
+    return {info:info,add:add};
+  }
+  function onSite(){
+    var v=$('bulkSite').value;
+    if(mode==='del'){calc();return;}
+    $('bulkSiteNewWrap').style.display=v===NEW?'':'none';
+    var off=v===OFF; $('bulkUnits').disabled=off;
+    if(off){$('bulkUnits').value=0;}
+    else if(+$('bulkUnits').value===0) $('bulkUnits').value=payRule.baseUnits;
+    calc();
+  }
+  function setMode(m){
+    mode=m;
+    $('bulkSheet').classList.toggle('del-mode',m==='del');
+    document.querySelectorAll('#bulkMode .btn').forEach(function(b){b.classList.toggle('on',b.dataset.mode===m);});
+    $('bulkDaysLabel').textContent=m==='del'?'삭제에서 제외할 요일 (선택)':'제외할 요일 (선택)';
+    $('bulkApplyBtn').textContent=m==='del'?'삭제하기':'입력하기';
+    fillSites(); onSite();
+  }
+  $('bulkOpenBtn').addEventListener('click',function(){
+    var base=(typeof selectedDate==='string'&&selectedDate)?selectedDate:iso(new Date());
+    $('bulkStart').value=base; $('bulkEnd').value=base;
+    document.querySelectorAll('#bulkDays input').forEach(function(c){c.checked=false;});
+    $('bulkUnits').value=payRule.baseUnits; setMode('add'); sheet(true);
+  });
+  $('bulkMode').addEventListener('click',function(e){var b=e.target.closest('[data-mode]'); if(b) setMode(b.dataset.mode);});
+  $('bulkSite').addEventListener('change',onSite);
+  ['bulkStart','bulkEnd','bulkSiteNew','bulkUnits'].forEach(function(id){$(id).addEventListener('input',calc);$(id).addEventListener('change',calc);});
+  $('bulkDays').addEventListener('change',calc);
+  $('bulkStart').addEventListener('change',function(){ if($('bulkEnd').value<$('bulkStart').value) $('bulkEnd').value=$('bulkStart').value; calc(); });
+  $('bulkCloseBtn').addEventListener('click',function(){sheet(false);});
+  $('bulkCancelBtn').addEventListener('click',function(){sheet(false);});
+  $('bulkSheet').addEventListener('click',function(e){if(e.target===$('bulkSheet'))sheet(false);});
+  $('bulkApplyBtn').addEventListener('click',function(){
+    var r=calc(); if(!r) return;
+    if(r.del){
+      if(!confirm('🗑️ '+$('bulkStart').value+' ~ '+$('bulkEnd').value+'\n기록 '+r.del.length+'건을 삭제합니다.\n삭제 후에는 되돌릴 수 없습니다. 계속할까요?')) return;
+      var ids={}; r.del.forEach(function(x){ids[x.id]=1;});
+      records=records.filter(function(x){return !ids[x.id];});
+      save(); render(); sheet(false);
+      return;
+    }
+    if(!confirm($('bulkPreview').textContent+'\n\n입력할까요?')) return;
+    var inf=r.info;
+    r.add.forEach(function(d){
+      records.push({id:generateId(),date:d,site:inf.site,units:inf.units,expense:0,paid:!!inf.off,memo:''});
+    });
+    if(!inf.off){ var p=presets.find(function(x){return sameSite(x.site,inf.site);}); if(p){p.lastUsed=Date.now();} else if($('bulkSite').value===NEW){presets.push({id:generateId(),site:inf.site,lastUsed:Date.now()});} }
+    save(); render(); sheet(false);
+  });
+})();
+</script>
+<script id="modal-lock-js">
+(function(){
+  var sel=".sheet.open,.date-action-backdrop.open,.share-popup[style*='flex'],.share-popup.open";
+  var locked=false,y=0;
+  function sync(){
+    var any=!!document.querySelector(sel);
+    if(any&&!locked){y=window.scrollY||0;document.body.style.top=(-y)+"px";document.body.classList.add("modal-open");locked=true;}
+    else if(!any&&locked){document.body.classList.remove("modal-open");document.body.style.top="";window.scrollTo(0,y);locked=false;}
+  }
+  new MutationObserver(sync).observe(document.body,{subtree:true,attributes:true,attributeFilter:["class","style"]});
+  var c=document.getElementById("dateActionCloseBtn");
+  if(c)c.addEventListener("click",function(){closeDateActionPopup();});
+  var p=document.getElementById("dateActionPopup");
+  if(p)p.addEventListener("click",function(e){if(e.target===p)closeDateActionPopup();});
+})();
+</script>
+</body>
+</html>
