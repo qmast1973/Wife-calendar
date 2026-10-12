@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="app-version" content="2026.10.12-w5">
+  <meta name="app-version" content="2026.10.12-w6">
   <meta name="theme-color" content="#16764f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -247,8 +247,8 @@ function t(k, v){
   if(v) s = s.replace(/\{(\w+)\}/g, function(m, n){ return (n in v) ? v[n] : m; });
   return s;
 }
-// 유닛 표시: 13.0유닛 / 13.0 units / 13.0 ยูนิต
-function U(n){ n = (Number(n) || 0).toFixed(1); return LANG === 'ko' ? n + '유닛' : n + ' ' + t('유닛'); }
+// 유닛 표시: 13.00유닛 / 13.00 units / 13.00 ยูนิต (소수점 둘째 자리)
+function U(n){ n = (Number(n) || 0).toFixed(2); return LANG === 'ko' ? n + '유닛' : n + ' ' + t('유닛'); }
 
 // 홈 화면 아이콘 이름도 언어에 맞춘다 (아이폰은 '홈 화면에 추가' 시점의 값을 사용)
 document.title = t('업무달력');
@@ -281,7 +281,7 @@ function applyStaticI18n(){
 var I18N_HTML = {
   helpBody: {
     en: '<details open><summary>💰 How pay is calculated</summary><ul>'
-      + '<li><b>13.0 units = ₩105,000</b> per day</li>'
+      + '<li><b>13.00 units = ₩105,000</b> per day</li>'
       + '<li>Above 13 units, <b>₩7,000 per extra unit</b> is added. (e.g. 15 units = 105,000 + 2×7,000 = ₩119,000)</li>'
       + '<li>Under 13 units, pay is <b>units × ₩8,000</b>. (e.g. 10 units = ₩80,000)</li>'
       + '<li>You can change these values in Settings → <b>Pay rule</b>. All records are recalculated.</li></ul></details>'
@@ -292,7 +292,7 @@ var I18N_HTML = {
       + '<li>Fully paid days get a black border (can be turned off in Settings).</li></ul></details>'
       + '<details><summary>✍️ Adding work</summary><ul>'
       + '<li>Tap a date to open the input window. Existing records for that day are listed on top.</li>'
-      + '<li><b>Quick add</b>: set the units on the right (▲▼ by 0.1, or type; default 13.0), then tap a company button. The day’s pay is shown under the units.</li>'
+      + '<li><b>Quick add</b>: set the units on the right (▲▼ by 0.1, or type up to 2 decimals; default 13.00), then tap a company button. The day’s pay is shown under the units.</li>'
       + '<li>The <b>Day off</b> button under the units records a day off as <b>0 units for the most recent company</b>.</li>'
       + '<li>To add a new company, type its name at the bottom and tap <b>Add</b>. It becomes a button next time.</li>'
       + '<li>Tap an existing record to edit or delete it.</li></ul></details>'
@@ -321,7 +321,7 @@ var I18N_HTML = {
       + '<li>If the app looks old, close it completely and open it again. Check the <b>App version</b> at the bottom of Settings.</li></ul></details>'
       + '<details><summary>🔒 Privacy</summary><ul><li>All records stay on this device and are never sent to a server.</li></ul></details>',
     th: '<details open><summary>💰 วิธีคำนวณค่าจ้าง</summary><ul>'
-      + '<li>วันละ <b>13.0 ยูนิต = 105,000 วอน</b></li>'
+      + '<li>วันละ <b>13.00 ยูนิต = 105,000 วอน</b></li>'
       + '<li>ถ้าเกิน 13 ยูนิต จะได้เพิ่ม <b>ยูนิตละ 7,000 วอน</b> (เช่น 15 ยูนิต = 105,000 + 2×7,000 = 119,000 วอน)</li>'
       + '<li>ถ้าไม่ถึง 13 ยูนิต คิดเป็น <b>ยูนิต × 8,000 วอน</b> (เช่น 10 ยูนิต = 80,000 วอน)</li>'
       + '<li>เปลี่ยนค่าเหล่านี้ได้ที่ ตั้งค่า → <b>เกณฑ์ค่าจ้าง</b> ทุกบันทึกจะคำนวณใหม่</li></ul></details>'
@@ -332,7 +332,7 @@ var I18N_HTML = {
       + '<li>วันที่ได้รับเงินครบแล้วจะมีกรอบดำ (ปิดได้ในตั้งค่า)</li></ul></details>'
       + '<details><summary>✍️ บันทึกงาน</summary><ul>'
       + '<li>แตะวันที่เพื่อเปิดหน้าบันทึก ถ้ามีบันทึกของวันนั้นจะแสดงด้านบน</li>'
-      + '<li><b>บันทึกด่วน</b>: ตั้งยูนิตทางขวา (▲▼ ทีละ 0.1 หรือพิมพ์เอง ค่าเริ่มต้น 13.0) แล้วแตะปุ่มบริษัท ค่าจ้างของวันนั้นแสดงใต้ยูนิต</li>'
+      + '<li><b>บันทึกด่วน</b>: ตั้งยูนิตทางขวา (▲▼ ทีละ 0.1 หรือพิมพ์เอง ทศนิยมได้ 2 ตำแหน่ง ค่าเริ่มต้น 13.00) แล้วแตะปุ่มบริษัท ค่าจ้างของวันนั้นแสดงใต้ยูนิต</li>'
       + '<li>ปุ่ม <b>วันหยุด</b> ใต้ช่องยูนิตจะบันทึกวันหยุดเป็น <b>0 ยูนิตของบริษัทล่าสุด</b></li>'
       + '<li>เพิ่มบริษัทใหม่: พิมพ์ชื่อที่ด้านล่างแล้วกด <b>เพิ่ม</b> ครั้งต่อไปจะมีปุ่มของบริษัทนั้น</li>'
       + '<li>แตะบันทึกที่มีอยู่เพื่อแก้ไขหรือลบ</li></ul></details>'
@@ -434,7 +434,7 @@ var I18N_HTML = {
       background:var(--light);
     }
     .entry .site{display:block;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:calc(12.5px * var(--fs,1));font-weight:700}
-    .entry .pay{display:block;width:100%;font-size:calc(16px * var(--fs,1));font-weight:900;color:var(--green)}
+    .entry .pay{display:block;width:100%;font-size:calc(14.5px * var(--fs,1));font-weight:900;color:var(--green);white-space:nowrap;letter-spacing:-0.3px}
     .entry.partial{background:#fff3e4}
     .entry.partial .pay{color:#a95e13}
     .entry.manpower-05{background:#dff4d2!important}
@@ -727,7 +727,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
       </details>
       <details open><summary>💰 급여 계산 방식</summary>
         <ul>
-          <li>하루 <b>13.0유닛 = 105,000원</b></li>
+          <li>하루 <b>13.00유닛 = 105,000원</b></li>
           <li>13유닛을 넘으면 <b>초과 1유닛당 7,000원</b>이 더해집니다. (예: 15유닛 = 105,000 + 2×7,000 = 119,000원)</li>
           <li>13유닛 미만이면 <b>유닛 × 8,000원</b>입니다. (예: 10유닛 = 80,000원)</li>
           <li>기준 금액은 설정 → <b>유닛 급여 기준</b>에서 바꿀 수 있으며, 바꾸면 모든 기록이 새 기준으로 다시 계산됩니다.</li>
@@ -736,7 +736,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
       <details><summary>✍️ 근무 입력하기</summary>
         <ul>
           <li>날짜를 누르면 입력창이 열립니다. 그날 기록이 있으면 위에 목록으로 나옵니다.</li>
-          <li><b>빠른 입력</b>: 오른쪽 유닛(▲▼로 0.1씩 또는 직접 입력, 기본 13.0)을 정한 뒤, 업체 버튼을 누르면 바로 기록됩니다. 유닛 아래에 그날 급여가 미리 표시됩니다.</li>
+          <li><b>빠른 입력</b>: 오른쪽 유닛(▲▼로 0.1씩 또는 소수점 둘째 자리까지 직접 입력, 기본 13.00)을 정한 뒤, 업체 버튼을 누르면 바로 기록됩니다. 유닛 아래에 그날 급여가 미리 표시됩니다.</li>
           <li>유닛 입력칸 아래의 <b>휴무</b> 버튼으로 쉬는 날을 등록합니다. 휴무는 별도 업체가 아니라 <b>가장 최근에 입력한 업체의 0유닛</b>으로 기록되어, 내보내기·정산에서 그 업체 안에 함께 정리됩니다.</li>
           <li>새 업체는 빠른 입력 맨 아래 <b>업체명 · 추가</b> 줄에 입력하고 <b>추가</b>를 누르면 기록되고, 다음부터 업체 버튼으로 나타납니다.</li>
                     <li>이미 입력한 기록을 누르면 수정하거나 삭제할 수 있습니다.</li>
@@ -816,7 +816,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
         <select id="bulkSite"></select>
       </label>
       <label class="field full bulk-add-only" id="bulkSiteNewWrap" style="display:none"><span>새 업체명</span><input type="text" id="bulkSiteNew" placeholder="업체명 입력"></label>
-      <label class="field bulk-add-only"><span>유닛</span><input type="number" id="bulkUnits" value="13" min="0" step="0.1" inputmode="decimal"></label>
+      <label class="field bulk-add-only"><span>유닛</span><input type="number" id="bulkUnits" value="13" min="0" step="0.01" inputmode="decimal"></label>
       <label class="field bulk-add-only"><span>하루 급여 (자동)</span><input type="text" id="bulkPay" readonly tabindex="-1" style="font-weight:800;color:var(--green);"></label>
       <div class="field full"><span id="bulkDaysLabel">제외할 요일 (선택)</span>
         <div class="bulk-days" id="bulkDays">
@@ -947,7 +947,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
       </label>
       <label class="field">
         <span>유닛</span>
-        <input id="unitsInput" step="0.1" min="0" type="number" value="13.0" inputmode="decimal" required>
+        <input id="unitsInput" step="0.01" min="0" type="number" value="13.00" inputmode="decimal" required>
       </label>
       <label class="field">
         <span>급여 (자동 계산)</span>
@@ -990,7 +990,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
         </div>
         <div class="quick-right">
           <div class="quick-unit-control" aria-label="유닛">
-            <input id="quickUnits" type="text" value="13.0" inputmode="decimal">
+            <input id="quickUnits" type="text" value="13.00" inputmode="decimal">
             <div class="quick-unit-arrows">
               <button type="button" id="quickUnitsUp">▲</button>
               <button type="button" id="quickUnitsDown">▼</button>
@@ -1033,7 +1033,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
     <div id="settlementResult" style="margin-top:14px; padding:16px; background:#f5faf7; border-radius:12px; border:1px solid #dce8e1; display:none; flex-direction:column; gap:10px;">
       <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(15px * var(--fs,1)); font-weight:800; border-bottom:1px solid #cfe2d6; padding-bottom:8px;">
         <span>누적 유닛</span>
-        <span style="color:var(--green); font-size:calc(17px * var(--fs,1));" id="setUnits">0.0유닛</span>
+        <span style="color:var(--green); font-size:calc(17px * var(--fs,1));" id="setUnits">0.00유닛</span>
       </div>
       <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(13px * var(--fs,1));">
         <span style="color:var(--muted); font-weight:700;">유닛 급여</span>
@@ -1198,7 +1198,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
       <section class="set-sec">
         <strong>💰 유닛 급여 기준</strong>
         <div class="formgrid" style="margin-top:10px;">
-          <label class="field"><span>하루 기준 유닛</span><input type="number" id="prBaseUnits" min="0.1" step="0.1" inputmode="decimal"></label>
+          <label class="field"><span>하루 기준 유닛</span><input type="number" id="prBaseUnits" min="0.01" step="0.01" inputmode="decimal"></label>
           <label class="field"><span>기준 유닛 급여 (원)</span><input type="number" id="prBasePay" min="0" step="1000" inputmode="numeric"></label>
           <label class="field"><span>초과 1유닛당 (원)</span><input type="number" id="prExtraRate" min="0" step="100" inputmode="numeric"></label>
           <label class="field"><span>기준 미만 1유닛당 (원)</span><input type="number" id="prUnderRate" min="0" step="100" inputmode="numeric"></label>
@@ -1234,7 +1234,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
           정산 완료 날짜 검은색 테두리
         </label>
       </section>
-      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.12-w5<span id="viewInfo"></span></div>
+      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.12-w6<span id="viewInfo"></span></div>
     </div>
   </div>
 </div>
@@ -1263,7 +1263,7 @@ const starterPresets = [
 ];
 
 // ===== 유닛 급여 계산 =====
-// 하루 기준 13.0유닛 = 105,000원, 13유닛 초과분은 1유닛당 7,000원,
+// 하루 기준 13.00유닛 = 105,000원, 13유닛 초과분은 1유닛당 7,000원,
 // 13유닛 미만이면 유닛 × 8,000원 (설정에서 변경 가능)
 const payRuleKey = 'wife-calendar-payrule-v1';
 const defaultPayRule = {baseUnits:13, basePay:105000, extraRate:7000, underRate:8000};
@@ -1430,7 +1430,7 @@ function render(){
       
       return `<button class="entry ${colorCl}" type="button" data-record="${r.id}">
         <div class="site">${escapeHtml(calendarSiteName(r.site))}</div>
-        <div class="pay">${u.toFixed(1)}</div>
+        <div class="pay">${u.toFixed(2)}</div>
       </button>`;
     }).join('');
     
@@ -1462,7 +1462,7 @@ function render(){
   
   let units = monthRs.reduce((s,r) => s + Number(r.units || 0), 0);
   const monthGross = monthRs.reduce((s,r) => s + amount(r), 0);
-  $('monthTotal').innerHTML = LANG === 'ko' ? `${units.toFixed(1)}<small>유닛</small>` : `${units.toFixed(1)}<small> ${t('유닛')}</small>`;
+  $('monthTotal').innerHTML = LANG === 'ko' ? `${units.toFixed(2)}<small>유닛</small>` : `${units.toFixed(2)}<small> ${t('유닛')}</small>`;
   $('monthGross').textContent = t('급여 {x}', {x: won(monthGross)});
   
   let unpaidTotal = monthRs.filter(r => !r.paid && !isDayOff(r)).reduce((s,r) => {
@@ -1582,9 +1582,9 @@ function openDateActionPopup(date){
 function setQuickUnits(v){
   let n = parseFloat(String(v).replace(',','.'));
   if(!Number.isFinite(n)) n = payRule.baseUnits;
-  n = Math.max(0, Math.round(n * 10) / 10);
+  n = Math.max(0, Math.round(n * 100) / 100);
   const el = $('quickUnits');
-  if(el) el.value = n.toFixed(1);
+  if(el) el.value = n.toFixed(2);
 }
 
 function updateQuickPay(){
@@ -1826,7 +1826,7 @@ function buildExportData(){
     filtered.forEach(r => {
       let row = [r.site];
       if(flags.date) row.push(r.date);
-      if(flags.units) row.push(r.dayOff ? `0.0 (${t('휴무')})` : Number(r.units).toFixed(1));
+      if(flags.units) row.push(r.dayOff ? `0.00 (${t('휴무')})` : Number(r.units).toFixed(2));
       if(flags.pay) row.push(amount(r));
       row.push(r.memo || '');
       rows.push(row);
@@ -1882,7 +1882,7 @@ $('recordForm').onsubmit = e => {
     id: editingId || generateId(),
     date: $('dateInput').value,
     site: $('siteInput').value.trim().replace(/\s+/g,' '),
-    units: +$('unitsInput').value || 0,
+    units: Math.round((+$('unitsInput').value || 0) * 100) / 100,
     expense: +$('expenseInput').value || 0,
     paid: $('paidInput').checked,
     memo: $('memoInput').value.trim()
@@ -1938,7 +1938,7 @@ document.addEventListener('click', e => {
       alert(t('"{s}" 업체는 이미 등록되어 있습니다.', {s: p.site}));
       return;
     }
-    const units = Math.max(0.1, Math.round((parseFloat(String($('quickUnits').value).replace(',','.')) || payRule.baseUnits) * 10) / 10);
+    const units = Math.max(0.01, Math.round((parseFloat(String($('quickUnits').value).replace(',','.')) || payRule.baseUnits) * 100) / 100);
     p.lastUsed = Date.now();
     p.lastUnits = units;
     records.push({
@@ -1962,7 +1962,7 @@ $('quickUnits').addEventListener('input', updateQuickPay);
 $('dateActionAdd').onclick = () => {
   const siteEl = $('dateActionSite'), unitsEl = $('quickUnits');
   let site = siteEl.value.trim().replace(/\s+/g,' ');
-  let units = parseFloat(String(unitsEl.value).replace(',','.')) || payRule.baseUnits;
+  let units = Math.round((parseFloat(String(unitsEl.value).replace(',','.')) || payRule.baseUnits) * 100) / 100;
   if(!site){ alert(t('업체명을 입력해 주세요.')); siteEl.focus(); return; }
   if(hasSameSiteOnDate(selectedDate, site)){ alert(t('"{s}" 업체는 이미 등록되어 있습니다.', {s: site})); return; }
   
@@ -2363,9 +2363,9 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
   function siteInfo(){
     var v=$('bulkSite').value;
     if(v===OFF) return {site:dayOffSite(),units:0,off:true};
-    if(v===NEW) return {site:$('bulkSiteNew').value.trim().replace(/\s+/g,' '),units:+$('bulkUnits').value||0};
+    if(v===NEW) return {site:$('bulkSiteNew').value.trim().replace(/\s+/g,' '),units:Math.round((+$('bulkUnits').value||0)*100)/100};
     var p=presets.find(function(x){return x.id===v;});
-    return {site:p?p.site:'',units:+$('bulkUnits').value||0};
+    return {site:p?p.site:'',units:Math.round((+$('bulkUnits').value||0)*100)/100};
   }
   function days(){
     var s=$('bulkStart').value,e=$('bulkEnd').value; if(!s||!e) return null;
