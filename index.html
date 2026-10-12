@@ -215,7 +215,19 @@ var I18N = {
   '기준 저장':['Save rule','บันทึกเกณฑ์'],
   '예시':['Examples','ตัวอย่าง'],
   '올바른 값을 입력해 주세요.':['Please enter valid values.','กรุณาใส่ค่าที่ถูกต้อง'],
-  '급여 기준이 저장되었습니다. 모든 기록의 금액이 새 기준으로 다시 계산됩니다.':['Pay rule saved. All records are recalculated with the new rule.','บันทึกเกณฑ์ค่าจ้างแล้ว ทุกบันทึกจะคำนวณใหม่ตามเกณฑ์นี้'],
+  '급여 기준이 저장되었습니다. {d}부터의 기록에 새 기준이 적용되고, 그 전 기록은 원래 금액 그대로입니다.':['Pay rule saved. Records from {d} use the new rule; earlier records keep their original pay.','บันทึกเกณฑ์ค่าจ้างแล้ว บันทึกตั้งแต่ {d} ใช้เกณฑ์ใหม่ ส่วนบันทึกก่อนหน้านั้นยังคงยอดเดิม'],
+  '적용 시작일':['Applies from','เริ่มใช้ตั้งแต่'],
+  '적용 시작일을 선택해 주세요.':['Please choose the start date.','กรุณาเลือกวันที่เริ่มใช้'],
+  '급여 기준 이력':['Pay rule history','ประวัติเกณฑ์ค่าจ้าง'],
+  '처음부터':['From the start','ตั้งแต่เริ่มต้น'],
+  '{d}부터':['From {d}','ตั้งแต่ {d}'],
+  '"{s}" 업체를 목록에서 삭제할까요?\n(이미 입력한 기록은 그대로 남습니다)':['Remove "{s}" from the company list?\n(Records already entered are kept.)','ลบ "{s}" ออกจากรายชื่อบริษัทหรือไม่?\n(บันทึกที่ลงไว้แล้วจะยังอยู่)'],
+  '💾 아직 백업한 적이 없어요. 휴대폰을 바꾸거나 앱이 지워지면 기록을 되살릴 수 없어요.':['💾 You have never made a backup. If you change phones or the app is removed, records cannot be recovered.','💾 ยังไม่เคยสำรองข้อมูล หากเปลี่ยนโทรศัพท์หรือแอปถูกลบ จะกู้บันทึกคืนไม่ได้'],
+  '💾 마지막 백업이 {n}일 전이에요. 새 기록을 백업해 두세요.':['💾 Your last backup was {n} days ago. Back up your new records.','💾 สำรองข้อมูลครั้งล่าสุดเมื่อ {n} วันก่อน กรุณาสำรองบันทึกใหม่'],
+  '⚠️ 아이폰 Safari에서는 7일 동안 열지 않으면 기록이 지워질 수 있어요. 홈 화면에 설치해서 쓰고, 백업도 해 두세요.':['⚠️ In iPhone Safari, records may be erased if the page is not opened for 7 days. Install it on the Home Screen and make a backup.','⚠️ ใน Safari ของ iPhone หากไม่เปิด 7 วัน บันทึกอาจถูกลบ กรุณาติดตั้งบนหน้าจอโฮมและสำรองข้อมูลไว้'],
+  '지금 백업':['Back up now','สำรองตอนนี้'],
+  '홈 화면 설치 방법':['How to install','วิธีติดตั้ง'],
+  '나중에':['Later','ภายหลัง'],
   '데이터 백업 & 정산':['Backup & settlement','สำรองข้อมูล & สรุปยอด'],
   '🔍 월별 업체 정산 및 입금 관리':['🔍 Monthly settlement & payments','🔍 สรุปยอดและการรับเงินรายเดือน'],
   '내보내기':['Export','ส่งออก'],
@@ -286,7 +298,7 @@ var I18N_HTML = {
       + '<li><b>13.00 units = ₩105,000</b> per day</li>'
       + '<li>Above 13 units, <b>₩7,000 per extra unit</b> is added. (e.g. 15 units = 105,000 + 2×7,000 = ₩119,000)</li>'
       + '<li>Under 13 units, pay is <b>units × ₩8,000</b>. (e.g. 10 units = ₩80,000)</li>'
-      + '<li>You can change these values in Settings → <b>Pay rule</b>. All records are recalculated.</li></ul></details>'
+      + '<li>You can change these values in Settings → <b>Pay rule</b>. Only records from the <b>Applies from</b> date use the new rule; earlier records keep their original pay.</li></ul></details>'
       + '<details><summary>📅 Calendar</summary><ul>'
       + '<li>Swipe left/right or use ‹ › to change month. <b>Today</b> returns to this month.</li>'
       + '<li>Each day shows the company and units. Colors: under 13 units orange / 13 units blue / over 13 units purple, day off gray.</li>'
@@ -326,7 +338,7 @@ var I18N_HTML = {
       + '<li>วันละ <b>13.00 ยูนิต = 105,000 วอน</b></li>'
       + '<li>ถ้าเกิน 13 ยูนิต จะได้เพิ่ม <b>ยูนิตละ 7,000 วอน</b> (เช่น 15 ยูนิต = 105,000 + 2×7,000 = 119,000 วอน)</li>'
       + '<li>ถ้าไม่ถึง 13 ยูนิต คิดเป็น <b>ยูนิต × 8,000 วอน</b> (เช่น 10 ยูนิต = 80,000 วอน)</li>'
-      + '<li>เปลี่ยนค่าเหล่านี้ได้ที่ ตั้งค่า → <b>เกณฑ์ค่าจ้าง</b> ทุกบันทึกจะคำนวณใหม่</li></ul></details>'
+      + '<li>เปลี่ยนค่าเหล่านี้ได้ที่ ตั้งค่า → <b>เกณฑ์ค่าจ้าง</b> เฉพาะบันทึกตั้งแต่<b>วันที่เริ่มใช้</b>จะคิดตามเกณฑ์ใหม่ บันทึกก่อนหน้านั้นยังคงยอดเดิม</li></ul></details>'
       + '<details><summary>📅 ปฏิทิน</summary><ul>'
       + '<li>ปัดซ้าย/ขวา หรือกด ‹ › เพื่อเปลี่ยนเดือน กด <b>วันนี้</b> เพื่อกลับมาเดือนปัจจุบัน</li>'
       + '<li>แต่ละวันแสดงชื่อบริษัทและยูนิต สี: ต่ำกว่า 13 ยูนิต สีส้ม / 13 ยูนิต สีน้ำเงิน / เกิน 13 ยูนิต สีม่วง / วันหยุด สีเทา</li>'
@@ -732,7 +744,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
           <li>하루 <b>13.00유닛 = 105,000원</b></li>
           <li>13유닛을 넘으면 <b>초과 1유닛당 7,000원</b>이 더해집니다. (예: 15유닛 = 105,000 + 2×7,000 = 119,000원)</li>
           <li>13유닛 미만이면 <b>유닛 × 8,000원</b>입니다. (예: 10유닛 = 80,000원)</li>
-          <li>기준 금액은 설정 → <b>유닛 급여 기준</b>에서 바꿀 수 있으며, 바꾸면 모든 기록이 새 기준으로 다시 계산됩니다.</li>
+          <li>기준 금액은 설정 → <b>유닛 급여 기준</b>에서 바꿀 수 있습니다. <b>적용 시작일</b>부터의 기록만 새 기준으로 계산되고, 그 전 기록은 원래 금액 그대로입니다.</li>
         </ul>
       </details>
       <details><summary>✍️ 근무 입력하기</summary>
@@ -868,6 +880,15 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
       <button type="button" class="btn" id="settingsBtn" aria-label="설정" title="설정">⚙️</button>
     </div>
   </header>
+
+  <div class="bulk-preview" id="backupBanner" style="display:none;margin:0 0 10px">
+    <div id="backupBannerText"></div>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+      <button type="button" class="btn primary" id="backupBannerBtn">지금 백업</button>
+      <button type="button" class="btn" id="backupBannerInstall" style="display:none">홈 화면 설치 방법</button>
+      <button type="button" class="btn" id="backupBannerLater">나중에</button>
+    </div>
+  </div>
 
   <div class="layout">
     <!-- 달력 섹션 (좌우 스와이프 제스처 지원) -->
@@ -1204,8 +1225,10 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
           <label class="field"><span>기준 유닛 급여 (원)</span><input type="number" id="prBasePay" min="0" step="1000" inputmode="numeric"></label>
           <label class="field"><span>초과 1유닛당 (원)</span><input type="number" id="prExtraRate" min="0" step="100" inputmode="numeric"></label>
           <label class="field"><span>기준 미만 1유닛당 (원)</span><input type="number" id="prUnderRate" min="0" step="100" inputmode="numeric"></label>
+          <label class="field"><span>적용 시작일</span><input type="date" id="prFrom"></label>
         </div>
         <div class="bulk-preview" id="prExample" style="font-size:calc(12px * var(--fs,1))"></div>
+        <div class="bulk-preview" id="prHistory" style="font-size:calc(12px * var(--fs,1));white-space:pre-line;font-weight:600"></div>
         <div style="display:flex;gap:6px;margin-top:10px;">
           <button type="button" class="btn" id="prResetBtn" style="flex:1">기본값</button>
           <button type="button" class="btn primary" id="prSaveBtn" style="flex:2">기준 저장</button>
@@ -1269,13 +1292,35 @@ const starterPresets = [
 // 13유닛 미만이면 유닛 × 8,000원 (설정에서 변경 가능)
 const payRuleKey = 'wife-calendar-payrule-v1';
 const defaultPayRule = {baseUnits:13, basePay:105000, extraRate:7000, underRate:8000};
+// 급여 기준 이력: from(YYYY-MM-DD) 날짜부터 그 기준을 쓴다. from이 ''이면 처음부터.
+// 기준을 바꿔도 적용 시작일 전의 기록은 원래 기준으로 계산된다.
+const payHistoryKey = 'wife-calendar-payhistory-v1';
 let payRule = {...defaultPayRule};
 try{ payRule = Object.assign({...defaultPayRule}, JSON.parse(localStorage.getItem(payRuleKey) || '{}')); }catch(e){}
-function savePayRule(){ try{ localStorage.setItem(payRuleKey, JSON.stringify(payRule)); }catch(e){} }
-function payForUnits(u){
+let payHistory = null;
+try{ payHistory = JSON.parse(localStorage.getItem(payHistoryKey) || 'null'); }catch(e){}
+function normalizePayHistory(h, fallback){
+  h = Array.isArray(h) ? h.filter(x => x && typeof x === 'object' && Number(x.baseUnits) > 0) : [];
+  h = h.map(x => ({from: typeof x.from === 'string' ? x.from : '', baseUnits:+x.baseUnits, basePay:+x.basePay||0, extraRate:+x.extraRate||0, underRate:+x.underRate||0}));
+  if(!h.length) h = [{from:'', ...defaultPayRule, ...(fallback || {})}];
+  h.sort((a,b) => a.from.localeCompare(b.from));
+  h[0].from = '';
+  return h;
+}
+payHistory = normalizePayHistory(payHistory, payRule);
+function ruleFor(date){
+  const d = date || iso(new Date());
+  let r = payHistory[0];
+  payHistory.forEach(x => { if(x.from <= d) r = x; });
+  return r;
+}
+function refreshPayRule(){ const r = ruleFor(); payRule = {baseUnits:r.baseUnits, basePay:r.basePay, extraRate:r.extraRate, underRate:r.underRate}; }
+function savePayRule(){ try{ localStorage.setItem(payHistoryKey, JSON.stringify(payHistory)); localStorage.setItem(payRuleKey, JSON.stringify(payRule)); }catch(e){} }
+// date: 그 날짜에 적용되는 기준으로 계산 (생략하면 오늘 기준), rule: 기준을 직접 지정(설정 예시용)
+function payForUnits(u, date, rule){
   u = Number(u) || 0;
   if(u <= 0) return 0;
-  const {baseUnits, basePay, extraRate, underRate} = payRule;
+  const {baseUnits, basePay, extraRate, underRate} = rule || ruleFor(date);
   const pay = u >= baseUnits ? basePay + (u - baseUnits) * extraRate : u * underRate;
   return Math.round(pay);
 }
@@ -1319,6 +1364,7 @@ function iso(d){
   return `${y}-${m}-${day}`;
 }
 
+refreshPayRule();
 localFallbackLoad();
 try { $('exportExtraMessage').value = localStorage.getItem(exportMessageKey) || ''; } catch(e) {}
 let cursor = new Date();
@@ -1326,7 +1372,7 @@ cursor = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
 let selectedDate = iso(new Date());
 
 function saveToStorage(){
-  const payload = {version: 4, app: '업무달력', savedAt: new Date().toISOString(), records, presets, payRule};
+  const payload = {version: 4, app: '업무달력', savedAt: new Date().toISOString(), records, presets, payRule, payHistory};
   try{
     localStorage.setItem(storageKey, JSON.stringify(payload));
     localStorage.setItem(presetKey, JSON.stringify(presets));
@@ -1344,10 +1390,11 @@ async function saveToDataFile(){
       dirty = true; updateFileStatus(); return false;
     }
     const writable = await dataFileHandle.createWritable();
-    const payload = {version: 4, app: '업무달력', savedAt: new Date().toISOString(), records, presets, payRule};
+    const payload = {version: 4, app: '업무달력', savedAt: new Date().toISOString(), records, presets, payRule, payHistory};
     await writable.write(JSON.stringify(payload, null, 2));
     await writable.close();
     dirty = false; updateFileStatus();
+    try{ localStorage.setItem(lastBackupKey, String(Date.now())); }catch(e){}
     return true;
   }catch(e){
     dirty = true; updateFileStatus();
@@ -1387,7 +1434,7 @@ function exportSiteOf(r){
   records.forEach(x => { if(x.site !== '휴무'){ const d = Math.abs(new Date(x.date) - new Date(r.date)); if(d < bd){ bd = d; best = x.site; } } });
   return best || r.site;
 }
-function amount(r){ return isDayOff(r) ? 0 : payForUnits(r.units); }
+function amount(r){ return isDayOff(r) ? 0 : payForUnits(r.units, r.date); }
 function totalPay(r){ return amount(r) + (Number(r.expense) || 0); }
 function sameSite(a,b){ return String(a||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('ko-KR') === String(b||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('ko-KR'); }
 function hasSameSiteOnDate(date, site, excludeId=null){
@@ -1428,7 +1475,7 @@ function render(){
       }
 
       // 기준(13유닛) 미만 주황 / 기준 파랑 / 초과 보라
-      const bu = Number(payRule.baseUnits) || 13;
+      const bu = Number(ruleFor(key).baseUnits) || 13;
       let colorCl = Math.abs(u-bu)<0.001 ? 'manpower-10' : (u > bu ? 'manpower-15' : 'partial');
       
       return `<button class="entry ${colorCl}" type="button" data-record="${r.id}">
@@ -1576,7 +1623,7 @@ function renderDateActionPopup(){
 function openDateActionPopup(date){
   selectedDate = date;
   const first = records.find(r => r.date === date);
-  setQuickUnits(first && !isDayOff(first) ? first.units : payRule.baseUnits);
+  setQuickUnits(first && !isDayOff(first) ? first.units : ruleFor(date).baseUnits);
   renderDateActionPopup();
   updateQuickPay();
   $('dateActionPopup').classList.add('open');
@@ -1592,7 +1639,7 @@ function setQuickUnits(v){
 
 function updateQuickPay(){
   const el = $('quickPay');
-  if(el) el.textContent = won(payForUnits(parseFloat(String($('quickUnits').value).replace(',','.')) || 0));
+  if(el) el.textContent = won(payForUnits(parseFloat(String($('quickUnits').value).replace(',','.')) || 0, selectedDate));
 }
 
 // 빠른 입력 유닛 읽기: 0도 그대로 읽고, 비었거나 숫자가 아니면 기준 유닛
@@ -1614,7 +1661,7 @@ function openSheet(date = iso(new Date()), r = null){
   $('sheetTitle').textContent = t(r ? '기록 수정' : '일한 날 기록');
   $('dateInput').value = r?.date || date;
   $('siteInput').value = r?.site || '';
-  $('unitsInput').value = r ? r.units : payRule.baseUnits;
+  $('unitsInput').value = r ? r.units : ruleFor(date).baseUnits;
   updatePayPreview();
   $('expenseInput').value = r?.expense || 0;
   $('paidInput').checked = Boolean(r?.paid);
@@ -1625,9 +1672,10 @@ function openSheet(date = iso(new Date()), r = null){
 }
 
 function updatePayPreview(){
-  $('payPreview').value = won(payForUnits(+$('unitsInput').value || 0));
+  $('payPreview').value = won(payForUnits(+$('unitsInput').value || 0, $('dateInput').value));
 }
 $('unitsInput').addEventListener('input', updatePayPreview);
+$('dateInput').addEventListener('change', updatePayPreview);
 
 function closeSheet(){ $('sheet').classList.remove('open'); }
 
@@ -1773,15 +1821,35 @@ document.addEventListener('click', e => {
 });
 
 // JSON 백업 다운로드
+// 백업 알림: 기록이 있는데 14일 넘게 백업하지 않았거나, 아이폰 Safari(홈 화면 앱 아님)에서 쓰는 경우
+const lastBackupKey = 'wife-calendar-last-backup-v1';
+const backupSnoozeKey = 'wife-calendar-backup-snooze-v1';
+function markBackedUp(){ try{ localStorage.setItem(lastBackupKey, String(Date.now())); }catch(e){} updateBackupBanner(); }
+function updateBackupBanner(){
+  const el = $('backupBanner');
+  if(!el) return;
+  let last = 0, snooze = 0;
+  try{ last = +localStorage.getItem(lastBackupKey) || 0; snooze = +localStorage.getItem(backupSnoozeKey) || 0; }catch(e){}
+  const now = Date.now(), DAY = 86400000;
+  const iosSafari = isIOS && !isStandalone;
+  const stale = records.length > 0 && (!last || now - last > 14 * DAY);
+  if(!records.length || now < snooze || (!stale && !iosSafari)){ el.style.display = 'none'; return; }
+  $('backupBannerText').textContent = iosSafari
+    ? t('⚠️ 아이폰 Safari에서는 7일 동안 열지 않으면 기록이 지워질 수 있어요. 홈 화면에 설치해서 쓰고, 백업도 해 두세요.')
+    : (last ? t('💾 마지막 백업이 {n}일 전이에요. 새 기록을 백업해 두세요.', {n: Math.floor((now - last) / DAY)}) : t('💾 아직 백업한 적이 없어요. 휴대폰을 바꾸거나 앱이 지워지면 기록을 되살릴 수 없어요.'));
+  $('backupBannerInstall').style.display = iosSafari ? '' : 'none';
+  el.style.display = '';
+}
+
 async function downloadJsonBackup(){
   saveToStorage();
-  const payload = {version: 4, app: '업무달력', savedAt: new Date().toISOString(), records, presets, payRule};
+  const payload = {version: 4, app: '업무달력', savedAt: new Date().toISOString(), records, presets, payRule, payHistory};
   const json = JSON.stringify(payload, null, 2);
   // 아이폰: 공유 시트로 '파일에 저장'·카카오톡 등에 바로 보낼 수 있게 한다
   if(isIOS && navigator.canShare){
     try{
       const file = new File([json], `${t('업무달력')}_${t('백업')}_${iso(new Date())}.json`, {type:'application/json'});
-      if(navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:t('업무달력 백업')}); return; }
+      if(navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:t('업무달력 백업')}); markBackedUp(); return; }
     }catch(e){ if(e && e.name === 'AbortError') return; }
   }
   const blob = new Blob([json], {type:'application/json'});
@@ -1793,8 +1861,12 @@ async function downloadJsonBackup(){
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  markBackedUp();
 }
 $('directJsonDownloadBtn').onclick = downloadJsonBackup;
+$('backupBannerBtn').onclick = downloadJsonBackup;
+$('backupBannerInstall').onclick = () => $('iosInstallSheet').classList.add('open');
+$('backupBannerLater').onclick = () => { try{ localStorage.setItem(backupSnoozeKey, String(Date.now() + 3 * 86400000)); }catch(e){} updateBackupBanner(); };
 
 // 내보내기 & 엑셀 CSV 생성
 function openExport(){
@@ -2060,6 +2132,8 @@ document.addEventListener('click', e => {
   const delBtn = e.target.closest('[data-del-preset]');
   if(delBtn){
     const id = delBtn.dataset.delPreset;
+    const target = presets.find(x => x.id === id);
+    if(!target || !confirm(t('"{s}" 업체를 목록에서 삭제할까요?\n(이미 입력한 기록은 그대로 남습니다)', {s: target.site}))) return;
     presets = presets.filter(x => x.id !== id);
     save();
     openCompanyManage();
@@ -2178,7 +2252,10 @@ $('dataImportInput').onchange = e => {
       if(records.length && !confirm(t('지금 기록 {n}건을 불러온 파일의 기록 {m}건으로 바꿉니다. 계속할까요?', {n: records.length, m: recs.length}))) return;
       records = recs;
       if(Array.isArray(d.presets)) presets = d.presets;
-      if(d.payRule && typeof d.payRule === 'object'){ payRule = Object.assign({...defaultPayRule}, d.payRule); savePayRule(); }
+      if(Array.isArray(d.payHistory) || (d.payRule && typeof d.payRule === 'object')){
+        payHistory = normalizePayHistory(d.payHistory, d.payRule && typeof d.payRule === 'object' ? d.payRule : null);
+        refreshPayRule(); savePayRule();
+      }
       records.forEach(r => {
         if(typeof r.expense === 'undefined') r.expense = 0;
         if(typeof r.paid === 'undefined') r.paid = false;
@@ -2269,22 +2346,26 @@ calendarSection.addEventListener('touchend', e => {
 
 // 유닛 급여 기준 설정
 function fillPayRuleForm(rule){
+  if(!$('prFrom').value) $('prFrom').value = iso(new Date());
   $('prBaseUnits').value = rule.baseUnits;
   $('prBasePay').value = rule.basePay;
   $('prExtraRate').value = rule.extraRate;
   $('prUnderRate').value = rule.underRate;
   updatePayRuleExample();
+  renderPayHistory();
+}
+function renderPayHistory(){
+  $('prHistory').textContent = t('급여 기준 이력') + '\n' + payHistory.map(x =>
+    `${x.from ? t('{d}부터', {d: x.from}) : t('처음부터')} · ${U(x.baseUnits)} ${won(x.basePay)} · +${won(x.extraRate)} · ${won(x.underRate)}`).join('\n');
 }
 function readPayRuleForm(){
   return {baseUnits:+$('prBaseUnits').value, basePay:+$('prBasePay').value, extraRate:+$('prExtraRate').value, underRate:+$('prUnderRate').value};
 }
 function updatePayRuleExample(){
-  const saved = payRule, r = readPayRuleForm();
+  const r = readPayRuleForm();
   if(!(r.baseUnits > 0) || [r.basePay, r.extraRate, r.underRate].some(v => !Number.isFinite(v) || v < 0)){ $('prExample').textContent = t('올바른 값을 입력해 주세요.'); return; }
-  payRule = r;
   const b = r.baseUnits;
-  const ex = [b - 1, b, b + 1, b + 2].filter(u => u > 0).map(u => `${U(u)} → ${won(payForUnits(u))}`).join('\n');
-  payRule = saved;
+  const ex = [b - 1, b, b + 1, b + 2].filter(u => u > 0).map(u => `${U(u)} → ${won(payForUnits(u, null, r))}`).join('\n');
   $('prExample').style.whiteSpace = 'pre-line';
   $('prExample').textContent = `${t('예시')}\n${ex}`;
 }
@@ -2293,17 +2374,24 @@ $('prResetBtn').onclick = () => fillPayRuleForm(defaultPayRule);
 $('prSaveBtn').onclick = () => {
   const r = readPayRuleForm();
   if(!(r.baseUnits > 0) || [r.basePay, r.extraRate, r.underRate].some(v => !Number.isFinite(v) || v < 0)){ alert(t('올바른 값을 입력해 주세요.')); return; }
-  payRule = r;
+  const from = $('prFrom').value;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(from)){ alert(t('적용 시작일을 선택해 주세요.')); return; }
+  // 시작일 이후의 기존 기준은 새 기준으로 대체하고, 그 전 기준은 그대로 둔다
+  payHistory = normalizePayHistory(payHistory.filter(x => x.from < from).concat([{from, ...r}]));
+  refreshPayRule();
   savePayRule();
   save();
   render();
-  alert(t('급여 기준이 저장되었습니다. 모든 기록의 금액이 새 기준으로 다시 계산됩니다.'));
+  renderPayHistory();
+  alert(t('급여 기준이 저장되었습니다. {d}부터의 기록에 새 기준이 적용되고, 그 전 기록은 원래 금액 그대로입니다.', {d: from}));
 };
-$('settingsBtn').addEventListener('click', () => fillPayRuleForm(payRule));
+$('settingsBtn').addEventListener('click', () => { $('prFrom').value = iso(new Date()); fillPayRuleForm(payRule); });
+$('prFrom').addEventListener('change', () => fillPayRuleForm(ruleFor($('prFrom').value)));
 
 // 초기 실행
 try {
   render();
+  updateBackupBanner();
 } catch(e) { console.error(e); }
 </script>
 <script id="settings-only-js">
@@ -2406,7 +2494,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
   }
   function calc(){
     var ds=days(), el=$('bulkPreview'), btn=$('bulkApplyBtn');
-    $('bulkPay').value=won(payForUnits(+$('bulkUnits').value||0));
+    $('bulkPay').value=won(payForUnits(+$('bulkUnits').value||0, $('bulkStart').value));
     btn.disabled=true;
     if(ds===null){el.textContent=t('시작일과 종료일을 선택해 주세요.');return null;}
     if(ds==='long'){el.textContent=t('기간이 너무 깁니다. (최대 10년)');return null;}
@@ -2422,7 +2510,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     if(!info.site){el.textContent=t('업체명을 입력해 주세요.');return null;}
     var add=ds.filter(function(d){return !hasSameSiteOnDate(d,info.site);});
     var skipN=ds.length-add.length;
-    el.textContent=(info.off?t('휴무(0유닛) · {s}',{s:info.site}):t('"{s}" {u} ({p})',{s:info.site,u:U(info.units),p:won(payForUnits(info.units))}))+' · '+t('{n}일 입력',{n:add.length})+(skipN?t(' · 이미 등록된 {n}일은 건너뜀',{n:skipN}):'')+(info.off?'':' · '+t('합계')+' '+won(payForUnits(info.units)*add.length));
+    el.textContent=(info.off?t('휴무(0유닛) · {s}',{s:info.site}):t('"{s}" {u} ({p})',{s:info.site,u:U(info.units),p:won(payForUnits(info.units, add[0]))}))+' · '+t('{n}일 입력',{n:add.length})+(skipN?t(' · 이미 등록된 {n}일은 건너뜀',{n:skipN}):'')+(info.off?'':' · '+t('합계')+' '+won(add.reduce(function(sum,d){return sum+payForUnits(info.units,d);},0)));
     btn.disabled=!add.length;
     return {info:info,add:add};
   }
@@ -2432,7 +2520,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     $('bulkSiteNewWrap').style.display=v===NEW?'':'none';
     var off=v===OFF; $('bulkUnits').disabled=off;
     if(off){$('bulkUnits').value=0;}
-    else if(+$('bulkUnits').value===0) $('bulkUnits').value=payRule.baseUnits;
+    else if(+$('bulkUnits').value===0) $('bulkUnits').value=ruleFor($('bulkStart').value).baseUnits;
     calc();
   }
   function setMode(m){
@@ -2447,7 +2535,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     var base=(typeof selectedDate==='string'&&selectedDate)?selectedDate:iso(new Date());
     $('bulkStart').value=base; $('bulkEnd').value=base;
     document.querySelectorAll('#bulkDays input').forEach(function(c){c.checked=false;});
-    $('bulkUnits').value=payRule.baseUnits; setMode('add'); sheet(true);
+    $('bulkUnits').value=ruleFor(base).baseUnits; setMode('add'); sheet(true);
   });
   $('bulkMode').addEventListener('click',function(e){var b=e.target.closest('[data-mode]'); if(b) setMode(b.dataset.mode);});
   $('bulkSite').addEventListener('change',onSite);
