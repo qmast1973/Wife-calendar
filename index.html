@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="app-version" content="2026.10.12-w4">
+  <meta name="app-version" content="2026.10.12-w5">
   <meta name="theme-color" content="#16764f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -76,11 +76,11 @@ var I18N = {
   '업체별 유닛 및 정산':['By company','สรุปตามบริษัท'],
   '{m} 누적 유닛':['Units in {m}','ยูนิตรวม {m}'],
   '{m} 업체별 유닛 및 정산':['{m} by company','สรุปตามบริษัท {m}'],
-  '세전 {x}':['{x} before tax','{x} ก่อนหักภาษี'],
+  '급여 {x}':['Pay {x}','ค่าจ้าง {x}'],
   '+ {n}건':['+{n} more','+ อีก {n}'],
   '🏖️ 이번 달 휴무':['🏖️ Days off this month','🏖️ วันหยุดเดือนนี้'],
   '총 {n}일':['{n} day(s)','รวม {n} วัน'],
-  '실수령:':['Take-home:','รับจริง:'],
+  '수령액:':['Received:','ยอดรับ:'],
   '클릭 시 이번 달 전체 입금 완료 처리':['Mark all of this month as paid','ทำเครื่องหมายว่าได้รับเงินทั้งเดือนแล้ว'],
   '미수금 {x} [완료처리]':['Unpaid {x} [Mark paid]','ค้างรับ {x} [รับแล้ว]'],
   '전액완납':['Fully paid','รับครบแล้ว'],
@@ -140,9 +140,6 @@ var I18N = {
   // 정산
   '월별 업체 정산 & 입금 관리':['Monthly settlement','สรุปยอดรายเดือน'],
   '월 선택':['Month','เดือน'],
-  '세금 공제 방식':['Tax deduction','การหักภาษี'],
-  '사업소득세 (3.3% 공제)':['3.3% withholding tax','หักภาษี 3.3%'],
-  '공제 없음 (세전 100%)':['No deduction (100%)','ไม่หักภาษี (100%)'],
   '업체 선택':['Company','บริษัท'],
   '전체 업체 (통합)':['All companies','ทุกบริษัท'],
   '전체 업체':['All companies','ทุกบริษัท'],
@@ -150,12 +147,9 @@ var I18N = {
   '[전체 업체]':['[All companies]','[ทุกบริษัท]'],
   '[{s}] 업체':['[{s}]','[{s}]'],
   '누적 유닛':['Total units','ยูนิตรวม'],
-  '유닛 급여 (세전)':['Pay (before tax)','ค่าจ้าง (ก่อนหักภาษี)'],
+  '유닛 급여':['Pay','ค่าจ้าง'],
   '기타 경비 합산':['Other expenses','ค่าใช้จ่ายอื่นรวม'],
-  '공제 세액 (3.3%)':['Tax (3.3%)','ภาษีที่หัก (3.3%)'],
-  '공제 세액 ({p}%)':['Tax ({p}%)','ภาษีที่หัก ({p}%)'],
-  '공제 세액 (면제)':['Tax (none)','ภาษี (ไม่หัก)'],
-  '최종 수령액 합계':['Total take-home','ยอดรับสุทธิ'],
+  '수령액 합계':['Total received','ยอดรับรวม'],
   '✅ 선택 업체 이번 달 [전체 입금 완료] 처리':['✅ Mark this month as paid','✅ ทำเครื่องหมายว่าได้รับเงินเดือนนี้แล้ว'],
   '↩️ 선택 업체 이번 달 [미지급(미수금)]으로 되돌리기':['↩️ Mark this month as unpaid','↩️ เปลี่ยนเดือนนี้เป็นยังไม่ได้รับเงิน'],
   '✅ {l} 이번 달 [전체 입금 완료] 처리':['✅ {l} Mark this month as paid','✅ {l} ทำเครื่องหมายว่าได้รับเงินเดือนนี้แล้ว'],
@@ -311,8 +305,8 @@ var I18N_HTML = {
       + '<li>Settings → <b>Companies</b>: edit name, phone, address and memo.</li>'
       + '<li>Renaming a company also renames its existing records. Deleting a company keeps its records.</li></ul></details>'
       + '<details><summary>💰 Monthly settlement</summary><ul>'
-      + '<li>Settings → <b>Monthly settlement</b>: choose a month and company to see total units, pay, expenses, tax and take-home.</li>'
-      + '<li>Tax can be <b>3.3% withholding</b> or <b>none</b>. You can mark a whole month as paid or unpaid.</li>'
+      + '<li>Settings → <b>Monthly settlement</b>: choose a month and company to see total units, pay, expenses and the total received.</li>'
+      + '<li>The pay rates are already after the 3.3% withholding, so no tax is deducted again. You can mark a whole month as paid or unpaid.</li>'
       + '<li>“Unpaid this month” on the home screen is the total not yet received.</li></ul></details>'
       + '<details><summary>📤 Export & share</summary><ul>'
       + '<li>Settings → <b>Export</b>: choose period and company, then make a <b>text list</b> (for messages) or an <b>Excel CSV file</b>. Choose date, units, pay and totals.</li></ul></details>'
@@ -351,8 +345,8 @@ var I18N_HTML = {
       + '<li>ตั้งค่า → <b>จัดการบริษัท</b>: แก้ชื่อ เบอร์โทร ที่อยู่ และบันทึก</li>'
       + '<li>เปลี่ยนชื่อบริษัทแล้วบันทึกเดิมจะเปลี่ยนชื่อตาม ลบบริษัทแล้วบันทึกเดิมยังอยู่</li></ul></details>'
       + '<details><summary>💰 สรุปยอดรายเดือน</summary><ul>'
-      + '<li>ตั้งค่า → <b>สรุปยอดรายเดือน</b>: เลือกเดือนและบริษัทเพื่อดูยูนิตรวม ค่าจ้าง ค่าใช้จ่าย ภาษี และยอดรับสุทธิ</li>'
-      + '<li>เลือก <b>หักภาษี 3.3%</b> หรือ <b>ไม่หักภาษี</b> ได้ และเปลี่ยนทั้งเดือนเป็นได้รับเงินแล้ว/ยังไม่ได้รับได้</li>'
+      + '<li>ตั้งค่า → <b>สรุปยอดรายเดือน</b>: เลือกเดือนและบริษัทเพื่อดูยูนิตรวม ค่าจ้าง ค่าใช้จ่าย และยอดรับรวม</li>'
+      + '<li>อัตราค่าจ้างเป็นยอดหลังหักภาษี 3.3% แล้ว จึงไม่หักภาษีซ้ำ และเปลี่ยนทั้งเดือนเป็นได้รับเงินแล้ว/ยังไม่ได้รับได้</li>'
       + '<li>“ยอดค้างรับเดือนนี้” ที่หน้าแรกคือยอดที่ยังไม่ได้รับเงิน</li></ul></details>'
       + '<details><summary>📤 ส่งออก & แชร์</summary><ul>'
       + '<li>ตั้งค่า → <b>ส่งออก</b>: เลือกช่วงวันที่และบริษัท แล้วทำเป็น <b>ข้อความ</b> (ส่งแชท) หรือ <b>ไฟล์ Excel CSV</b> เลือกได้ว่าจะใส่วันที่ ยูนิต ค่าจ้าง และยอดรวม</li></ul></details>'
@@ -757,8 +751,8 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
       </details>
       <details><summary>💰 월별 정산 · 입금 관리</summary>
         <ul>
-          <li>설정 → <b>월별 업체 정산 및 입금 관리</b>에서 월과 업체를 고르면 누적 유닛, 급여 합계, 경비, 세금, 최종 수령액이 계산됩니다.</li>
-          <li>세금은 <b>3.3% 공제</b> 또는 <b>공제 없음</b>을 고를 수 있습니다.</li>
+          <li>설정 → <b>월별 업체 정산 및 입금 관리</b>에서 월과 업체를 고르면 누적 유닛, 급여 합계, 경비, 수령액 합계가 계산됩니다.</li>
+          <li>급여 기준 금액은 이미 <b>3.3% 원천징수 후 금액</b>이라 세금을 다시 빼지 않습니다.</li>
           <li>업체별로 한 달 치를 <b>전체 입금 완료</b> 또는 <b>미지급</b>으로 한꺼번에 바꿀 수 있습니다.</li>
           <li>홈 화면의 “이번 달 미수금”은 아직 입금되지 않은 금액의 합계입니다.</li>
         </ul>
@@ -895,7 +889,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
       <section class="card summary">
         <div class="label" id="summaryMonth">이번 달 누적 유닛</div>
         <div class="total" id="monthTotal">0<small>유닛</small></div>
-        <div class="label" id="monthGross">세전 0원</div>
+        <div class="label" id="monthGross">급여 0원</div>
       </section>
       <section class="card summary">
         <div class="label">이번 달 미수금(미입금)</div>
@@ -1024,16 +1018,9 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
     <div class="sheet-head-row"><h1 class="sheet-title" style="margin:0;">월별 업체 정산 & 입금 관리</h1></div>
     <button type="button" class="btn" id="settlementXBtn" aria-label="닫기" style="position:absolute; top:12px; right:12px; width:36px; height:36px; padding:0; font-size:calc(22px * var(--fs,1)); line-height:1; border-radius:50%;">×</button>
     <div class="formgrid">
-      <label class="field">
+      <label class="field full">
         <span>월 선택</span>
         <input type="month" id="settlementMonth">
-      </label>
-      <label class="field">
-        <span>세금 공제 방식</span>
-        <select id="settlementTaxType">
-          <option value="3.3">사업소득세 (3.3% 공제)</option>
-          <option value="0">공제 없음 (세전 100%)</option>
-        </select>
       </label>
       <label class="field full">
         <span>업체 선택</span>
@@ -1049,19 +1036,15 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
         <span style="color:var(--green); font-size:calc(17px * var(--fs,1));" id="setUnits">0.0유닛</span>
       </div>
       <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(13px * var(--fs,1));">
-        <span style="color:var(--muted); font-weight:700;">유닛 급여 (세전)</span>
+        <span style="color:var(--muted); font-weight:700;">유닛 급여</span>
         <span id="setAmount" style="font-weight:700;">0원</span>
       </div>
       <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(13px * var(--fs,1));">
         <span style="color:var(--muted); font-weight:700;">기타 경비 합산</span>
         <span id="setExpenseAmount" style="font-weight:700;">+ 0원</span>
       </div>
-      <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(13px * var(--fs,1)); color:var(--red);">
-        <span style="font-weight:700;" id="setTaxLabel">공제 세액 (3.3%)</span>
-        <span id="setTaxAmount" style="font-weight:700;">- 0원</span>
-      </div>
       <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(15px * var(--fs,1)); font-weight:900; border-top:1px solid #cfe2d6; padding-top:8px;">
-        <span>최종 수령액 합계</span>
+        <span>수령액 합계</span>
         <span style="color:var(--ink); font-size:calc(17px * var(--fs,1));" id="setTaxedAmount">0원</span>
       </div>
       <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(13px * var(--fs,1)); margin-top:4px;">
@@ -1251,7 +1234,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
           정산 완료 날짜 검은색 테두리
         </label>
       </section>
-      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.12-w4<span id="viewInfo"></span></div>
+      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.12-w5<span id="viewInfo"></span></div>
     </div>
   </div>
 </div>
@@ -1480,12 +1463,12 @@ function render(){
   let units = monthRs.reduce((s,r) => s + Number(r.units || 0), 0);
   const monthGross = monthRs.reduce((s,r) => s + amount(r), 0);
   $('monthTotal').innerHTML = LANG === 'ko' ? `${units.toFixed(1)}<small>유닛</small>` : `${units.toFixed(1)}<small> ${t('유닛')}</small>`;
-  $('monthGross').textContent = t('세전 {x}', {x: won(monthGross)});
+  $('monthGross').textContent = t('급여 {x}', {x: won(monthGross)});
   
   let unpaidTotal = monthRs.filter(r => !r.paid && !isDayOff(r)).reduce((s,r) => {
     const gross = amount(r);
     const exp = Number(r.expense) || 0;
-    return s + Math.floor(gross * 0.967) + exp;
+    return s + gross + exp;
   }, 0);
   $('monthUnpaid').textContent = won(unpaidTotal);
   
@@ -1507,7 +1490,7 @@ function renderCompanyTotals(monthRs){
     }
     const amt = amount(r);
     const exp = Number(r.expense) || 0;
-    const net = Math.floor(amt * 0.967) + exp;
+    const net = amt + exp;
     
     totals[r.site].units += Number(r.units || 0);
     totals[r.site].amount += amt;
@@ -1528,14 +1511,14 @@ function renderCompanyTotals(monthRs){
 
   if(Object.keys(totals).length){
     html += Object.entries(totals).map(([site, data]) => {
-      const afterTax = Math.floor(data.amount * 0.967) + data.expense;
+      const received = data.amount + data.expense;
       return `<div style="display:flex; flex-direction:column; gap:4px; padding-bottom:7px; border-bottom:1px solid var(--line);">
                 <div style="display:flex; justify-content:space-between; font-size:calc(12px * var(--fs,1));">
                   <span style="font-weight:700;">${escapeHtml(site)}</span>
                   <b style="color:var(--green);">${U(data.units)} · ${won(data.amount)}</b>
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; font-size:calc(11px * var(--fs,1)); color:var(--muted);">
-                  <span>${t('실수령:')} <b>${won(afterTax)}</b></span>
+                  <span>${t('수령액:')} <b>${won(received)}</b></span>
                   ${data.unpaidAmount > 0 
                     ? `<button type="button" class="btn danger" style="padding:3px 7px; font-size:calc(10px * var(--fs,1)); font-weight:800;" data-quick-pay-site="${escapeHtml(site)}" title="${t('클릭 시 이번 달 전체 입금 완료 처리')}">${t('미수금 {x} [완료처리]', {x: won(data.unpaidAmount)})}</button>` 
                     : `<span class="badge-paid">${t('전액완납')}</span>`}
@@ -1701,12 +1684,10 @@ $('settlementXBtn').onclick = () => $('settlementSheet').classList.remove('open'
 $('settlementSheet').onclick = (e) => { if(e.target === $('settlementSheet')) $('settlementSheet').classList.remove('open'); };
 $('settlementMonth').onchange = updateSettlementResult;
 $('settlementCompany').onchange = updateSettlementResult;
-$('settlementTaxType').onchange = updateSettlementResult;
 
 function updateSettlementResult() {
   const monthVal = $('settlementMonth').value;
   const siteVal = $('settlementCompany').value;
-  const taxRate = parseFloat($('settlementTaxType').value) / 100;
   const res = $('settlementResult');
   
   if (!monthVal) {
@@ -1721,8 +1702,7 @@ function updateSettlementResult() {
     const u = Number(r.units || 0);
     const amt = amount(r);
     const exp = Number(r.expense || 0);
-    const tax = Math.floor(amt * taxRate);
-    const net = (amt - tax) + exp;
+    const net = amt + exp;
     
     tUnits += u;
     tAmount += amt;
@@ -1732,14 +1712,11 @@ function updateSettlementResult() {
     else tUnpaid += net;
   });
   
-  const totalTax = Math.floor(tAmount * taxRate);
-  const totalNet = (tAmount - totalTax) + tExpense;
+  const totalNet = tAmount + tExpense;
   
   $('setUnits').textContent = U(tUnits);
   $('setAmount').textContent = won(tAmount);
   $('setExpenseAmount').textContent = '+ ' + won(tExpense);
-  $('setTaxLabel').textContent = taxRate > 0 ? t('공제 세액 ({p}%)', {p: (taxRate*100).toFixed(1)}) : t('공제 세액 (면제)');
-  $('setTaxAmount').textContent = '- ' + won(totalTax);
   $('setTaxedAmount').textContent = won(totalNet);
   $('setPaidAmount').textContent = won(tPaid);
   $('setUnpaidAmount').textContent = won(tUnpaid);
