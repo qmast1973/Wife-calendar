@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="app-version" content="2026.10.12-w6">
+  <meta name="app-version" content="2026.10.15-w7">
   <meta name="theme-color" content="#16764f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -46,6 +46,7 @@ var I18N = {
   '회사':['Company','บริษัท'],
   '유닛':['units','ยูนิต'],
   '휴무':['Day off','วันหยุด'],
+  '휴무 (달력 칸)':['Off','หยุด'],
   '🏖️ 휴무':['🏖️ Day off','🏖️ วันหยุด'],
   '닫기':['Close','ปิด'],
   '취소':['Cancel','ยกเลิก'],
@@ -256,7 +257,7 @@ var I18N = {
 };
 
 function t(k, v){
-  var s = k;
+  var s = k === '휴무 (달력 칸)' ? '휴무' : k;
   if(LANG !== 'ko'){ var e = I18N[k]; if(e) s = e[LANG === 'en' ? 0 : 1]; }
   if(v) s = s.replace(/\{(\w+)\}/g, function(m, n){ return (n in v) ? v[n] : m; });
   return s;
@@ -425,12 +426,12 @@ var I18N_HTML = {
     .month-title{font-size:calc(18px * var(--fs,1));font-weight:800}
     .nav{display:flex;gap:4px}
     .icon-btn{width:31px;height:31px;border:1px solid var(--line);border-radius:9px;background:white;cursor:pointer;font-size:calc(16px * var(--fs,1));font-weight:700;color:var(--ink)}
-    .week,.days{display:grid;grid-template-columns:repeat(7,1fr)}
+    .week,.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
     .week div{padding:0 0 6px;text-align:center;color:var(--muted);font-size:calc(11px * var(--fs,1));font-weight:700}
     .week div:first-child{color:var(--red)}
     .week div:last-child{color:#3770ae}
     .days{grid-auto-rows:1fr}
-    .day{min-height:calc(69px * var(--fs,1));border-top:1px solid var(--line);padding:4px 2px;cursor:pointer;position:relative}
+    .day{min-width:0;min-height:calc(69px * var(--fs,1));border-top:1px solid var(--line);padding:4px 2px;cursor:pointer;position:relative;overflow:hidden}
     .day:hover{background:#f7faf7}
     .day.blank{cursor:default;background:transparent}
     .day.selected-date-cell{outline:3px solid var(--green)!important;outline-offset:-3px!important;border-radius:10px!important;z-index:5}
@@ -442,6 +443,7 @@ var I18N_HTML = {
     
     /* 달력 엔트리(유닛 & 휴무 박스) */
     .entry{
+      min-width:0;max-width:100%;overflow:hidden;
       margin-top:3px;border-radius:6px;padding:2px 3px;text-align:center;
       line-height:1.15;border:0;width:100%;cursor:pointer;display:flex;
       flex-direction:column;align-items:center;justify-content:center;min-height:calc(39px * var(--fs,1));
@@ -1259,7 +1261,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
           정산 완료 날짜 검은색 테두리
         </label>
       </section>
-      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.12-w6<span id="viewInfo"></span></div>
+      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.15-w7<span id="viewInfo"></span></div>
     </div>
   </div>
 </div>
@@ -1470,7 +1472,7 @@ function render(){
       let u = Number(r.units) || 0;
       if(isDayOff(r)) {
         return `<button class="entry dayoff" type="button" data-record="${r.id}">
-          <div class="site">${t('휴무')}</div>
+          <div class="site">${t('휴무 (달력 칸)')}</div>
         </button>`;
       }
 
