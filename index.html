@@ -2,9 +2,9 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="app-version" content="2026.10.16-m1">
+  <meta name="app-version" content="2026.10.16-m2">
   <meta name="theme-color" content="#16764f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -761,6 +761,8 @@ html.dark .rec-memo-toggle{color:#9be0bc}
 .hname{font-size:calc(9px * var(--fs,1));font-weight:800;color:var(--red);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:1px 0 0;max-width:100%}
 .holiday .date{color:var(--red)}
 html.dark .holiday .date,html.dark .hname{color:#ff8178}
+html.kb-open .sheet,html.kb-open .date-action-backdrop,html.kb-open .share-popup{top:var(--vvt,0px);bottom:auto;height:var(--vvh,100%);align-items:center}
+html.kb-open .sheet-box,html.kb-open .date-action-sheet{max-height:calc(var(--vvh,100vh) - 20px)}
 </style>
 </head>
 <body><!-- 도움말 -->
@@ -1312,7 +1314,7 @@ html.dark .holiday .date,html.dark .hname{color:#ff8178}
           정산 완료 날짜 검은색 테두리
         </label>
       </section>
-      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.16-m1<span id="viewInfo"></span></div>
+      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.16-m2<span id="viewInfo"></span></div>
     </div>
   </div>
 </div>
@@ -1794,7 +1796,7 @@ function openSheet(date = iso(new Date()), r = null){
   $('memoInput').value = r?.memo || '';
   $('deleteBtn').style.visibility = r ? 'visible' : 'hidden';
   $('sheet').classList.add('open');
-  setTimeout(() => $('siteInput').focus(), 80);
+  if(!r) setTimeout(() => $('siteInput').focus(), 80);
 }
 
 function updatePayPreview(){
@@ -2703,6 +2705,24 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     });
     if(!inf.off){ var p=presets.find(function(x){return sameSite(x.site,inf.site);}); if(p){p.lastUsed=Date.now();} else if($('bulkSite').value===NEW){presets.push({id:generateId(),site:inf.site,lastUsed:Date.now()});} }
     save(); render(); sheet(false);
+  });
+})();
+</script>
+<script id="keyboard-fit-js">
+// 키보드가 올라오면 팝업을 보이는 화면 안에 맞추고, 입력 중인 칸이 가려지지 않게 스크롤한다
+(function(){
+  var vv = window.visualViewport; if(!vv) return;
+  var root = document.documentElement;
+  function fit(){
+    var open = (window.innerHeight - vv.height) > 120;
+    root.style.setProperty('--vvh', vv.height + 'px');
+    root.style.setProperty('--vvt', vv.offsetTop + 'px');
+    root.classList.toggle('kb-open', open);
+  }
+  vv.addEventListener('resize', fit); vv.addEventListener('scroll', fit); fit();
+  document.addEventListener('focusin', function(e){
+    var el = e.target; if(!el.matches || !el.matches('input,textarea,select')) return;
+    setTimeout(function(){ try{ el.scrollIntoView({block:'center', behavior:'smooth'}); }catch(_){} }, 300);
   });
 })();
 </script>
