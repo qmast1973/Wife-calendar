@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="app-version" content="2026.10.15-w7">
+  <meta name="app-version" content="2026.10.16-m1">
   <meta name="theme-color" content="#16764f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -255,6 +255,33 @@ var I18N = {
   '그냥 시작':['Start','เริ่มเลย'],
   '📱 아이폰 홈 화면에 설치':['📱 Install on iPhone Home Screen','📱 ติดตั้งบนหน้าจอโฮม iPhone']
 };
+Object.assign(I18N, {
+  '📝 메모':['📝 Memo','📝 บันทึก'],
+  '작성됨':['written','เขียนแล้ว'],
+  '이 기록에 남길 메모 (업체 버튼·휴무·추가 시 함께 저장)':['Memo for this record (saved with the company button, Day off or Add)','บันทึกสำหรับรายการนี้ (บันทึกพร้อมปุ่มบริษัท วันหยุด หรือเพิ่ม)'],
+  '📝 메모 보기':['📝 Show memo','📝 ดูบันทึก'],
+  '📝 메모 접기':['📝 Hide memo','📝 ซ่อนบันทึก'],
+  '신정':["New Year's Day",'วันขึ้นปีใหม่'],
+  '설날':['Seollal','ซอลลัล'],
+  '설날 연휴':['Seollal holiday','วันหยุดซอลลัล'],
+  '삼일절':['Mar 1st Day','วันเคลื่อนไหวเอกราช'],
+  '어린이날':["Children's Day",'วันเด็ก'],
+  '부처님오신날':["Buddha's B-day",'วันประสูติพระพุทธเจ้า'],
+  '현충일':['Memorial Day','วันรำลึกวีรชน'],
+  '광복절':['Liberation Day','วันปลดปล่อยชาติ'],
+  '추석':['Chuseok','ชูซอก'],
+  '추석 연휴':['Chuseok holiday','วันหยุดชูซอก'],
+  '개천절':['Foundation Day','วันสถาปนาชาติ'],
+  '한글날':['Hangul Day','วันฮันกึล'],
+  '성탄절':['Christmas','วันคริสต์มาส'],
+  '대체공휴일':['Sub. holiday','วันหยุดชดเชย'],
+  '노동절':['Labor Day','วันแรงงาน'],
+  '제헌절':['Constitution Day','วันรัฐธรรมนูญ'],
+  '임시공휴일':['Temp. holiday','วันหยุดพิเศษ'],
+  '대선일':['Presidential election','วันเลือกตั้งประธานาธิบดี'],
+  '지방선거일':['Local election day','วันเลือกตั้งท้องถิ่น']
+});
+
 
 function t(k, v){
   var s = k === '휴무 (달력 칸)' ? '휴무' : k;
@@ -304,11 +331,13 @@ var I18N_HTML = {
       + '<li>Swipe left/right or use ‹ › to change month. <b>Today</b> returns to this month.</li>'
       + '<li>Each day shows the company and units. Colors: under 13 units orange / 13 units blue / over 13 units purple, day off gray.</li>'
       + '<li>If a day has 3 or more records, two are shown with “+N more”.</li>'
+      + '<li>Public holidays (incl. Seollal/Chuseok and substitute holidays) are shown in red with their name.</li>'
       + '<li>Fully paid days get a black border (can be turned off in Settings).</li></ul></details>'
       + '<details><summary>✍️ Adding work</summary><ul>'
       + '<li>Tap a date to open the input window. Existing records for that day are listed on top.</li>'
       + '<li><b>Quick add</b>: set the units on the right (▲▼ by 0.1, or type up to 2 decimals; default 13.00), then tap a company button. The day’s pay is shown under the units.</li>'
       + '<li>The <b>Day off</b> button under the units records a day off as <b>0 units for the most recent company</b>.</li>'
+      + '<li>Tap <b>📝 Memo</b> to open a memo box. It is saved with the record you add and stays hidden until you tap <b>Show memo</b> in the list.</li>'
       + '<li>To add a new company, type its name at the bottom and tap <b>Add</b>. It becomes a button next time.</li>'
       + '<li>Tap an existing record to edit or delete it.</li></ul></details>'
       + '<details><summary>📅 Date range</summary><ul>'
@@ -344,11 +373,13 @@ var I18N_HTML = {
       + '<li>ปัดซ้าย/ขวา หรือกด ‹ › เพื่อเปลี่ยนเดือน กด <b>วันนี้</b> เพื่อกลับมาเดือนปัจจุบัน</li>'
       + '<li>แต่ละวันแสดงชื่อบริษัทและยูนิต สี: ต่ำกว่า 13 ยูนิต สีส้ม / 13 ยูนิต สีน้ำเงิน / เกิน 13 ยูนิต สีม่วง / วันหยุด สีเทา</li>'
       + '<li>ถ้าวันเดียวมี 3 รายการขึ้นไป จะแสดง 2 รายการและ “+ อีก N”</li>'
+      + '<li>วันหยุดราชการเกาหลี (รวมซอลลัล/ชูซอกและวันหยุดชดเชย) จะแสดงวันที่เป็นสีแดงพร้อมชื่อ</li>'
       + '<li>วันที่ได้รับเงินครบแล้วจะมีกรอบดำ (ปิดได้ในตั้งค่า)</li></ul></details>'
       + '<details><summary>✍️ บันทึกงาน</summary><ul>'
       + '<li>แตะวันที่เพื่อเปิดหน้าบันทึก ถ้ามีบันทึกของวันนั้นจะแสดงด้านบน</li>'
       + '<li><b>บันทึกด่วน</b>: ตั้งยูนิตทางขวา (▲▼ ทีละ 0.1 หรือพิมพ์เอง ทศนิยมได้ 2 ตำแหน่ง ค่าเริ่มต้น 13.00) แล้วแตะปุ่มบริษัท ค่าจ้างของวันนั้นแสดงใต้ยูนิต</li>'
       + '<li>ปุ่ม <b>วันหยุด</b> ใต้ช่องยูนิตจะบันทึกวันหยุดเป็น <b>0 ยูนิตของบริษัทล่าสุด</b></li>'
+      + '<li>แตะ <b>📝 บันทึก</b> เพื่อเปิดช่องบันทึก จะถูกเก็บพร้อมรายการที่เพิ่ม และซ่อนไว้จนกว่าจะแตะ <b>ดูบันทึก</b> ในรายการ</li>'
       + '<li>เพิ่มบริษัทใหม่: พิมพ์ชื่อที่ด้านล่างแล้วกด <b>เพิ่ม</b> ครั้งต่อไปจะมีปุ่มของบริษัทนั้น</li>'
       + '<li>แตะบันทึกที่มีอยู่เพื่อแก้ไขหรือลบ</li></ul></details>'
       + '<details><summary>📅 บันทึกหลายวัน</summary><ul>'
@@ -715,6 +746,21 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
 .help-body ul{margin:8px 0 2px;padding-left:18px;font-size:calc(13px * var(--fs,1));line-height:1.55;color:#2c3833}
 .help-body li{margin-top:4px}
 #helpCloseBtn{position:absolute;top:12px;right:12px;width:calc(44px * var(--fs,1));height:calc(44px * var(--fs,1));padding:0;font-size:calc(24px * var(--fs,1))}
+.quick-memo-toggle{display:inline-flex;align-items:center;gap:6px;margin:2px 0 8px;padding:calc(7px * var(--fs,1)) calc(12px * var(--fs,1));border:1.5px dashed #9bb8a8;border-radius:10px;background:transparent;color:var(--green-dark);font:inherit;font-weight:800;font-size:calc(12px * var(--fs,1));cursor:pointer}
+.quick-memo-toggle.on{background:#e9f4ee;border-style:solid}
+.quick-memo{display:block;width:100%;box-sizing:border-box;margin:0 0 8px;padding:10px;border:1px solid #d6e0db;border-radius:10px;font:inherit;font-size:calc(14px * var(--fs,1));resize:vertical;min-height:calc(60px * var(--fs,1))}
+.quick-memo[hidden],.rec-memo[hidden]{display:none!important}
+.rec-wrap{display:flex;flex-direction:column;gap:4px}
+.rec-memo-toggle{align-self:flex-start;border:0;background:transparent;color:var(--green-dark);font:inherit;font-weight:800;font-size:calc(12px * var(--fs,1));padding:2px 6px;cursor:pointer}
+.rec-memo{margin:0 0 2px;padding:8px 10px;border-radius:8px;background:#fffbe8;border:1px solid #efe3a8;font-size:calc(13px * var(--fs,1));line-height:1.5;white-space:pre-wrap;word-break:break-word}
+html.dark .quick-memo-toggle.on{background:#1f3a2b}
+html.dark .quick-memo{background:#121915;color:var(--ink);border-color:#3a4943}
+html.dark .rec-memo{background:#3a3418;border-color:#5a5026;color:#f3ecc0}
+html.dark .quick-memo-toggle{color:#9be0bc;border-color:#3f6a53}
+html.dark .rec-memo-toggle{color:#9be0bc}
+.hname{font-size:calc(9px * var(--fs,1));font-weight:800;color:var(--red);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:1px 0 0;max-width:100%}
+.holiday .date{color:var(--red)}
+html.dark .holiday .date,html.dark .hname{color:#ff8178}
 </style>
 </head>
 <body><!-- 도움말 -->
@@ -728,6 +774,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
           <li>화면을 좌우로 쓸어 넘기거나 ‹ › 버튼으로 달을 바꿉니다. <b>오늘</b> 버튼은 이번 달로 돌아옵니다.</li>
           <li>날짜 칸에는 그날 일한 업체명과 유닛이 표시됩니다. 유닛에 따라 칸 색이 달라집니다. (13유닛 미만 주황 / 13유닛 파랑 / 13유닛 초과 보라, 휴무는 회색)</li>
           <li>하루에 기록이 3건 이상이면 두 건만 보이고 “+N건”으로 표시됩니다.</li>
+          <li>국경일·공휴일(설날·추석 연휴, 대체공휴일 포함)은 날짜가 빨간색으로 표시되고 아래에 이름이 나옵니다.</li>
           <li>입금 정산이 끝난 날은 검은 테두리로 표시됩니다. (설정에서 끌 수 있어요)</li>
         </ul>
       </details>
@@ -754,6 +801,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
           <li>날짜를 누르면 입력창이 열립니다. 그날 기록이 있으면 위에 목록으로 나옵니다.</li>
           <li><b>빠른 입력</b>: 오른쪽 유닛(▲▼로 0.1씩 또는 소수점 둘째 자리까지 직접 입력, 기본 13.00)을 정한 뒤, 업체 버튼을 누르면 바로 기록됩니다. 유닛 아래에 그날 급여가 미리 표시됩니다.</li>
           <li>유닛 입력칸 아래의 <b>휴무</b> 버튼으로 쉬는 날을 등록합니다. 휴무는 별도 업체가 아니라 <b>가장 최근에 입력한 업체의 0유닛</b>으로 기록되어, 내보내기·정산에서 그 업체 안에 함께 정리됩니다.</li>
+          <li><b>📝 메모</b>를 누르면 메모칸이 열립니다. 적어 두면 업체 버튼·휴무·추가로 기록할 때 함께 저장되고, 평소에는 접혀 있습니다. 메모가 있는 기록은 목록의 <b>📝 메모 보기</b>를 눌러야 내용이 보입니다.</li>
           <li>새 업체는 빠른 입력 맨 아래 <b>업체명 · 추가</b> 줄에 입력하고 <b>추가</b>를 누르면 기록되고, 다음부터 업체 버튼으로 나타납니다.</li>
                     <li>이미 입력한 기록을 누르면 수정하거나 삭제할 수 있습니다.</li>
         </ul>
@@ -1029,6 +1077,9 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
       <!-- 업체 프리셋 및 휴무 빠른등록 버튼 -->
       <div class="date-action-presets" id="dateActionPresets"></div>
       
+      <button type="button" class="quick-memo-toggle" id="quickMemoToggle" aria-expanded="false">📝 메모 <span id="quickMemoHint"></span></button>
+      <textarea id="quickMemo" class="quick-memo" rows="2" placeholder="이 기록에 남길 메모 (업체 버튼·휴무·추가 시 함께 저장)" hidden></textarea>
+
       <div class="date-action-new">
         <input id="dateActionSite" type="text" placeholder="업체명">
         <button type="button" class="date-action-add-head" id="dateActionAdd">추가</button>
@@ -1261,7 +1312,7 @@ html.dark .dayoff-quick-btn:hover{background:#33423b}
           정산 완료 날짜 검은색 테두리
         </label>
       </section>
-      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.15-w7<span id="viewInfo"></span></div>
+      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.16-m1<span id="viewInfo"></span></div>
     </div>
   </div>
 </div>
@@ -1424,6 +1475,76 @@ function formatDateActionDate(d){
 // 휴무 판정: 0유닛 기록 (예전 방식의 '휴무' 업체명 기록 포함)
 function isDayOff(r){ return r.site === '휴무' || ((Number(r.units)||0) === 0 && !(Number(r.expense)||0)); }
 // 휴무를 기록할 업체: 가장 최근에 입력한 업체 (없으면 최근 사용 프리셋, 그것도 없으면 '휴무')
+function takeQuickMemo(){
+  const el = $('quickMemo'); if(!el) return '';
+  const v = el.value.trim();
+  el.value = ''; el.hidden = true;
+  const tg = $('quickMemoToggle'); if(tg){ tg.classList.remove('on'); tg.setAttribute('aria-expanded','false'); }
+  const h = $('quickMemoHint'); if(h) h.textContent = '';
+  return v;
+}
+
+// ===== 공휴일 (양력 고정 + 음력[한국 달력] 계산 + 대체공휴일) =====
+const _holidayCache = {};
+const _tempHolidays = { '2025-01-27': '임시공휴일', '2025-06-03': '대선일', '2026-06-03': '지방선거일' };
+let _extHolidays = {};
+function holidayMap(year){
+  if(_extHolidays[year]) return _extHolidays[year];
+  if(_holidayCache[year]) return _holidayCache[year];
+  const map = {};
+  const key = (y,m,d) => y + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+  const keyOf = dt => key(dt.getFullYear(), dt.getMonth()+1, dt.getDate());
+  const add = (k, name, sub, block) => {
+    if(map[k]){ map[k].names.push(name); map[k].overlap = true; }
+    else map[k] = { names: [name], sub: !!sub, block: block || null, overlap: false };
+  };
+  [[1,1,'신정',0],[3,1,'삼일절',1],[5,5,'어린이날',1],[6,6,'현충일',0],[8,15,'광복절',1],[10,3,'개천절',1],[10,9,'한글날',1],[12,25,'성탄절',1]]
+    .forEach(([m,d,n,sub]) => add(key(year,m,d), n, sub));
+  try{
+    const f = new Intl.DateTimeFormat('en-u-ca-dangi', { month:'numeric', day:'numeric' });
+    for(let dt = new Date(year,0,1,12); dt.getFullYear() === year; dt.setDate(dt.getDate()+1)){
+      const o = {}; f.formatToParts(dt).forEach(p => o[p.type] = p.value);
+      const m = o.month, d = +o.day;
+      const prev = new Date(dt); prev.setDate(prev.getDate()-1);
+      const next = new Date(dt); next.setDate(next.getDate()+1);
+      if(m === '1' && d === 1){ add(keyOf(prev), '설날 연휴', 1, 'seol'); add(keyOf(dt), '설날', 1, 'seol'); add(keyOf(next), '설날 연휴', 1, 'seol'); }
+      else if(m === '8' && d === 15){ add(keyOf(prev), '추석 연휴', 1, 'chu'); add(keyOf(dt), '추석', 1, 'chu'); add(keyOf(next), '추석 연휴', 1, 'chu'); }
+      else if(m === '4' && d === 8){ add(keyOf(dt), '부처님오신날', 1); }
+    }
+  }catch(e){}
+  Object.keys(_tempHolidays).forEach(k => { if(k.startsWith(year + '-')) add(k, _tempHolidays[k], 0); });
+  const result = {};
+  Object.keys(map).forEach(k => { result[k] = map[k].names.join('·'); });
+  const isFree = dt => { const w = dt.getDay(); return w === 0 || w === 6 || result[keyOf(dt)]; };
+  const blocks = {};
+  Object.keys(map).sort().forEach(k => {
+    const h = map[k], dt = new Date(k + 'T12:00:00'), w = dt.getDay();
+    if(!h.sub) return;
+    if(h.block){
+      (blocks[h.block] = blocks[h.block] || { sunday:false, overlap:false, last:k }).last = k;
+      if(w === 0) blocks[h.block].sunday = true;
+      if(h.overlap) blocks[h.block].overlap = true;
+    } else if(w === 0 || w === 6 || h.overlap){
+      let n = new Date(dt); do { n.setDate(n.getDate()+1); } while(isFree(n));
+      result[keyOf(n)] = '대체공휴일';
+    }
+  });
+  Object.keys(blocks).forEach(b => {
+    if(blocks[b].sunday || blocks[b].overlap){
+      let n = new Date(blocks[b].last + 'T12:00:00'); do { n.setDate(n.getDate()+1); } while(isFree(n));
+      result[keyOf(n)] = '대체공휴일';
+    }
+  });
+  _holidayCache[year] = result;
+  return result;
+}
+// 서버(holidays.json)의 최신 공휴일 데이터(임시공휴일 포함)를 받아 내장 계산값보다 우선 사용
+fetch('holidays.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => {
+  if(j && j.years){ _extHolidays = j.years; try{ render(); }catch(e){} }
+}).catch(() => {});
+function holidayName(dateStr){ return holidayMap(Number(dateStr.slice(0,4)))[dateStr] || ''; }
+function holidayLabel(name){ return name.split('·').map(n => t(n)).join('·'); }
+
 function dayOffSite(){
   for(let i = records.length - 1; i >= 0; i--){ if(!isDayOff(records[i])) return records[i].site; }
   const p = presets.slice().sort((a,b) => (b.lastUsed||0) - (a.lastUsed||0))[0];
@@ -1490,7 +1611,9 @@ function render(){
     
     let el = document.createElement('div');
     el.className = cl;
-    el.innerHTML = `<div class="date">${d}</div>${entries}`;
+    const hname = holidayName(key);
+    if(hname) el.classList.add('holiday');
+    el.innerHTML = `<div class="date">${d}</div>${hname ? `<div class="hname" title="${holidayLabel(hname)}">${holidayLabel(hname)}</div>` : ''}${entries}`;
     el.addEventListener('click', e => {
       if(isSwiping) return;
       const recordId = e.target.closest('[data-record]')?.dataset.record;
@@ -1596,13 +1719,13 @@ function renderDateActionPopup(){
     ? rs.map(r => {
         const dayOff = isDayOff(r);
         return `
-        <button type="button" class="date-action-record" data-date-record="${r.id}" style="${dayOff?'background:#f1f5f9; border-color:#cbd5e1;':''}">
+        <div class="rec-wrap"><button type="button" class="date-action-record" data-date-record="${r.id}" style="${dayOff?'background:#f1f5f9; border-color:#cbd5e1;':''}">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <strong>${dayOff ? t('🏖️ 휴무') + (r.site !== '휴무' ? ' · ' + escapeHtml(r.site) : '') : escapeHtml(r.site)}</strong>
             <span class="${dayOff ? 'badge-dayoff' : (r.paid ? 'badge-paid' : 'badge-unpaid')}">${t(dayOff ? '휴무' : (r.paid ? '입금완료' : '미지급'))}</span>
           </div>
           <span>${U(r.units)} · ${dayOff ? t('휴식일') : t('급여') + ' ' + won(amount(r)) + (r.expense ? ' · ' + t('경비') + ' ' + won(r.expense) : '') + ' · ' + t('합계') + ' ' + won(totalPay(r))}</span>
-        </button>`;
+        </button>${r.memo ? `<button type="button" class="rec-memo-toggle" data-memo-toggle="${r.id}">${t('📝 메모 보기')}</button><div class="rec-memo" hidden>${escapeHtml(r.memo)}</div>` : ''}</div>`;
       }).join('')
     : `<div class="date-action-empty">${t('등록된 작업이 없습니다.')}</div>`;
     
@@ -1624,6 +1747,7 @@ function renderDateActionPopup(){
 
 function openDateActionPopup(date){
   selectedDate = date;
+  takeQuickMemo();
   const first = records.find(r => r.date === date);
   setQuickUnits(first && !isDayOff(first) ? first.units : ruleFor(date).baseUnits);
   renderDateActionPopup();
@@ -1695,7 +1819,7 @@ function addDayOffRecord(){
     units: 0,
     expense: 0,
     paid: true,
-    memo: ''
+    memo: takeQuickMemo()
   });
   save();
   render();
@@ -2032,7 +2156,7 @@ document.addEventListener('click', e => {
       units,
       expense: 0,
       paid: false,
-      memo: ''
+      memo: takeQuickMemo()
     });
     save();
     render();
@@ -2059,12 +2183,28 @@ $('dateActionAdd').onclick = () => {
     p.lastUsed = Date.now();
   }
   
-  records.push({id: generateId(), date: selectedDate, site: p.site, units, expense:0, paid:false, memo:''});
+  records.push({id: generateId(), date: selectedDate, site: p.site, units, expense:0, paid:false, memo: takeQuickMemo()});
   save();
   siteEl.value = '';
   render();
   closeDateActionPopup();
 };
+
+$('quickMemoToggle').addEventListener('click', () => {
+  const el = $('quickMemo'), tg = $('quickMemoToggle');
+  el.hidden = !el.hidden;
+  tg.classList.toggle('on', !el.hidden);
+  tg.setAttribute('aria-expanded', String(!el.hidden));
+  if(!el.hidden) el.focus();
+});
+$('quickMemo').addEventListener('input', () => { $('quickMemoHint').textContent = $('quickMemo').value.trim() ? '· ' + t('작성됨') : ''; });
+document.addEventListener('click', e => {
+  const tg = e.target.closest('[data-memo-toggle]');
+  if(!tg) return;
+  const body = tg.nextElementSibling;
+  body.hidden = !body.hidden;
+  tg.textContent = t(body.hidden ? '📝 메모 보기' : '📝 메모 접기');
+});
 
 ['dateActionSite'].forEach(id => $(id).addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); $('dateActionAdd').click(); } }));
 

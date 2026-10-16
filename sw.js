@@ -1,6 +1,6 @@
 // 업무달력 서비스 워커: 화면(HTML)은 항상 네트워크 우선(최신 버전 유지), 실패 시에만 캐시 사용 → 오프라인 지원
-const CACHE = 'wifecal-cache-v2';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './privacy.html'];
+const CACHE = 'wifecal-cache-v3';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './privacy.html', './holidays.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).catch(() => {}));
