@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="app-version" content="2026.10.27-m5">
+  <meta name="app-version" content="2026.10.27-m6">
   <meta name="theme-color" content="#16764f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -365,9 +365,11 @@ var I18N_HTML = {
       + '<details><summary>💰 Monthly settlement</summary><ul>'
       + '<li>Settings → <b>Monthly settlement</b>: choose a month and company to see total units, pay, expenses and the total received.</li>'
       + '<li>The pay rates are already after the 3.3% withholding, so no tax is deducted again. You can mark a whole month as paid or unpaid.</li>'
+      + '<li>When opened, the month is set to the <b>earliest month that is not yet settled</b>. Choosing a company switches to that company; a month you pick yourself is kept.</li>'
       + '<li>“Unpaid this month” on the home screen is the total not yet received.</li></ul></details>'
       + '<details><summary>📤 Export & share</summary><ul>'
-      + '<li>Settings → <b>Export</b>: choose period and company, then make a <b>text list</b> (for messages) or an <b>Excel CSV file</b>. Choose <b>List + totals</b> or <b>Totals only</b>, and tick whether to include pay and memos (memos are not included in totals only).</li></ul></details>'
+      + '<li>Settings → <b>Export</b>: choose period and company, then make a <b>text list</b> (for messages) or an <b>Excel CSV file</b>. Choose <b>List + totals</b> or <b>Totals only</b>, and tick whether to include pay and memos (memos are not included in totals only).</li>'
+      + '<li>When opened, the start date is set to the <b>earliest date not yet settled</b>. Choosing a company switches to that company; a date you pick yourself is kept.</li></ul></details>'
       + '<details><summary>💾 Save · backup · restore</summary><ul>'
       + '<li>All records are <b>saved automatically on this device</b> and never sent to a server.</li>'
       + '<li>Before changing phones or deleting the app, save a file with Settings → <b>JSON backup</b>. On the new phone use <b>Restore data</b>.</li></ul></details>'
@@ -407,9 +409,11 @@ var I18N_HTML = {
       + '<details><summary>💰 สรุปยอดรายเดือน</summary><ul>'
       + '<li>ตั้งค่า → <b>สรุปยอดรายเดือน</b>: เลือกเดือนและบริษัทเพื่อดูยูนิตรวม ค่าจ้าง ค่าใช้จ่าย และยอดรับรวม</li>'
       + '<li>อัตราค่าจ้างเป็นยอดหลังหักภาษี 3.3% แล้ว จึงไม่หักภาษีซ้ำ และเปลี่ยนทั้งเดือนเป็นได้รับเงินแล้ว/ยังไม่ได้รับได้</li>'
+      + '<li>เมื่อเปิด จะเลือก<b>เดือนที่เก่าที่สุดที่ยังไม่ได้สรุปยอด</b>ให้อัตโนมัติ เมื่อเลือกบริษัทจะเปลี่ยนตามบริษัทนั้น และเดือนที่เลือกเองจะคงไว้</li>'
       + '<li>“ยอดค้างรับเดือนนี้” ที่หน้าแรกคือยอดที่ยังไม่ได้รับเงิน</li></ul></details>'
       + '<details><summary>📤 ส่งออก & แชร์</summary><ul>'
-      + '<li>ตั้งค่า → <b>ส่งออก</b>: เลือกช่วงวันที่และบริษัท แล้วทำเป็น <b>ข้อความ</b> (ส่งแชท) หรือ <b>ไฟล์ Excel CSV</b> เลือก <b>รายการ + ยอดรวม</b> หรือ <b>ยอดรวมเท่านั้น</b> และเลือกได้ว่าจะส่งค่าจ้างและบันทึกด้วยหรือไม่ (บันทึกไม่รวมเมื่อส่งยอดรวมเท่านั้น)</li></ul></details>'
+      + '<li>ตั้งค่า → <b>ส่งออก</b>: เลือกช่วงวันที่และบริษัท แล้วทำเป็น <b>ข้อความ</b> (ส่งแชท) หรือ <b>ไฟล์ Excel CSV</b> เลือก <b>รายการ + ยอดรวม</b> หรือ <b>ยอดรวมเท่านั้น</b> และเลือกได้ว่าจะส่งค่าจ้างและบันทึกด้วยหรือไม่ (บันทึกไม่รวมเมื่อส่งยอดรวมเท่านั้น)</li>'
+      + '<li>เมื่อเปิด วันเริ่มต้นจะตั้งเป็น<b>วันที่เก่าที่สุดที่ยังไม่ได้สรุปยอด</b>อัตโนมัติ เมื่อเลือกบริษัทจะเปลี่ยนตามบริษัทนั้น และวันที่ที่เลือกเองจะคงไว้</li></ul></details>'
       + '<details><summary>💾 บันทึก · สำรอง · กู้คืน</summary><ul>'
       + '<li>ทุกบันทึก<b>เก็บอัตโนมัติในเครื่องนี้</b> และไม่ถูกส่งไปยังเซิร์ฟเวอร์</li>'
       + '<li>ก่อนเปลี่ยนโทรศัพท์หรือลบแอป ให้บันทึกไฟล์ที่ ตั้งค่า → <b>สำรองข้อมูล JSON</b> แล้วใช้ <b>นำเข้าข้อมูล</b> ในเครื่องใหม่</li></ul></details>'
@@ -1338,7 +1342,7 @@ html.dark .export-opts{border-color:#33433b}
           정산 완료 날짜 검은색 테두리
         </label>
       </section>
-      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.27-m5<span id="viewInfo"></span></div>
+      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.27-m6<span id="viewInfo"></span></div>
     </div>
   </div>
 </div>
