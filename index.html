@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="app-version" content="2026.10.16-m2">
+  <meta name="app-version" content="2026.10.27-m3">
   <meta name="theme-color" content="#16764f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -256,6 +256,20 @@ var I18N = {
   '📱 아이폰 홈 화면에 설치':['📱 Install on iPhone Home Screen','📱 ติดตั้งบนหน้าจอโฮม iPhone']
 };
 Object.assign(I18N, {
+  '보낼 내용':['What to send','ข้อมูลที่จะส่ง'],
+  '리스트 + 합계':['List + totals','รายการ + ยอดรวม'],
+  '날짜별 유닛과 업체별 합계':['Units per day and totals per company','ยูนิตรายวันและยอดรวมแต่ละบริษัท'],
+  '합계만':['Totals only','ยอดรวมเท่านั้น'],
+  '업체별 일수·유닛 합계만 간단히':['Only days and unit totals per company','เฉพาะจำนวนวันและยูนิตรวมของแต่ละบริษัท'],
+  '📝 메모도 같이 보내기':['📝 Include memos','📝 ส่งบันทึกด้วย'],
+  '💰 급여도 같이 보내기':['💰 Include pay','💰 ส่งค่าจ้างด้วย'],
+  '일수':['Days','จำนวนวัน'],
+  '전체':['All','ทั้งหมด'],
+  '전체 합계':['Grand total','ยอดรวมทั้งหมด'],
+  '{n}일':['{n} days','{n} วัน']
+});
+
+Object.assign(I18N, {
   '📝 메모':['📝 Memo','📝 บันทึก'],
   '작성됨':['written','เขียนแล้ว'],
   '이 기록에 남길 메모 (업체 버튼·휴무·추가 시 함께 저장)':['Memo for this record (saved with the company button, Day off or Add)','บันทึกสำหรับรายการนี้ (บันทึกพร้อมปุ่มบริษัท วันหยุด หรือเพิ่ม)'],
@@ -353,7 +367,7 @@ var I18N_HTML = {
       + '<li>The pay rates are already after the 3.3% withholding, so no tax is deducted again. You can mark a whole month as paid or unpaid.</li>'
       + '<li>“Unpaid this month” on the home screen is the total not yet received.</li></ul></details>'
       + '<details><summary>📤 Export & share</summary><ul>'
-      + '<li>Settings → <b>Export</b>: choose period and company, then make a <b>text list</b> (for messages) or an <b>Excel CSV file</b>. Choose date, units, pay and totals.</li></ul></details>'
+      + '<li>Settings → <b>Export</b>: choose period and company, then make a <b>text list</b> (for messages) or an <b>Excel CSV file</b>. Choose <b>List + totals</b> or <b>Totals only</b>, and tick whether to include pay and memos (memos are not included in totals only).</li></ul></details>'
       + '<details><summary>💾 Save · backup · restore</summary><ul>'
       + '<li>All records are <b>saved automatically on this device</b> and never sent to a server.</li>'
       + '<li>Before changing phones or deleting the app, save a file with Settings → <b>JSON backup</b>. On the new phone use <b>Restore data</b>.</li></ul></details>'
@@ -395,7 +409,7 @@ var I18N_HTML = {
       + '<li>อัตราค่าจ้างเป็นยอดหลังหักภาษี 3.3% แล้ว จึงไม่หักภาษีซ้ำ และเปลี่ยนทั้งเดือนเป็นได้รับเงินแล้ว/ยังไม่ได้รับได้</li>'
       + '<li>“ยอดค้างรับเดือนนี้” ที่หน้าแรกคือยอดที่ยังไม่ได้รับเงิน</li></ul></details>'
       + '<details><summary>📤 ส่งออก & แชร์</summary><ul>'
-      + '<li>ตั้งค่า → <b>ส่งออก</b>: เลือกช่วงวันที่และบริษัท แล้วทำเป็น <b>ข้อความ</b> (ส่งแชท) หรือ <b>ไฟล์ Excel CSV</b> เลือกได้ว่าจะใส่วันที่ ยูนิต ค่าจ้าง และยอดรวม</li></ul></details>'
+      + '<li>ตั้งค่า → <b>ส่งออก</b>: เลือกช่วงวันที่และบริษัท แล้วทำเป็น <b>ข้อความ</b> (ส่งแชท) หรือ <b>ไฟล์ Excel CSV</b> เลือก <b>รายการ + ยอดรวม</b> หรือ <b>ยอดรวมเท่านั้น</b> และเลือกได้ว่าจะส่งค่าจ้างและบันทึกด้วยหรือไม่ (บันทึกไม่รวมเมื่อส่งยอดรวมเท่านั้น)</li></ul></details>'
       + '<details><summary>💾 บันทึก · สำรอง · กู้คืน</summary><ul>'
       + '<li>ทุกบันทึก<b>เก็บอัตโนมัติในเครื่องนี้</b> และไม่ถูกส่งไปยังเซิร์ฟเวอร์</li>'
       + '<li>ก่อนเปลี่ยนโทรศัพท์หรือลบแอป ให้บันทึกไฟล์ที่ ตั้งค่า → <b>สำรองข้อมูล JSON</b> แล้วใช้ <b>นำเข้าข้อมูล</b> ในเครื่องใหม่</li></ul></details>'
@@ -763,6 +777,13 @@ html.dark .rec-memo-toggle{color:#9be0bc}
 html.dark .holiday .date,html.dark .hname{color:#ff8178}
 html.kb-open .sheet,html.kb-open .date-action-backdrop,html.kb-open .share-popup{top:var(--vvt,0px);bottom:auto;height:var(--vvh,100%);align-items:center}
 html.kb-open .sheet-box,html.kb-open .date-action-sheet{max-height:calc(var(--vvh,100vh) - 20px)}
+.export-opts{grid-column:1/-1;border:1px solid #dce4de;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;margin:0;min-width:0}
+.export-opts legend{font-weight:800;padding:0 4px;font-size:calc(12px * var(--fs,1))}
+.export-radio,.export-check{display:flex;align-items:flex-start;gap:8px;font-size:calc(14px * var(--fs,1));font-weight:700}
+.export-radio small{display:block;font-weight:500;color:var(--muted);font-size:calc(11px * var(--fs,1));margin-top:1px}
+.export-opts input{width:calc(18px * var(--fs,1));height:calc(18px * var(--fs,1));margin:2px 0 0;flex:none}
+.export-check.off{opacity:.45}
+html.dark .export-opts{border-color:#33433b}
 </style>
 </head>
 <body><!-- 도움말 -->
@@ -826,7 +847,8 @@ html.kb-open .sheet-box,html.kb-open .date-action-sheet{max-height:calc(var(--vv
       <details><summary>📤 내보내기 · 공유</summary>
         <ul>
           <li>설정 → <b>내보내기</b>에서 기간과 업체를 고르고, <b>텍스트 목록</b>(카카오톡·문자 전송용) 또는 <b>엑셀 CSV 파일</b>로 만들 수 있습니다.</li>
-          <li>날짜, 유닛, 급여, 합계 등 넣을 항목을 골라 내용을 정할 수 있습니다.</li>
+          <li><b>보낼 내용</b>에서 <b>리스트 + 합계</b>(날짜별 유닛과 업체별 합계) 또는 <b>합계만</b>(업체별 일수·유닛 합계만)을 고릅니다.</li>
+          <li><b>💰 급여도 같이 보내기</b>, <b>📝 메모도 같이 보내기</b>를 체크하면 함께 나갑니다. (메모는 합계만 보낼 때는 들어가지 않습니다.) 선택한 항목은 기억됩니다.</li>
         </ul>
       </details>
       <details><summary>💾 저장 · 백업 · 복원</summary>
@@ -1182,12 +1204,12 @@ html.kb-open .sheet-box,html.kb-open .date-action-sheet{max-height:calc(var(--vv
         <textarea id="exportExtraMessage" placeholder="예: 입금계좌 국민은행 123-456-789012 홍길동
 또는 입금 관련 안내사항을 입력하세요."></textarea>
       </label>
-      <fieldset style="grid-column:1/-1; border:1px solid #dce4de; border-radius:9px; padding:10px; display:flex; flex-wrap:wrap; gap:8px; font-size:calc(12px * var(--fs,1));">
-        <legend style="font-weight:700; padding:0 4px;">포함 항목</legend>
-        <label><input id="includeDate" type="checkbox" checked> 날짜</label>
-        <label><input id="includeUnits" type="checkbox" checked> 유닛</label>
-        <label><input id="includePay" type="checkbox"> 급여</label>
-        <label><input id="includeAmountTotal" type="checkbox" checked> 합계</label>
+      <fieldset class="export-opts">
+        <legend>보낼 내용</legend>
+        <label class="export-radio"><input type="radio" name="exportScope" value="list" checked> <span><span>리스트 + 합계</span><small>날짜별 유닛과 업체별 합계</small></span></label>
+        <label class="export-radio"><input type="radio" name="exportScope" value="sum"> <span><span>합계만</span><small>업체별 일수·유닛 합계만 간단히</small></span></label>
+        <label class="export-check" id="includePayWrap"><input id="includePay" type="checkbox"> <span>💰 급여도 같이 보내기</span></label>
+        <label class="export-check" id="includeMemoWrap"><input id="includeMemo" type="checkbox"> <span>📝 메모도 같이 보내기</span></label>
       </fieldset>
     </div>
     <div class="sheet-actions">
@@ -1314,7 +1336,7 @@ html.kb-open .sheet-box,html.kb-open .date-action-sheet{max-height:calc(var(--vv
           정산 완료 날짜 검은색 테두리
         </label>
       </section>
-      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.16-m2<span id="viewInfo"></span></div>
+      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.27-m3<span id="viewInfo"></span></div>
     </div>
   </div>
 </div>
@@ -1997,7 +2019,19 @@ $('backupBannerInstall').onclick = () => $('iosInstallSheet').classList.add('ope
 $('backupBannerLater').onclick = () => { try{ localStorage.setItem(backupSnoozeKey, String(Date.now() + 3 * 86400000)); }catch(e){} updateBackupBanner(); };
 
 // 내보내기 & 엑셀 CSV 생성
+function syncExportOpts(){
+  const sum = (document.querySelector('input[name="exportScope"]:checked') || {}).value === 'sum';
+  $('includeMemo').disabled = sum;
+  $('includeMemoWrap').classList.toggle('off', sum);
+}
+document.querySelectorAll('input[name="exportScope"]').forEach(r => r.addEventListener('change', syncExportOpts));
 function openExport(){
+  try {
+    const o = JSON.parse(localStorage.getItem('wife_export_opts') || '{}');
+    const r = document.querySelector(`input[name="exportScope"][value="${o.scope === 'sum' ? 'sum' : 'list'}"]`); if(r) r.checked = true;
+    $('includeMemo').checked = !!o.memo; $('includePay').checked = !!o.pay;
+  } catch(e) {}
+  syncExportOpts();
   let first = records.map(r => r.date).sort()[0] || selectedDate;
   $('exportStart').value = first;
   $('exportEnd').value = iso(new Date());
@@ -2012,24 +2046,42 @@ function buildExportData(){
   let format = $('exportFormat').value;
   let extraMessage = $('exportExtraMessage').value.trim();
   try { localStorage.setItem(exportMessageKey, $('exportExtraMessage').value); } catch(e) {}
-  let flags = {
-    date: $('includeDate').checked,
-    units: $('includeUnits').checked,
-    pay: $('includePay').checked,
-    amountTotal: $('includeAmountTotal').checked
-  };
+  const scope = (document.querySelector('input[name="exportScope"]:checked') || {}).value || 'list';
+  const withMemo = scope === 'list' && $('includeMemo').checked;
+  try { localStorage.setItem('wife_export_opts', JSON.stringify({ scope, memo: $('includeMemo').checked, pay: $('includePay').checked })); } catch(e) {}
+  let flags = { date: true, units: true, pay: $('includePay').checked, amountTotal: true };
   
   let filtered = records.map(r => ({...r, site: exportSiteOf(r), dayOff: isDayOff(r)})).filter(r => (!company || r.site === company) && r.date >= start && r.date <= end)
                         .sort((a,b) => a.date.localeCompare(b.date) || a.site.localeCompare(b.site));
                         
   if(!filtered.length) return { format, content: null, message: t('선택한 기간에 기록이 없습니다.') };
 
+  if(scope === 'sum'){
+    const groups = {};
+    filtered.forEach(r => { const g = groups[r.site] = groups[r.site] || { days: 0, units: 0, pay: 0 }; if(!r.dayOff) g.days++; g.units += Number(r.units || 0); g.pay += amount(r); });
+    const names = Object.keys(groups);
+    const sumDays = names.reduce((a, n) => a + groups[n].days, 0), sumU = names.reduce((a, n) => a + groups[n].units, 0), sumPay = names.reduce((a, n) => a + groups[n].pay, 0);
+    if(format === 'csv'){
+      const head = [t('현장명'), t('일수'), t('유닛 합계')]; if(flags.pay) head.push(t('급여 합계'));
+      const rows = [head];
+      names.forEach(n => { const row = [n, groups[n].days, Number(groups[n].units).toFixed(2)]; if(flags.pay) row.push(groups[n].pay); rows.push(row); });
+      if(names.length > 1){ const row = [t('전체'), sumDays, Number(sumU).toFixed(2)]; if(flags.pay) row.push(sumPay); rows.push(row); }
+      if(extraMessage) { rows.push([]); rows.push([t('같이 보낼 내용'), extraMessage]); }
+      return { format: 'csv', content: '\uFEFF' + rows.map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n') };
+    }
+    const lines = [`${start} ~ ${end}`];
+    names.forEach(n => lines.push(`[${n}] ${(LANG === 'en' && groups[n].days === 1) ? '1 day' : t('{n}일', {n: groups[n].days})} · ${U(groups[n].units)}` + (flags.pay ? ` · ${won(groups[n].pay)}` : '')));
+    if(names.length > 1) lines.push(`▶ ${t('전체 합계')}: ${U(sumU)}` + (flags.pay ? ` · ${won(sumPay)}` : ''));
+    if(extraMessage) lines.push('\n' + extraMessage);
+    return { format: 'text', content: lines.join('\n') };
+  }
+  const memoOf = r => (withMemo && r.memo) ? String(r.memo).trim().replace(/\s*\n+\s*/g, ' / ') : '';
   if(format === 'csv'){
     let headers = [t('현장명')];
     if(flags.date) headers.push(t('날짜'));
     if(flags.units) headers.push(LANG === 'ko' ? '유닛' : t('유닛'));
     if(flags.pay) headers.push(t('급여(원)'));
-    headers.push(t('메모'));
+    if(withMemo) headers.push(t('메모'));
 
     let rows = [headers];
     filtered.forEach(r => {
@@ -2037,7 +2089,7 @@ function buildExportData(){
       if(flags.date) row.push(r.date);
       if(flags.units) row.push(r.dayOff ? `0.00 (${t('휴무')})` : Number(r.units).toFixed(2));
       if(flags.pay) row.push(amount(r));
-      row.push(r.memo || '');
+      if(withMemo) row.push(r.memo || '');
       rows.push(row);
     });
 
@@ -2064,6 +2116,7 @@ function buildExportData(){
       if(flags.date) parts.push(r.date);
       if(flags.units) parts.push(r.dayOff ? `${U(0)} (${t('휴무')})` : U(r.units));
       if(flags.pay && !r.dayOff) parts.push(won(amount(r)));
+      const m = memoOf(r); if(m) parts.push('📝 ' + m);
       lines.push(parts.join('  '));
     });
     if(flags.amountTotal){
