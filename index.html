@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="app-version" content="2026.10.27-m6">
+  <meta name="app-version" content="2026.11.27-m7">
   <meta name="theme-color" content="#16764f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,7 +15,23 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <script>
+  <!-- 연간 업체별 통계 -->
+<div class="sheet" id="yearStatsSheet" style="z-index:1250;">
+  <div class="sheet-box" style="position:relative;">
+    <div class="sheet-head-row"><h1 class="sheet-title" style="margin:0;">📊 연간 업체별 통계</h1></div>
+    <button type="button" class="btn" id="yearStatsClose" aria-label="닫기">×</button>
+    <div class="ys-controls">
+      <div class="ys-year">
+        <button type="button" class="btn" id="ysPrev" aria-label="Prev">‹</button>
+        <select id="ysYear"></select>
+        <button type="button" class="btn" id="ysNext" aria-label="Next">›</button>
+      </div>
+    </div>
+    <div id="ysBody"></div>
+  </div>
+</div>
+
+<script>
 // 화면 모드를 먼저 적용해 깜빡임 방지
 try{var _t=(JSON.parse(localStorage.getItem("wife_cal_settings_v1")||"{}").theme)||"auto";
 if(_t==="dark"||(_t==="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark");}catch(e){}
@@ -256,6 +272,25 @@ var I18N = {
   '📱 아이폰 홈 화면에 설치':['📱 Install on iPhone Home Screen','📱 ติดตั้งบนหน้าจอโฮม iPhone']
 };
 Object.assign(I18N, {
+  '📊 연간 업체별 통계 · 합계':['📊 Yearly stats by company','📊 สถิติรายปีแยกตามบริษัท'],
+  '📊 연간 업체별 통계':['📊 Yearly stats by company','📊 สถิติรายปีแยกตามบริษัท'],
+  '전체 기간':['All time','ทุกช่วงเวลา'],
+  '근무일수':['Days worked','จำนวนวันทำงาน'],
+  '총 유닛':['Total units','ยูนิตรวม'],
+  '기타 경비':['Other expenses','ค่าใช้จ่ายอื่น'],
+  '수령액 합계':['Total received','ยอดรับรวม'],
+  '미수금':['Unpaid','ค้างรับ'],
+  '업체별':['By company','แยกตามบริษัท'],
+  '월별':['By month','แยกตามเดือน'],
+  '연도별':['By year','แยกตามปี'],
+  '월':['Month','เดือน'],
+  '연도':['Year','ปี'],
+  '수령액':['Received','ยอดรับ'],
+  '해당 기간에 입력된 근무 기록이 없습니다.':['No work records in this period.','ไม่มีบันทึกงานในช่วงนี้'],
+  '※ 근무일수는 날짜 기준이고, 업체별 일수는 업체마다 센 근무 건수입니다. 휴무는 제외됩니다.':['※ Days worked counts calendar dates; days per company count records per company. Days off are excluded.','※ จำนวนวันทำงานนับตามวันที่ ส่วนจำนวนวันของแต่ละบริษัทนับตามรายการ ไม่รวมวันหยุด']
+});
+
+Object.assign(I18N, {
   '보낼 내용':['What to send','ข้อมูลที่จะส่ง'],
   '리스트 + 합계':['List + totals','รายการ + ยอดรวม'],
   '날짜별 유닛과 업체별 합계':['Units per day and totals per company','ยูนิตรายวันและยอดรวมแต่ละบริษัท'],
@@ -367,6 +402,10 @@ var I18N_HTML = {
       + '<li>The pay rates are already after the 3.3% withholding, so no tax is deducted again. You can mark a whole month as paid or unpaid.</li>'
       + '<li>When opened, the month is set to the <b>earliest month that is not yet settled</b>. Choosing a company switches to that company; a month you pick yourself is kept.</li>'
       + '<li>“Unpaid this month” on the home screen is the total not yet received.</li></ul></details>'
+      + '<details><summary>📊 Yearly stats</summary><ul>'
+      + '<li>Settings → <b>📊 Yearly stats by company</b> shows totals for a year (or all time).</li>'
+      + '<li>Pick the year at the top (‹ › or <b>All time</b>). The cards show days worked, total units, pay, expenses, <b>total received</b>, paid and <b>unpaid</b>.</li>'
+      + '<li>The <b>By company</b> table lists days, units, received and unpaid, biggest first, with a total row. A <b>By month</b> (or by year) table shows the trend. Days off are excluded.</li></ul></details>'
       + '<details><summary>📤 Export & share</summary><ul>'
       + '<li>Settings → <b>Export</b>: choose period and company, then make a <b>text list</b> (for messages) or an <b>Excel CSV file</b>. Choose <b>List + totals</b> or <b>Totals only</b>, and tick whether to include pay and memos (memos are not included in totals only).</li>'
       + '<li>When opened, the start date is set to the <b>earliest date not yet settled</b>. Choosing a company switches to that company; a date you pick yourself is kept.</li></ul></details>'
@@ -411,6 +450,10 @@ var I18N_HTML = {
       + '<li>อัตราค่าจ้างเป็นยอดหลังหักภาษี 3.3% แล้ว จึงไม่หักภาษีซ้ำ และเปลี่ยนทั้งเดือนเป็นได้รับเงินแล้ว/ยังไม่ได้รับได้</li>'
       + '<li>เมื่อเปิด จะเลือก<b>เดือนที่เก่าที่สุดที่ยังไม่ได้สรุปยอด</b>ให้อัตโนมัติ เมื่อเลือกบริษัทจะเปลี่ยนตามบริษัทนั้น และเดือนที่เลือกเองจะคงไว้</li>'
       + '<li>“ยอดค้างรับเดือนนี้” ที่หน้าแรกคือยอดที่ยังไม่ได้รับเงิน</li></ul></details>'
+      + '<details><summary>📊 สถิติรายปี</summary><ul>'
+      + '<li>ตั้งค่า → <b>📊 สถิติรายปีแยกตามบริษัท</b> ดูยอดรวมของทั้งปี (หรือทุกช่วงเวลา)</li>'
+      + '<li>เลือกปีด้านบน (‹ › หรือ <b>ทุกช่วงเวลา</b>) การ์ดแสดงจำนวนวันทำงาน ยูนิตรวม ค่าจ้าง ค่าใช้จ่าย <b>ยอดรับรวม</b> ที่ได้รับแล้ว และ <b>ค้างรับ</b></li>'
+      + '<li>ตาราง <b>แยกตามบริษัท</b> แสดงจำนวนวัน ยูนิต ยอดรับ และค้างรับ เรียงจากมากไปน้อย พร้อมแถวรวม และมีตาราง <b>แยกตามเดือน</b> (หรือปี) ไม่รวมวันหยุด</li></ul></details>'
       + '<details><summary>📤 ส่งออก & แชร์</summary><ul>'
       + '<li>ตั้งค่า → <b>ส่งออก</b>: เลือกช่วงวันที่และบริษัท แล้วทำเป็น <b>ข้อความ</b> (ส่งแชท) หรือ <b>ไฟล์ Excel CSV</b> เลือก <b>รายการ + ยอดรวม</b> หรือ <b>ยอดรวมเท่านั้น</b> และเลือกได้ว่าจะส่งค่าจ้างและบันทึกด้วยหรือไม่ (บันทึกไม่รวมเมื่อส่งยอดรวมเท่านั้น)</li>'
       + '<li>เมื่อเปิด วันเริ่มต้นจะตั้งเป็น<b>วันที่เก่าที่สุดที่ยังไม่ได้สรุปยอด</b>อัตโนมัติ เมื่อเลือกบริษัทจะเปลี่ยนตามบริษัทนั้น และวันที่ที่เลือกเองจะคงไว้</li></ul></details>'
@@ -788,6 +831,37 @@ html.kb-open .sheet-box,html.kb-open .date-action-sheet{max-height:calc(var(--vv
 .export-opts input{width:calc(18px * var(--fs,1));height:calc(18px * var(--fs,1));margin:2px 0 0;flex:none}
 .export-check.off{opacity:.45}
 html.dark .export-opts{border-color:#33433b}
+#yearStatsClose{position:absolute;top:12px;right:12px;width:calc(44px * var(--fs,1));height:calc(44px * var(--fs,1));padding:0;font-size:calc(24px * var(--fs,1));background:#f1f3f2;border:1.5px solid #c5ccc8;box-shadow:none}
+.ys-controls{display:flex;flex-direction:column;gap:8px;margin:12px 0 4px}
+.ys-year{display:flex;gap:6px;align-items:center}
+.ys-year select{flex:1;min-width:0}
+#yearStatsSheet select{height:calc(42px * var(--fs,1));border:1.5px solid #c9d8cf;border-radius:10px;padding:0 10px;font:inherit;font-weight:800;font-size:calc(14px * var(--fs,1));background:#fff;color:var(--ink)}
+.ys-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.ys-card{background:#f5faf7;border:1px solid #dce8e1;border-radius:12px;padding:10px 12px}
+.ys-card small{display:block;color:var(--muted);font-weight:700;font-size:calc(11px * var(--fs,1))}
+.ys-card b{display:block;margin-top:2px;font-size:calc(16px * var(--fs,1));font-weight:900}
+.ys-card.red b{color:var(--red)}.ys-card.green b{color:var(--green)}
+.ys-h{margin:14px 0 6px;font-weight:900;font-size:calc(14px * var(--fs,1))}
+.ys-table-wrap{overflow-x:auto;border:1px solid #dce8e1;border-radius:12px}
+.ys-table{width:100%;border-collapse:collapse;font-size:calc(12px * var(--fs,1));white-space:nowrap}
+.ys-table th,.ys-table td{padding:8px 7px;text-align:right;border-bottom:1px solid #e5eee8}
+.ys-table th:first-child,.ys-table td:first-child{text-align:left;position:sticky;left:0;background:#fff;font-weight:800}
+.ys-table thead th{background:#f1f7f3;font-weight:800;color:var(--muted)}
+.ys-table tfoot td{font-weight:900;background:#f1f7f3;border-bottom:0}
+.ys-table tfoot td:first-child{background:#f1f7f3}
+.ys-table td.red{color:var(--red);font-weight:800}
+.ys-bar{height:6px;border-radius:3px;background:#dcecdf;margin-top:3px;overflow:hidden}
+.ys-bar i{display:block;height:100%;background:var(--green)}
+.ys-empty{text-align:center;color:var(--muted);padding:24px 0;font-weight:700}
+html.dark #yearStatsClose{background:#2a3430;color:var(--ink);border-color:#43524b}
+html.dark #yearStatsSheet select{background:#121915;color:var(--ink);border-color:#3a4943}
+html.dark .ys-card,html.dark .ys-table thead th,html.dark .ys-table tfoot td,html.dark .ys-table tfoot td:first-child{background:#1f2a25}
+html.dark .ys-card{border-color:#33433b}
+html.dark .ys-table-wrap{border-color:#33433b}
+html.dark .ys-table td,html.dark .ys-table th{border-bottom-color:#2d3a34}
+html.dark .ys-table th:first-child,html.dark .ys-table td:first-child{background:#1b2420}
+html.dark .ys-table tfoot td:first-child{background:#1f2a25}
+html.dark .ys-bar{background:#2d3a34}
 </style>
 </head>
 <body><!-- 도움말 -->
@@ -847,6 +921,15 @@ html.dark .export-opts{border-color:#33433b}
           <li>급여 기준 금액은 이미 <b>3.3% 원천징수 후 금액</b>이라 세금을 다시 빼지 않습니다.</li>
           <li>업체별로 한 달 치를 <b>전체 입금 완료</b> 또는 <b>미지급</b>으로 한꺼번에 바꿀 수 있습니다.</li>
           <li>홈 화면의 “이번 달 미수금”은 아직 입금되지 않은 금액의 합계입니다.</li>
+        </ul>
+      </details>
+      <details><summary>📊 연간 업체별 통계</summary>
+        <ul>
+          <li>설정 → <b>📊 연간 업체별 통계 · 합계</b>를 누르면 한 해(또는 전체 기간)의 업체별 통계를 봅니다.</li>
+          <li>위쪽에서 연도를 고르세요. ‹ › 로 넘기거나 <b>전체 기간</b>을 고를 수 있습니다.</li>
+          <li>맨 위 카드에 근무일수, 총 유닛, 급여, 기타 경비, <b>수령액 합계</b>, 입금 완료, <b>미수금</b>이 나옵니다.</li>
+          <li><b>업체별</b> 표는 일수·유닛·수령액·미수금을 수령액이 큰 순서로 보여주고 맨 아래에 합계가 있습니다. <b>월별</b>(전체 기간이면 연도별) 표로 흐름도 볼 수 있습니다.</li>
+          <li>휴무는 계산에서 빠집니다.</li>
         </ul>
       </details>
       <details><summary>📤 내보내기 · 공유</summary>
@@ -1321,6 +1404,7 @@ html.dark .export-opts{border-color:#33433b}
         <strong>데이터 백업 &amp; 정산</strong>
         <div class="save-panel-row" style="margin-top:10px;">
           <button type="button" class="btn primary" id="openSettlementBtn" style="flex:1 1 100%;background:var(--green-dark);">🔍 월별 업체 정산 및 입금 관리</button>
+          <button type="button" class="btn primary" id="openYearStatsBtn" style="flex:1 1 100%;">📊 연간 업체별 통계 · 합계</button>
           <button type="button" class="btn" id="settingsExportBtn">내보내기</button>
           <button type="button" class="btn" id="settingsCompanyBtn">업체 관리</button>
           <button type="button" class="btn" id="dataSaveBtn">파일 연동/자동저장</button>
@@ -1342,7 +1426,7 @@ html.dark .export-opts{border-color:#33433b}
           정산 완료 날짜 검은색 테두리
         </label>
       </section>
-      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.10.27-m6<span id="viewInfo"></span></div>
+      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.11.27-m7<span id="viewInfo"></span></div>
     </div>
   </div>
 </div>
@@ -2800,6 +2884,84 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     var el = e.target; if(!el.matches || !el.matches('input,textarea,select')) return;
     setTimeout(function(){ try{ el.scrollIntoView({block:'center', behavior:'smooth'}); }catch(_){} }, 300);
   });
+})();
+</script>
+<script id="year-stats-js">
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var ALL='all';
+  var fu=function(n){return U(n);};
+  function yl(y){ return LANG==='ko' ? y+'년' : y; }
+  function ml(m){ return LANG==='ko' ? Number(m)+'월' : new Date(2000,Number(m)-1,1).toLocaleDateString(LOCALE,{month:'short'}); }
+  function years(){
+    var ys={}; ys[new Date().getFullYear()]=1;
+    records.forEach(function(r){ if(!isDayOff(r)) ys[r.date.slice(0,4)]=1; });
+    return Object.keys(ys).sort();
+  }
+  function fillYears(sel){
+    var ys=years(), cur=sel||String(new Date().getFullYear());
+    $('ysYear').innerHTML=ys.map(function(y){return '<option value="'+y+'">'+yl(y)+'</option>';}).join('')+'<option value="'+ALL+'">'+t('전체 기간')+'</option>';
+    $('ysYear').value=(ys.indexOf(cur)>=0||cur===ALL)?cur:ys[ys.length-1];
+  }
+  function render(){
+    var y=$('ysYear').value;
+    var rs=records.filter(function(r){return !isDayOff(r) && (y===ALL||r.date.slice(0,4)===y);});
+    var body=$('ysBody');
+    if(!rs.length){ body.innerHTML='<div class="ys-empty">'+t('해당 기간에 입력된 근무 기록이 없습니다.')+'</div>'; return; }
+    var T={u:0,pay:0,exp:0,net:0,paid:0,unpaid:0}, C={}, M={}, dates={};
+    rs.forEach(function(r){
+      var u=Number(r.units||0), pay=amount(r), exp=Number(r.expense||0), net=pay+exp;
+      T.u+=u;T.pay+=pay;T.exp+=exp;T.net+=net;
+      if(r.paid) T.paid+=net; else T.unpaid+=net;
+      dates[r.date]=1;
+      var g=C[r.site]=C[r.site]||{days:0,u:0,net:0,unpaid:0};
+      g.days++;g.u+=u;g.net+=net; if(!r.paid) g.unpaid+=net;
+      var mk=y===ALL?r.date.slice(0,4):r.date.slice(5,7), m=M[mk]=M[mk]||{days:0,u:0,net:0,unpaid:0};
+      m.days++;m.u+=u;m.net+=net; if(!r.paid) m.unpaid+=net;
+    });
+    var names=Object.keys(C).sort(function(a,b){return C[b].net-C[a].net;});
+    var maxNet=Math.max.apply(null,names.map(function(n){return C[n].net;}))||1;
+    var nd=Object.keys(dates).length;
+    var h='<div class="ys-cards">'
+      +'<div class="ys-card"><small>'+t('근무일수')+'</small><b>'+t('{n}일',{n:nd})+'</b></div>'
+      +'<div class="ys-card"><small>'+t('총 유닛')+'</small><b>'+fu(T.u)+'</b></div>'
+      +'<div class="ys-card"><small>'+t('급여')+'</small><b>'+won(T.pay)+'</b></div>'
+      +'<div class="ys-card"><small>'+t('기타 경비')+'</small><b>+ '+won(T.exp)+'</b></div>'
+      +'<div class="ys-card wide"><small>'+t('수령액 합계')+'</small><b>'+won(T.net)+'</b></div>'
+      +'<div class="ys-card green"><small>'+t('입금 완료')+'</small><b>'+won(T.paid)+'</b></div>'
+      +'<div class="ys-card red"><small>'+t('미수금')+'</small><b>'+won(T.unpaid)+'</b></div></div>';
+    var th=function(a){return '<thead><tr><th>'+a+'</th><th>'+t('일수')+'</th><th>'+t('유닛')+'</th><th>'+t('수령액')+'</th><th>'+t('미수금')+'</th></tr></thead>';};
+    var cell=function(v){return v?won(v):'-';};
+    h+='<div class="ys-h">'+t('업체별')+'</div><div class="ys-table-wrap"><table class="ys-table">'+th(t('업체'))+'<tbody>';
+    names.forEach(function(n){
+      var g=C[n];
+      h+='<tr><td>'+escapeHtml(n)+'<div class="ys-bar"><i style="width:'+Math.max(2,Math.round(g.net/maxNet*100))+'%"></i></div></td><td>'+g.days+'</td><td>'+Number(g.u).toFixed(2)+'</td><td>'+won(g.net)+'</td><td class="'+(g.unpaid?'red':'')+'">'+cell(g.unpaid)+'</td></tr>';
+    });
+    h+='</tbody><tfoot><tr><td>'+t('합계')+'</td><td>'+rs.length+'</td><td>'+Number(T.u).toFixed(2)+'</td><td>'+won(T.net)+'</td><td>'+won(T.unpaid)+'</td></tr></tfoot></table></div>';
+    var keys=Object.keys(M).sort();
+    h+='<div class="ys-h">'+t(y===ALL?'연도별':'월별')+'</div><div class="ys-table-wrap"><table class="ys-table">'+th(t(y===ALL?'연도':'월'))+'<tbody>';
+    keys.forEach(function(k){
+      var m=M[k];
+      h+='<tr><td>'+(y===ALL?yl(k):ml(k))+'</td><td>'+m.days+'</td><td>'+Number(m.u).toFixed(2)+'</td><td>'+won(m.net)+'</td><td class="'+(m.unpaid?'red':'')+'">'+cell(m.unpaid)+'</td></tr>';
+    });
+    h+='</tbody></table></div>';
+    h+='<p class="empty" style="margin-top:10px;font-size:calc(11px * var(--fs,1))">'+t('※ 근무일수는 날짜 기준이고, 업체별 일수는 업체마다 센 근무 건수입니다. 휴무는 제외됩니다.')+'</p>';
+    body.innerHTML=h;
+  }
+  function stepYear(d){
+    var opts=[].slice.call($('ysYear').options).map(function(o){return o.value;}).filter(function(v){return v!==ALL;});
+    var i=opts.indexOf($('ysYear').value); if(i<0) return;
+    var n=opts[i+d]; if(n){ $('ysYear').value=n; render(); }
+  }
+  $('openYearStatsBtn').addEventListener('click',function(){
+    $('settingsSheet').classList.remove('open');
+    fillYears(); $('yearStatsSheet').classList.add('open'); render();
+  });
+  $('ysYear').addEventListener('change',render);
+  $('ysPrev').addEventListener('click',function(){stepYear(-1);});
+  $('ysNext').addEventListener('click',function(){stepYear(1);});
+  $('yearStatsClose').addEventListener('click',function(){$('yearStatsSheet').classList.remove('open');});
+  $('yearStatsSheet').addEventListener('click',function(e){if(e.target===$('yearStatsSheet'))$('yearStatsSheet').classList.remove('open');});
 })();
 </script>
 <script id="modal-lock-js">
