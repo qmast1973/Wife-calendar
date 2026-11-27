@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="app-version" content="2026.11.27-m7">
+  <meta name="app-version" content="2026.11.27-m8">
   <meta name="theme-color" content="#16764f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -26,6 +26,7 @@
         <select id="ysYear"></select>
         <button type="button" class="btn" id="ysNext" aria-label="Next">›</button>
       </div>
+      <select id="ysCompany"></select>
     </div>
     <div id="ysBody"></div>
   </div>
@@ -272,6 +273,10 @@ var I18N = {
   '📱 아이폰 홈 화면에 설치':['📱 Install on iPhone Home Screen','📱 ติดตั้งบนหน้าจอโฮม iPhone']
 };
 Object.assign(I18N, {
+  '세부내역 ({n}건)':['Details ({n})','รายละเอียด ({n} รายการ)']
+});
+
+Object.assign(I18N, {
   '📊 연간 업체별 통계 · 합계':['📊 Yearly stats by company','📊 สถิติรายปีแยกตามบริษัท'],
   '📊 연간 업체별 통계':['📊 Yearly stats by company','📊 สถิติรายปีแยกตามบริษัท'],
   '전체 기간':['All time','ทุกช่วงเวลา'],
@@ -405,7 +410,8 @@ var I18N_HTML = {
       + '<details><summary>📊 Yearly stats</summary><ul>'
       + '<li>Settings → <b>📊 Yearly stats by company</b> shows totals for a year (or all time).</li>'
       + '<li>Pick the year at the top (‹ › or <b>All time</b>). The cards show days worked, total units, pay, expenses, <b>total received</b>, paid and <b>unpaid</b>.</li>'
-      + '<li>The <b>By company</b> table lists days, units, received and unpaid, biggest first, with a total row. A <b>By month</b> (or by year) table shows the trend. Days off are excluded.</li></ul></details>'
+      + '<li>The <b>By company</b> table lists days, units, received and unpaid, biggest first, with a total row. A <b>By month</b> (or by year) table shows the trend. Days off are excluded.</li>'
+      + '<li>Choose a <b>company</b> to see only its records. Open <b>Details</b> at the bottom for a day-by-day list (units, amount, paid status, memo); it opens automatically when a company is chosen.</li></ul></details>'
       + '<details><summary>📤 Export & share</summary><ul>'
       + '<li>Settings → <b>Export</b>: choose period and company, then make a <b>text list</b> (for messages) or an <b>Excel CSV file</b>. Choose <b>List + totals</b> or <b>Totals only</b>, and tick whether to include pay and memos (memos are not included in totals only).</li>'
       + '<li>When opened, the start date is set to the <b>earliest date not yet settled</b>. Choosing a company switches to that company; a date you pick yourself is kept.</li></ul></details>'
@@ -453,7 +459,8 @@ var I18N_HTML = {
       + '<details><summary>📊 สถิติรายปี</summary><ul>'
       + '<li>ตั้งค่า → <b>📊 สถิติรายปีแยกตามบริษัท</b> ดูยอดรวมของทั้งปี (หรือทุกช่วงเวลา)</li>'
       + '<li>เลือกปีด้านบน (‹ › หรือ <b>ทุกช่วงเวลา</b>) การ์ดแสดงจำนวนวันทำงาน ยูนิตรวม ค่าจ้าง ค่าใช้จ่าย <b>ยอดรับรวม</b> ที่ได้รับแล้ว และ <b>ค้างรับ</b></li>'
-      + '<li>ตาราง <b>แยกตามบริษัท</b> แสดงจำนวนวัน ยูนิต ยอดรับ และค้างรับ เรียงจากมากไปน้อย พร้อมแถวรวม และมีตาราง <b>แยกตามเดือน</b> (หรือปี) ไม่รวมวันหยุด</li></ul></details>'
+      + '<li>ตาราง <b>แยกตามบริษัท</b> แสดงจำนวนวัน ยูนิต ยอดรับ และค้างรับ เรียงจากมากไปน้อย พร้อมแถวรวม และมีตาราง <b>แยกตามเดือน</b> (หรือปี) ไม่รวมวันหยุด</li>'
+      + '<li>เลือก <b>บริษัท</b> เพื่อดูเฉพาะรายการของบริษัทนั้น และเปิด <b>รายละเอียด</b> ด้านล่างเพื่อดูรายการรายวัน (ยูนิต ยอดเงิน สถานะการรับเงิน บันทึก) จะเปิดให้อัตโนมัติเมื่อเลือกบริษัท</li></ul></details>'
       + '<details><summary>📤 ส่งออก & แชร์</summary><ul>'
       + '<li>ตั้งค่า → <b>ส่งออก</b>: เลือกช่วงวันที่และบริษัท แล้วทำเป็น <b>ข้อความ</b> (ส่งแชท) หรือ <b>ไฟล์ Excel CSV</b> เลือก <b>รายการ + ยอดรวม</b> หรือ <b>ยอดรวมเท่านั้น</b> และเลือกได้ว่าจะส่งค่าจ้างและบันทึกด้วยหรือไม่ (บันทึกไม่รวมเมื่อส่งยอดรวมเท่านั้น)</li>'
       + '<li>เมื่อเปิด วันเริ่มต้นจะตั้งเป็น<b>วันที่เก่าที่สุดที่ยังไม่ได้สรุปยอด</b>อัตโนมัติ เมื่อเลือกบริษัทจะเปลี่ยนตามบริษัทนั้น และวันที่ที่เลือกเองจะคงไว้</li></ul></details>'
@@ -835,7 +842,7 @@ html.dark .export-opts{border-color:#33433b}
 .ys-controls{display:flex;flex-direction:column;gap:8px;margin:12px 0 4px}
 .ys-year{display:flex;gap:6px;align-items:center}
 .ys-year select{flex:1;min-width:0}
-#yearStatsSheet select{height:calc(42px * var(--fs,1));border:1.5px solid #c9d8cf;border-radius:10px;padding:0 10px;font:inherit;font-weight:800;font-size:calc(14px * var(--fs,1));background:#fff;color:var(--ink)}
+#yearStatsSheet select{min-width:0;height:calc(42px * var(--fs,1));border:1.5px solid #c9d8cf;border-radius:10px;padding:0 10px;font:inherit;font-weight:800;font-size:calc(14px * var(--fs,1));background:#fff;color:var(--ink)}
 .ys-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
 .ys-card{background:#f5faf7;border:1px solid #dce8e1;border-radius:12px;padding:10px 12px}
 .ys-card small{display:block;color:var(--muted);font-weight:700;font-size:calc(11px * var(--fs,1))}
@@ -850,6 +857,25 @@ html.dark .export-opts{border-color:#33433b}
 .ys-table tfoot td{font-weight:900;background:#f1f7f3;border-bottom:0}
 .ys-table tfoot td:first-child{background:#f1f7f3}
 .ys-table td.red{color:var(--red);font-weight:800}
+.ys-detail{border:1px solid #dce8e1;border-radius:12px;margin-top:14px;overflow:hidden}
+.ys-detail summary{cursor:pointer;padding:10px 12px;font-weight:900;font-size:calc(14px * var(--fs,1));background:#f1f7f3;list-style:none}
+.ys-detail summary::-webkit-details-marker{display:none}
+.ys-detail summary::before{content:'▸ ';color:var(--muted)}
+.ys-detail[open] summary::before{content:'▾ '}
+.ys-row{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;padding:8px 12px;border-top:1px solid #e5eee8;align-items:center;font-size:calc(12px * var(--fs,1))}
+.ys-row .d{font-weight:800;color:var(--muted)}
+.ys-row .s{font-weight:900;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ys-row .a{font-weight:900;text-align:right}
+.ys-row .u{color:var(--muted);font-weight:700}
+.ys-row .b{text-align:right}
+.ys-row .memo{grid-column:1/-1;font-size:calc(11px * var(--fs,1));color:#6b5d12;background:#fffbe8;border-radius:6px;padding:4px 8px;white-space:pre-wrap;word-break:break-word}
+.ys-tag{font-size:calc(10px * var(--fs,1));font-weight:800;border-radius:4px;padding:1px 6px}
+.ys-tag.p{background:#e7f5ec;color:#16764f}.ys-tag.n{background:#fff4f3;color:#d04d43}
+html.dark .ys-detail{border-color:#33433b}
+html.dark .ys-detail summary{background:#1f2a25}
+html.dark .ys-row{border-top-color:#2d3a34}
+html.dark .ys-row .memo{background:#3a3418;color:#f3ecc0}
+html.dark .ys-tag.p{background:#1d3a2b;color:#7fe0ab}html.dark .ys-tag.n{background:#3a2422;color:#ff9a92}
 .ys-bar{height:6px;border-radius:3px;background:#dcecdf;margin-top:3px;overflow:hidden}
 .ys-bar i{display:block;height:100%;background:var(--green)}
 .ys-empty{text-align:center;color:var(--muted);padding:24px 0;font-weight:700}
@@ -929,6 +955,8 @@ html.dark .ys-bar{background:#2d3a34}
           <li>위쪽에서 연도를 고르세요. ‹ › 로 넘기거나 <b>전체 기간</b>을 고를 수 있습니다.</li>
           <li>맨 위 카드에 근무일수, 총 유닛, 급여, 기타 경비, <b>수령액 합계</b>, 입금 완료, <b>미수금</b>이 나옵니다.</li>
           <li><b>업체별</b> 표는 일수·유닛·수령액·미수금을 수령액이 큰 순서로 보여주고 맨 아래에 합계가 있습니다. <b>월별</b>(전체 기간이면 연도별) 표로 흐름도 볼 수 있습니다.</li>
+          <li><b>업체</b>를 고르면 그 업체의 기록만 모아서 카드·표·월별 합계가 다시 계산됩니다.</li>
+          <li>맨 아래 <b>세부내역</b>을 펼치면 날짜별 기록(유닛·수령액·입금 여부·메모)을 리스트로 볼 수 있습니다. 업체를 고르면 자동으로 펼쳐집니다.</li>
           <li>휴무는 계산에서 빠집니다.</li>
         </ul>
       </details>
@@ -1426,7 +1454,7 @@ html.dark .ys-bar{background:#2d3a34}
           정산 완료 날짜 검은색 테두리
         </label>
       </section>
-      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.11.27-m7<span id="viewInfo"></span></div>
+      <div style="text-align:center;color:#4b5651;font-weight:700;font-size:calc(15px * var(--fs,1));"><span>앱 버전</span> 2026.11.27-m8<span id="viewInfo"></span></div>
     </div>
   </div>
 </div>
@@ -2903,9 +2931,16 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     $('ysYear').innerHTML=ys.map(function(y){return '<option value="'+y+'">'+yl(y)+'</option>';}).join('')+'<option value="'+ALL+'">'+t('전체 기간')+'</option>';
     $('ysYear').value=(ys.indexOf(cur)>=0||cur===ALL)?cur:ys[ys.length-1];
   }
+  function fillCompanies(){
+    var y=$('ysYear').value, keep=$('ysCompany').value, names={};
+    records.forEach(function(r){ if(!isDayOff(r) && (y===ALL||r.date.slice(0,4)===y)) names[r.site]=1; });
+    var list=Object.keys(names).sort();
+    $('ysCompany').innerHTML='<option value="">'+t('전체 업체')+'</option>'+list.map(function(n){return '<option value="'+escapeHtml(n)+'">'+escapeHtml(n)+'</option>';}).join('');
+    $('ysCompany').value=(keep&&names[keep])?keep:'';
+  }
   function render(){
-    var y=$('ysYear').value;
-    var rs=records.filter(function(r){return !isDayOff(r) && (y===ALL||r.date.slice(0,4)===y);});
+    var y=$('ysYear').value, co=$('ysCompany').value;
+    var rs=records.filter(function(r){return !isDayOff(r) && (y===ALL||r.date.slice(0,4)===y) && (!co||r.site===co);});
     var body=$('ysBody');
     if(!rs.length){ body.innerHTML='<div class="ys-empty">'+t('해당 기간에 입력된 근무 기록이 없습니다.')+'</div>'; return; }
     var T={u:0,pay:0,exp:0,net:0,paid:0,unpaid:0}, C={}, M={}, dates={};
@@ -2945,19 +2980,31 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
       h+='<tr><td>'+(y===ALL?yl(k):ml(k))+'</td><td>'+m.days+'</td><td>'+Number(m.u).toFixed(2)+'</td><td>'+won(m.net)+'</td><td class="'+(m.unpaid?'red':'')+'">'+cell(m.unpaid)+'</td></tr>';
     });
     h+='</tbody></table></div>';
+    var sorted=rs.slice().sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:(a.site<b.site?-1:1);});
+    h+='<details class="ys-detail"'+(co?' open':'')+'><summary>'+t('세부내역 ({n}건)',{n:sorted.length})+'</summary>';
+    sorted.forEach(function(r){
+      var dt=new Date(r.date+'T00:00:00'), pay=amount(r), exp=Number(r.expense||0);
+      var wd=dt.toLocaleDateString(LOCALE,{weekday:'short'});
+      var dl=(y===ALL?r.date:(dt.getMonth()+1)+'/'+dt.getDate())+' ('+wd+')';
+      h+='<div class="ys-row"><span class="d">'+dl+'</span><span class="s">'+escapeHtml(r.site)+'</span><span class="a">'+won(pay+exp)+'</span>'
+        +'<span class="u">'+fu(r.units)+(exp?' · '+t('경비')+' '+won(exp):'')+'</span><span></span><span class="b"><span class="ys-tag '+(r.paid?'p':'n')+'">'+t(r.paid?'입금완료':'미수금')+'</span></span>'
+        +(r.memo?'<div class="memo">📝 '+escapeHtml(String(r.memo).trim())+'</div>':'')+'</div>';
+    });
+    h+='</details>';
     h+='<p class="empty" style="margin-top:10px;font-size:calc(11px * var(--fs,1))">'+t('※ 근무일수는 날짜 기준이고, 업체별 일수는 업체마다 센 근무 건수입니다. 휴무는 제외됩니다.')+'</p>';
     body.innerHTML=h;
   }
   function stepYear(d){
     var opts=[].slice.call($('ysYear').options).map(function(o){return o.value;}).filter(function(v){return v!==ALL;});
     var i=opts.indexOf($('ysYear').value); if(i<0) return;
-    var n=opts[i+d]; if(n){ $('ysYear').value=n; render(); }
+    var n=opts[i+d]; if(n){ $('ysYear').value=n; fillCompanies(); render(); }
   }
   $('openYearStatsBtn').addEventListener('click',function(){
     $('settingsSheet').classList.remove('open');
-    fillYears(); $('yearStatsSheet').classList.add('open'); render();
+    fillYears(); $('ysCompany').value=''; fillCompanies(); $('yearStatsSheet').classList.add('open'); render();
   });
-  $('ysYear').addEventListener('change',render);
+  $('ysYear').addEventListener('change',function(){fillCompanies();render();});
+  $('ysCompany').addEventListener('change',render);
   $('ysPrev').addEventListener('click',function(){stepYear(-1);});
   $('ysNext').addEventListener('click',function(){stepYear(1);});
   $('yearStatsClose').addEventListener('click',function(){$('yearStatsSheet').classList.remove('open');});
